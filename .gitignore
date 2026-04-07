@@ -1,0 +1,29 @@
+# Build directories
+build/
+cmake-build-*/
+Debug/
+Release/
+
+# Qt Creator
+*.user
+*.creator
+*.creator.user
+*.includes
+*.files
+*.config
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database & Local Data
+*.sqlite
+*.db
+*.log
+attachments/
+config.ini
+
+# IDE
+.vscode/
+.idea/
