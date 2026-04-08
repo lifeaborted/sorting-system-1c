@@ -1,6 +1,11 @@
 <RCC>
     <qresource prefix="/">
+        <!-- ICONS -->
         <file>resources/icons/circle-key.svg</file>
+        <file>resources/icons/tag.svg</file>
+        <file>resources/icons/clipboard.svg</file>
+
+        <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>
     </qresource>
 </RCC>

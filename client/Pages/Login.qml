@@ -3,6 +3,7 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import io.router 1.0
+
 Item {
     id: window
     anchors.fill: parent
@@ -182,7 +183,7 @@ Item {
                 onClicked: {
                     // Логика авторизации
                     // заглушка для переноса на другую страницу
-                    Router.route = "/"
+                    Router.route = "/details"
                 }
             }
         }

@@ -4,9 +4,10 @@ import QtQuick.Controls 2.15
 import io.router 1.0
 import "Pages"
 import "Components"
+
 Window {
-    width: 1240
-    height: 980
+    width: 1280
+    height: 768
     visible: true
     title: qsTr("sorting system 1c")
     flags: Qt.FramelessWindowHint
@@ -23,6 +24,12 @@ Window {
             Page {
                 path: "/login"
                 page: Login {
+
+                }
+            },
+            Page {
+                path: "/details"
+                page: Details {
 
                 }
             }

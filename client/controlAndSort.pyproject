@@ -3,6 +3,7 @@
         "Components/NavRouter.qml",
         "Components/qmldir",
         "Pages/Login.qml",
+        "Pages/Details.qml",
         "README.md",
         "controller/router.py",
         "main.py",
