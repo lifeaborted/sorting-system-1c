@@ -1,0 +1,89 @@
+[
+    {
+        "classes": [
+            {
+                "className": "Router",
+                "qualifiedClassName": "Router",
+                "object": true,
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QObject"
+                    }
+                ],
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    },
+                    {
+                        "name": "QML.Singleton",
+                        "value": "true"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "route",
+                        "type": "QString",
+                        "index": 0,
+                        "read": "route",
+                        "notify": "_route_changed",
+                        "write": "route"
+                    }
+                ],
+                "signals": [
+                    {
+                        "access": "public",
+                        "name": "_route_changed",
+                        "arguments": [],
+                        "returnType": "void"
+                    }
+                ]
+            },
+            {
+                "className": "Page",
+                "qualifiedClassName": "Page",
+                "object": true,
+                "superClasses": [
+                    {
+                        "access": "public",
+                        "name": "QQuickItem"
+                    }
+                ],
+                "classInfos": [
+                    {
+                        "name": "QML.Element",
+                        "value": "auto"
+                    }
+                ],
+                "properties": [
+                    {
+                        "name": "path",
+                        "type": "QString",
+                        "index": 0,
+                        "read": "path",
+                        "write": "path"
+                    },
+                    {
+                        "name": "page",
+                        "type": "QQuickItem",
+                        "index": 1,
+                        "read": "page",
+                        "write": "page"
+                    }
+                ]
+            }
+        ],
+        "outputRevision": 68,
+        "QML_IMPORT_NAME": "io.router",
+        "QML_IMPORT_MAJOR_VERSION": 1,
+        "QML_IMPORT_MINOR_VERSION": 0,
+        "QT_MODULES": [
+            "QtCore",
+            "QtGui",
+            "QtQml",
+            "QtQuick"
+        ],
+        "inputFile": "/home/san3/mycode/control_and_sort/controlAndSort/controller/router.py"
+    }
+]

@@ -1,0 +1,3 @@
+module Components
+NavRouter 1.0 NavRouter.qml
+depends QtQuick

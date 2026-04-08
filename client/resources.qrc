@@ -1,13 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <!-- MAIN -->
-        <file>main.qml</file>
-
-        <!-- ICONS -->
         <file>resources/icons/circle-key.svg</file>
-
-        <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>
     </qresource>
 </RCC>
-

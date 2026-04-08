@@ -1,0 +1,3 @@
+module io.router.lib
+typeinfo router.qmltypes
+typeinfo main.qmltypes

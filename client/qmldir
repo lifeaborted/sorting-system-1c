@@ -1,0 +1,4 @@
+
+typeinfo controlAndSort.qmltypes
+depends QtQuick
+

@@ -1,0 +1,14 @@
+{
+    "files": [
+        "Components/NavRouter.qml",
+        "Components/qmldir",
+        "Pages/Login.qml",
+        "README.md",
+        "controller/router.py",
+        "main.py",
+        "main.qml",
+        "qmldir",
+        "rc_resources.py",
+        "resources.qrc"
+    ]
+}
