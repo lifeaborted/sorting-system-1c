@@ -7,7 +7,7 @@ import "Components"
 
 Window {
     width: 1280
-    height: 768
+    height: 720
     visible: true
     title: qsTr("sorting system 1c")
     flags: Qt.FramelessWindowHint

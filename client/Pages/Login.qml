@@ -63,10 +63,10 @@ Item {
     // Центральная карточка
     Rectangle {
         id: card
-        width: 360
-        height: 540
+        width: 400
+        height: 550
         color: "#f5f5f5"
-        radius: 16
+        radius: 30
         anchors.centerIn: parent
 
         ColumnLayout {
@@ -177,7 +177,7 @@ Item {
 
                 background: Rectangle {
                     color: parent.pressed ? "#1a1a1a" : "#2a2a2a"
-                    radius: 6
+                    radius: 5
                 }
 
                 onClicked: {
@@ -187,5 +187,6 @@ Item {
                 }
             }
         }
+
     }
 }

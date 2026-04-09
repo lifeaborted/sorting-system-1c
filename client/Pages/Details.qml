@@ -7,7 +7,7 @@ Rectangle {
     id: detailsPage
     color: "#2e2e2e"
     width: 1280
-    height: 768
+    height: 720
 
     Material.theme: Material.Dark
     Material.accent: Material.Blue
@@ -475,7 +475,7 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 60
                                 color: "#2e2e2e"
-                                radius: 4
+                                radius: 5
 
                                 RowLayout {
                                     anchors.fill: parent
@@ -483,10 +483,9 @@ Rectangle {
                                     anchors.rightMargin: 15
                                     spacing: 10
 
-                                    // Кнопка действия
                                     Button {
                                         Layout.preferredWidth: 120
-                                        Layout.preferredHeight: 32
+                                        Layout.preferredHeight: 40
                                         text: index % 2 === 0 ? qsTr("Распределить") : qsTr("Отменить")
 
                                         contentItem: Text {
@@ -500,7 +499,7 @@ Rectangle {
 
                                         background: Rectangle {
                                             color: "#f5f5f5"
-                                            radius: 4
+                                            radius: 5
                                         }
 
                                         onClicked: {
@@ -510,16 +509,17 @@ Rectangle {
 
                                     // Иконка информации
                                     Rectangle {
-                                        Layout.preferredWidth: 24
-                                        Layout.preferredHeight: 24
-                                        radius: 12
+                                        Layout.preferredWidth: 30
+                                        Layout.preferredHeight: 30
+                                        radius: 4
                                         color: "#3e3e3e"
 
-                                        Text {
+                                        Image {
                                             anchors.centerIn: parent
-                                            text: "i"
-                                            color: "#aaaaaa"
-                                            font.pixelSize: 12
+                                            source: "qrc:/resources/icons/info-circle.svg"
+                                            width: 20
+                                            height: 20
+                                            fillMode: Image.PreserveAspectFit
                                         }
                                     }
 

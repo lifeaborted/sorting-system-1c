@@ -4,6 +4,7 @@
         <file>resources/icons/circle-key.svg</file>
         <file>resources/icons/tag.svg</file>
         <file>resources/icons/clipboard.svg</file>
+        <file>resources/icons/info-circle.svg</file>
 
         <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>
