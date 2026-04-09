@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
-
+import io.backend 1.0
 Rectangle {
     id: detailsPage
     color: "#2e2e2e"
@@ -151,7 +151,7 @@ Rectangle {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "ГА"
+                                text: Backend.user.format_username("{first[0]}{second[0]}")
                                 color: "white"
                                 font.pixelSize: 16
                                 font.weight: Font.Bold
@@ -159,7 +159,7 @@ Rectangle {
                         }
 
                         Text {
-                            text: qsTr("Гайдулян А.С.")
+                            text: Backend.user.format_username("{first} {second[0]}.{middle[0]}.")
                             color: "white"
                             font.pixelSize: 14
                         }

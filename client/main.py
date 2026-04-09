@@ -7,10 +7,15 @@ from PySide6.QtCore import QObject
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
 
-from controller.router import Router
+from controller.backend import Backend
 import rc_resources
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format='[%(asctime)s] [%(levelname)s] %(message)s',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S')
+    logging.info("Logger init")
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
     qml_file = Path(__file__).resolve().parent / "main.qml"

@@ -1,3 +1,4 @@
 module Components
 NavRouter 1.0 NavRouter.qml
+PageWrapper 1.0 PageWrapper.qml
 depends QtQuick

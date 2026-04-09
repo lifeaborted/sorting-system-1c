@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import io.router 1.0
+import io.backend 1.0
 
 Item {
     id: window
@@ -63,10 +63,10 @@ Item {
     // Центральная карточка
     Rectangle {
         id: card
-        width: 400
-        height: 550
+        width: 360
+        height: 540
         color: "#f5f5f5"
-        radius: 30
+        radius: 16
         anchors.centerIn: parent
 
         ColumnLayout {
@@ -177,16 +177,16 @@ Item {
 
                 background: Rectangle {
                     color: parent.pressed ? "#1a1a1a" : "#2a2a2a"
-                    radius: 5
+                    radius: 6
                 }
 
                 onClicked: {
                     // Логика авторизации
                     // заглушка для переноса на другую страницу
-                    Router.route = "/details"
+                    Backend.login("Гайдулян", "Андрей", "Сергевич")
+                    Backend.router.route = "/details"
                 }
             }
         }
-
     }
 }

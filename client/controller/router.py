@@ -7,12 +7,11 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, QmlElement, QmlSingleton
 from PySide6.QtQuick import QQuickItem
 
-QML_IMPORT_NAME = "io.router"
+QML_IMPORT_NAME = "io.backend"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
 @QmlElement
-@QmlSingleton
 class Router(QObject):
     _route_changed = Signal()
     def __init__(self, parent = None):
@@ -32,7 +31,7 @@ class Router(QObject):
 @QmlElement
 class Page(QQuickItem):
     _path: str
-    _page: QQuickItem
+    _page: QObject
     def __init__(self, parent = None):
         super().__init__(parent)
 
@@ -44,7 +43,7 @@ class Page(QQuickItem):
     def path(self, p):
         self._path = p
 
-    @Property(QQuickItem, final=True, constant=True)
+    @Property(QObject, final=True, constant=True)
     def page(self):
         return self._page
 

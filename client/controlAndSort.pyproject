@@ -10,6 +10,9 @@
         "main.qml",
         "qmldir",
         "rc_resources.py",
-        "resources.qrc"
+        "resources.qrc",
+        "controller/backend.py",
+        "controller/notification.py",
+        "controller/user.py"
     ]
 }
