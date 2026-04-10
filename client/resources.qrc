@@ -7,6 +7,10 @@
         <file>resources/icons/info-circle.svg</file>
         <file>resources/icons/minimise-app.svg</file>
         <file>resources/icons/close-app.svg</file>
+        <file>resources/icons/search.svg</file>
+        <file>resources/icons/calendar.svg</file>
+        <file>resources/icons/list-triangle.svg</file>
+
 
         <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>

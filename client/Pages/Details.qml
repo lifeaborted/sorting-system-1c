@@ -18,7 +18,7 @@ Rectangle {
 
         // Левая боковая панель
         Rectangle {
-            Layout.preferredWidth: 240
+            Layout.preferredWidth: 250
             Layout.fillHeight: true
             color: "#1e1e1e"
 
@@ -27,57 +27,37 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.topMargin: 60
-                anchors.margins: 10
                 spacing: 5
 
                 // Детали
                 Rectangle {
-                    width: parent.width
+                    id: detailsButton
+                    width: 220
                     height: 50
-                    color: "#3e3e3e"
-                    radius: 4
+                    color: "#46464A"
+                    radius: 5
+                    anchors.horizontalCenter: parent.horizontalCenter
 
                     RowLayout {
-                        anchors.centerIn: parent
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        anchors.verticalCenter: parent.verticalCenter
                         spacing: 10
 
                         Image {
                             source: "qrc:/resources/icons/clipboard.svg"
-                            width: 20
-                            height: 20
+                            width: 24
+                            height: 24
                             fillMode: Image.PreserveAspectFit
                         }
 
                         Text {
+                            id: detailsText
                             text: qsTr("Детали")
                             color: "white"
                             font.pixelSize: 14
-                        }
-                    }
-                }
-
-                // Заказы
-                Rectangle {
-                    width: parent.width
-                    height: 50
-                    color: "transparent"
-                    radius: 4
-
-                    RowLayout {
-                        anchors.centerIn: parent
-                        spacing: 10
-
-                        Image {
-                            source: "qrc:/resources/icons/tag.svg"
-                            width: 20
-                            height: 20
-                            fillMode: Image.PreserveAspectFit
-                        }
-
-                        Text {
-                            text: qsTr("Заказы")
-                            color: "#aaaaaa"
-                            font.pixelSize: 14
+                            font.family: "Roboto"
+                            font.weight: 300
                         }
                     }
 
@@ -85,7 +65,59 @@ Rectangle {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            // Переход на страницу заказов
+                            detailsButton.color = "#46464A"
+                            ordersButton.color = "transparent"
+                            detailsText.color = "white"
+                            ordersText.color = "#aaaaaa"
+
+                            // Далее логика переключения на страницу "Детали"
+                        }
+                    }
+                }
+
+                // Заказы
+                Rectangle {
+                    id: ordersButton
+                    width: 220
+                    height: 50
+                    color: "transparent"
+                    radius: 5
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    RowLayout {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 10
+
+                        Image {
+                            id: ordersIcon
+                            source: "qrc:/resources/icons/tag.svg"
+                            width: 24
+                            height: 24
+                            fillMode: Image.PreserveAspectFit
+                        }
+
+                        Text {
+                            id: ordersText
+                            text: qsTr("Заказы")
+                            color: "#aaaaaa"
+                            font.pixelSize: 14
+                            font.family: "Roboto"
+                            font.weight: 300
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            ordersButton.color = "#46464A"
+                            detailsButton.color = "transparent"
+                            ordersText.color = "white"
+                            detailsText.color = "#aaaaaa"
+
+                            // Далее логика переключения на страницу "Заказы"
                         }
                     }
                 }
@@ -110,28 +142,36 @@ Rectangle {
 
                     // Поиск
                     Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 40
-                        color: "#3e3e3e"
-                        radius: 4
+                        Layout.preferredWidth: 780
+                        Layout.preferredHeight: 50
+                        color: "#3E3E42"
+                        radius: 5
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 10
-                            anchors.rightMargin: 10
-                            spacing: 10
+                            anchors.leftMargin: 15
+                            anchors.rightMargin: 15
 
-                            Text {
-                                text: "🔍"
-                                color: "#aaaaaa"
-                                font.pixelSize: 16
+                            Image {
+                                source: "qrc:/resources/icons/search.svg"
+                                width: 24
+                                height: 24
+                                fillMode: Image.PreserveAspectFit
                             }
 
                             TextField {
+                                id: searchField
                                 Layout.fillWidth: true
                                 placeholderText: qsTr("Поиск...")
-                                color: "white"
+                                color: "#B2B4BC"
                                 font.pixelSize: 14
+                                font.weight: 400
+                                font.family: "Roboto"
+                                placeholderTextColor: activeFocus || text.length > 0 ? "transparent" : "#B2B4BC"
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
+
+
                                 background: Rectangle {
                                     color: "transparent"
                                 }
@@ -179,46 +219,79 @@ Rectangle {
 
                     // Тип детали
                     ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 5
+                        Layout.preferredWidth: 120
+                        Layout.preferredHeight: 50
 
                         Text {
                             text: qsTr("Тип детали")
-                            color: "#aaaaaa"
-                            font.pixelSize: 11
+                            color: "#B2B4BC"
+                            font.pixelSize: 12
+                            font.weight: 400
+                            font.family: "Roboto"
+                            leftPadding: 5
+                            bottomPadding: -8
                         }
 
                         ComboBox {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 30
                             model: ["Все", "Шкив", "Вал", "Подшипник"]
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
-                                color: "white"
-                                font.pixelSize: 13
+                                color: "#B2B4BC"
+                                font.pixelSize: 12
                                 verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
                             }
+
                             background: Rectangle {
-                                color: "#3e3e3e"
-                                radius: 4
-                                implicitHeight: 35
+                                color: "#3E3E42"
+                                radius: 5
+                                implicitHeight: 30
+                            }
+
+                            // Кастомный индикатор (треугольник)
+                            indicator: Image {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.rightMargin: 7
+                                source: "qrc:/resources/icons/list-triangle.svg"
+                                width: 7
+                                height: 6
+                                fillMode: Image.PreserveAspectFit
+                            }
+
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                contentItem: Text {
+                                    text: modelData
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 12
+                                    leftPadding: 15
+                                }
+                                background: Rectangle {
+                                    color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
+                                }
                             }
                         }
                     }
 
                     // Партия
                     ColumnLayout {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
                         spacing: 5
 
                         Text {
                             text: qsTr("Партия")
                             color: "#aaaaaa"
                             font.pixelSize: 11
+                            leftPadding: 10
                         }
 
                         ComboBox {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 35
                             model: ["Все", "П-12345", "П-67890"]
                             currentIndex: 0
                             contentItem: Text {
@@ -226,28 +299,43 @@ Rectangle {
                                 color: "white"
                                 font.pixelSize: 13
                                 verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
                             }
                             background: Rectangle {
                                 color: "#3e3e3e"
-                                radius: 4
+                                radius: 5
                                 implicitHeight: 35
+                            }
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                contentItem: Text {
+                                    text: modelData
+                                    color: "white"
+                                    font.pixelSize: 13
+                                    leftPadding: 10
+                                }
+                                background: Rectangle {
+                                    color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
+                                }
                             }
                         }
                     }
 
                     // Статус
                     ColumnLayout {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
                         spacing: 5
 
                         Text {
                             text: qsTr("Статус")
                             color: "#aaaaaa"
                             font.pixelSize: 11
+                            leftPadding: 10
                         }
 
                         ComboBox {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 35
                             model: ["Все", "Сортировка", "Отсортирован"]
                             currentIndex: 0
                             contentItem: Text {
@@ -255,28 +343,43 @@ Rectangle {
                                 color: "white"
                                 font.pixelSize: 13
                                 verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
                             }
                             background: Rectangle {
                                 color: "#3e3e3e"
-                                radius: 4
+                                radius: 5
                                 implicitHeight: 35
+                            }
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                contentItem: Text {
+                                    text: modelData
+                                    color: "white"
+                                    font.pixelSize: 13
+                                    leftPadding: 10
+                                }
+                                background: Rectangle {
+                                    color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
+                                }
                             }
                         }
                     }
 
                     // Заказ
                     ColumnLayout {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
                         spacing: 5
 
                         Text {
                             text: qsTr("Заказ")
                             color: "#aaaaaa"
                             font.pixelSize: 11
+                            leftPadding: 10
                         }
 
                         ComboBox {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 35
                             model: ["Все"]
                             currentIndex: 0
                             contentItem: Text {
@@ -284,28 +387,43 @@ Rectangle {
                                 color: "white"
                                 font.pixelSize: 13
                                 verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
                             }
                             background: Rectangle {
                                 color: "#3e3e3e"
-                                radius: 4
+                                radius: 5
                                 implicitHeight: 35
+                            }
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                contentItem: Text {
+                                    text: modelData
+                                    color: "white"
+                                    font.pixelSize: 13
+                                    leftPadding: 10
+                                }
+                                background: Rectangle {
+                                    color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
+                                }
                             }
                         }
                     }
 
                     // Склад
                     ColumnLayout {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
                         spacing: 5
 
                         Text {
                             text: qsTr("Склад")
                             color: "#aaaaaa"
                             font.pixelSize: 11
+                            leftPadding: 10
                         }
 
                         ComboBox {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 35
                             model: ["Все"]
                             currentIndex: 0
                             contentItem: Text {
@@ -313,31 +431,45 @@ Rectangle {
                                 color: "white"
                                 font.pixelSize: 13
                                 verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
                             }
                             background: Rectangle {
                                 color: "#3e3e3e"
-                                radius: 4
+                                radius: 5
                                 implicitHeight: 35
+                            }
+                            delegate: ItemDelegate {
+                                width: parent.width
+                                contentItem: Text {
+                                    text: modelData
+                                    color: "white"
+                                    font.pixelSize: 13
+                                    leftPadding: 10
+                                }
+                                background: Rectangle {
+                                    color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
+                                }
                             }
                         }
                     }
 
                     // Дата производства
                     ColumnLayout {
-                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
                         spacing: 5
 
                         Text {
                             text: qsTr("Дата производства")
                             color: "#aaaaaa"
                             font.pixelSize: 11
+                            leftPadding: 10
                         }
 
                         Rectangle {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: 120
                             Layout.preferredHeight: 35
                             color: "#3e3e3e"
-                            radius: 4
+                            radius: 5
 
                             RowLayout {
                                 anchors.fill: parent
@@ -352,37 +484,13 @@ Rectangle {
 
                                 Item { Layout.fillWidth: true }
 
-                                Text {
-                                    text: "📅"
-                                    color: "#aaaaaa"
-                                    font.pixelSize: 14
+                                Image {
+                                    source: "qrc:/resources/icons/calendar.svg"
+                                    width: 16
+                                    height: 16
+                                    fillMode: Image.PreserveAspectFit
                                 }
                             }
-                        }
-                    }
-
-                    // Кнопка Сбросить
-                    Button {
-                        Layout.preferredHeight: 35
-                        Layout.preferredWidth: 100
-                        text: qsTr("Сбросить")
-
-                        contentItem: Text {
-                            text: parent.text
-                            color: "#2e2e2e"
-                            font.pixelSize: 13
-                            font.weight: Font.Medium
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        background: Rectangle {
-                            color: "#f5f5f5"
-                            radius: 4
-                        }
-
-                        onClicked: {
-                            // Сброс фильтров
                         }
                     }
                 }
