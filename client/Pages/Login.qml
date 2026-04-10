@@ -17,45 +17,72 @@ Item {
     }
 
     // Кнопки управления окном
-    Row {
+    Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 10
-        spacing: 10
+        width: 140
+        height: 40
+        color: "transparent"
+        radius: 4
 
-        Button {
-            width: 35
-            height: 35
-            text: "−"
-            onClicked: window.visibility = Window.Minimized
-            background: Rectangle {
-                color: "transparent"
-                radius: 4
-            }
-            contentItem: Text {
-                text: parent.text
-                font.pixelSize: 35
-                color: "#6e707b"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
-        }
+        Row {
+            anchors.fill: parent
 
-        Button {
-            width: 35
-            height: 35
-            text: "×"
-            onClicked: window.close()
-            background: Rectangle {
-                color: "transparent"
-                radius: 4
+            // Кнопка скрыть
+            Button {
+                width: 70
+                height: 40
+                onClicked: window.visibility = Window.Minimized
+
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                contentItem: Item {
+                    width: parent.width
+                    height: parent.height
+
+                    Image {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.topMargin: 20
+                        anchors.leftMargin: 27
+                        source: "qrc:/resources/icons/minimise-app.svg"
+                        width: 20
+                        height: 20
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                    }
+                }
             }
-            contentItem: Text {
-                text: parent.text
-                font.pixelSize: 35
-                color: "#6e707b"
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+
+            // Кнопка закрыть
+            Button {
+                width: 70
+                height: 40
+                onClicked: window.close()
+
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                contentItem: Item {
+                    width: parent.width
+                    height: parent.height
+
+                    Image {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.topMargin: 10
+                        anchors.leftMargin: 25
+                        source: "qrc:/resources/icons/close-app.svg"
+                        width: 20
+                        height: 20
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                    }
+                }
             }
         }
     }
@@ -63,10 +90,10 @@ Item {
     // Центральная карточка
     Rectangle {
         id: card
-        width: 360
-        height: 540
-        color: "#f5f5f5"
-        radius: 16
+        width: 400
+        height: 550
+        color: "#E6E8E9"
+        radius: 30
         anchors.centerIn: parent
 
         ColumnLayout {
@@ -96,9 +123,10 @@ Item {
             // Заголовок
             Text {
                 text: qsTr("Введите логин и пароль")
-                font.pixelSize: 22
-                font.weight: Font.Bold
-                color: "#2a2a2a"
+                font.pixelSize: 24
+                font.family: "Roboto"
+                font.weight: 700
+                color: "#28282A"
                 Layout.alignment: Qt.AlignHCenter
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
@@ -111,23 +139,33 @@ Item {
 
                 Text {
                     text: qsTr("Логин")
-                    font.pixelSize: 10
-                    color: "#666666"
+                    font.pixelSize: 8
+                    font.weight: 500
+                    font.family: "Roboto"
+                    color: "#3E3E42"
                 }
 
                 TextField {
                     id: loginField
                     placeholderText: qsTr("Логин")
+                    placeholderTextColor: "#B2B4BC"
                     Layout.fillWidth: true
                     font.pixelSize: 14
+                    font.weight: 700
+                    font.family: "Roboto"
+                    leftPadding: 10
+                    Layout.preferredHeight: 40
 
                     background: Rectangle {
                         color: "transparent"
-                        border.color: loginField.activeFocus ? "#6e707b" : "#dddddd"
-                        border.width: 1
-                        radius: 4
-                        height: 40
                     }
+                }
+
+                // Нижняя линия
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1.5 // 2 - шире нижней, 1 - уже нижней. 1.5 - оптимальное значение
+                    color: loginField.activeFocus ? "#6e707b" : "#B2B4BC"
                 }
             }
 
@@ -138,24 +176,34 @@ Item {
 
                 Text {
                     text: qsTr("Пароль")
-                    font.pixelSize: 10
-                    color: "#666666"
+                    font.pixelSize: 8
+                    font.weight: 500
+                    font.family: "Roboto"
+                    color: "#3E3E42"
                 }
 
                 TextField {
                     id: passwordField
                     placeholderText: qsTr("Пароль")
+                    placeholderTextColor: "#B2B4BC"
                     echoMode: TextField.Password
                     Layout.fillWidth: true
                     font.pixelSize: 14
+                    font.weight: 700
+                    font.family: "Roboto"
+                    leftPadding: 10
+                    Layout.preferredHeight: 40
 
                     background: Rectangle {
                         color: "transparent"
-                        border.color: passwordField.activeFocus ? "#6e707b" : "#dddddd"
-                        border.width: 1
-                        radius: 4
-                        height: 40
                     }
+                }
+
+                // Нижняя линия
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 2
+                    color: passwordField.activeFocus ? "#6e707b" : "#B2B4BC"
                 }
             }
 
@@ -163,13 +211,15 @@ Item {
             Button {
                 text: qsTr("Войти")
                 Layout.fillWidth: true
-                Layout.preferredHeight: 44
+                Layout.preferredHeight: 50
+                Layout.preferredWidth: 300
 
                 contentItem: Text {
                     text: parent.text
                     color: "white"
-                    font.pixelSize: 14
-                    font.weight: Font.Medium
+                    font.pixelSize: 18
+                    font.family: "Roboto"
+                    font.weight: 400
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     opacity: enabled ? 1.0 : 0.3
@@ -177,7 +227,7 @@ Item {
 
                 background: Rectangle {
                     color: parent.pressed ? "#1a1a1a" : "#2a2a2a"
-                    radius: 6
+                    radius: 5
                 }
 
                 onClicked: {

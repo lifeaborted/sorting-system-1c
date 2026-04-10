@@ -5,8 +5,16 @@
         <file>resources/icons/tag.svg</file>
         <file>resources/icons/clipboard.svg</file>
         <file>resources/icons/info-circle.svg</file>
+        <file>resources/icons/minimise-app.svg</file>
+        <file>resources/icons/close-app.svg</file>
 
         <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>
+
+        <!-- FONTS -->
+        <!-- Roboto Family -->
+        <file>resources/fonts/Roboto/Roboto-Regular.ttf</file>
+        <file>resources/fonts/Roboto/Roboto-Medium.ttf</file>
+        <file>resources/fonts/Roboto/Roboto-Bold.ttf</file>
     </qresource>
 </RCC>

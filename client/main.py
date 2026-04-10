@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
 
 from controller.backend import Backend
@@ -22,6 +22,20 @@ if __name__ == "__main__":
     # dunno if needed
     engine.addImportPath(sys.path[0].join("/controller"))
     engine.load(qml_file)
+
+    ''' василий поменяешь если чето не понравится
+    '''
+
+    # Font loading
+    font_ids = []
+    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Regular.ttf"))
+    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Medium.ttf"))
+    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Bold.ttf"))
+
+    # Default font for entire app
+    default_font = QFont("Roboto", 12)
+    app.setFont(default_font)
+
 
 
     if not engine.rootObjects():
