@@ -12,6 +12,37 @@ Rectangle {
     Material.theme: Material.Dark
     Material.accent: Material.Blue
 
+    property list<var> details: []
+    property var detailsFilter
+
+    property QtObject sortingParams: QtObject {
+        property string search: ""
+        property string type: "Все"
+        property string batch: "Все"
+        property string status: "Все"
+        property string order: "Все"
+        property string warehouse: "Все"
+        property var date: undefined
+        //       ^^^^^^ <-- ???
+    }
+
+    function loadDetails() {
+        detailsFilter = Backend.user.load_sorting_options()
+        // Биндинг из  controller.detail.py Детали
+        // Можно считать, что значения закешированы, и никакой дополнительной нагрузке вызов функции не несёт
+        // Детали не надо напрямую редачить
+        // и массив тоже не имеет смысла :p
+        details = Backend.user.load_details_filter(sortingParams)
+    }
+
+    Component.onCompleted: {
+        loadDetails()
+    }
+
+    onSortingParamsChanged: {
+        loadDetails()
+    }
+
     RowLayout {
         anchors.fill: parent
         spacing: 0
@@ -235,7 +266,7 @@ Rectangle {
                         ComboBox {
                             Layout.preferredWidth: 120
                             Layout.preferredHeight: 30
-                            model: ["Все", "Шкив", "Вал", "Подшипник"]
+                            model: ["Все"].concat(Object.keys(detailsFilter.detail_type))
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
@@ -274,6 +305,10 @@ Rectangle {
                                     color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
                                 }
                             }
+                            onActivated: {
+                                sortingParams.type = currentValue
+                                loadDetails()
+                            }
                         }
                     }
 
@@ -292,7 +327,7 @@ Rectangle {
                         ComboBox {
                             Layout.preferredWidth: 120
                             Layout.preferredHeight: 35
-                            model: ["Все", "П-12345", "П-67890"]
+                            model: ["Все"].concat(Object.keys(detailsFilter.batch))
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
@@ -317,6 +352,10 @@ Rectangle {
                                 background: Rectangle {
                                     color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
                                 }
+                            }
+                            onActivated: {
+                                sortingParams.batch = currentValue
+                                loadDetails()
                             }
                         }
                     }
@@ -336,7 +375,7 @@ Rectangle {
                         ComboBox {
                             Layout.preferredWidth: 120
                             Layout.preferredHeight: 35
-                            model: ["Все", "Сортировка", "Отсортирован"]
+                            model: ["Все"].concat(Object.keys(detailsFilter.status))
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
@@ -361,6 +400,10 @@ Rectangle {
                                 background: Rectangle {
                                     color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
                                 }
+                            }
+                            onActivated: {
+                                sortingParams.status = currentValue
+                                loadDetails()
                             }
                         }
                     }
@@ -380,7 +423,7 @@ Rectangle {
                         ComboBox {
                             Layout.preferredWidth: 120
                             Layout.preferredHeight: 35
-                            model: ["Все"]
+                            model: ["Все"].concat(Object.keys(detailsFilter.order))
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
@@ -405,6 +448,10 @@ Rectangle {
                                 background: Rectangle {
                                     color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
                                 }
+                            }
+                            onActivated: {
+                                sortingParams.order = currentValue
+                                loadDetails()
                             }
                         }
                     }
@@ -424,7 +471,7 @@ Rectangle {
                         ComboBox {
                             Layout.preferredWidth: 120
                             Layout.preferredHeight: 35
-                            model: ["Все"]
+                            model: ["Все"].concat(Object.keys(detailsFilter.warehouse))
                             currentIndex: 0
                             contentItem: Text {
                                 text: parent.displayText
@@ -449,6 +496,10 @@ Rectangle {
                                 background: Rectangle {
                                     color: parent.pressed ? "#4e4e4e" : "#3e3e3e"
                                 }
+                            }
+                            onActivated: {
+                                sortingParams.warehouse = currentValue
+                                loadDetails()
                             }
                         }
                     }
@@ -577,7 +628,7 @@ Rectangle {
                         spacing: 10
 
                         Repeater {
-                            model: 10
+                            model: details
 
                             delegate: Rectangle {
                                 Layout.fillWidth: true
@@ -594,8 +645,19 @@ Rectangle {
                                     Button {
                                         Layout.preferredWidth: 120
                                         Layout.preferredHeight: 40
-                                        text: index % 2 === 0 ? qsTr("Распределить") : qsTr("Отменить")
-
+                                        text: {
+                                            switch (modelData.status) {
+                                                case "pending": return "Распределить"
+                                                case "in_production": return "Распределить"
+                                                case "sorting": return "Распределить"
+                                                case "completed": return "Отменить"
+                                                case "canceled": return "-"
+                                                default: {
+                                                    console.error("Uknown type of modelData.status=", modelData.status)
+                                                    return "undefined"
+                                                }
+                                            }
+                                        }
                                         contentItem: Text {
                                             text: parent.text
                                             color: "#2e2e2e"
@@ -634,7 +696,7 @@ Rectangle {
                                     // Тип
                                     Text {
                                         Layout.preferredWidth: 80
-                                        text: qsTr("Шкив")
+                                        text: modelData.type.name
                                         color: "white"
                                         font.pixelSize: 13
                                         elide: Text.ElideRight
@@ -643,7 +705,7 @@ Rectangle {
                                     // Номер
                                     Text {
                                         Layout.fillWidth: true
-                                        text: "Ш-123-4567890"
+                                        text: modelData.serial_number
                                         color: "white"
                                         font.pixelSize: 13
                                         elide: Text.ElideRight
@@ -652,7 +714,7 @@ Rectangle {
                                     // Партия
                                     Text {
                                         Layout.preferredWidth: 100
-                                        text: "П-12345"
+                                        text: modelData.serial_number
                                         color: "white"
                                         font.pixelSize: 13
                                     }
@@ -660,7 +722,20 @@ Rectangle {
                                     // Статус
                                     Text {
                                         Layout.preferredWidth: 150
-                                        text: index % 2 === 0 ? qsTr("Сортировка") : qsTr("Отсортирован №123-ЧКПЭ-45...")
+                                        text: {
+                                            switch (modelData.status) {
+                                                case "pending": return "Обрабатывается"
+                                                case "in_production": return "В производстве"
+                                                case "sorting": return "Сортировка"
+                                                case "completed": return "Отсортирован"
+                                                case "canceled": return "Отменён"
+                                                default: {
+                                                    console.error("Uknown type of modelData.status=", modelData.status)
+                                                    return "undefined"
+                                                }
+                                            }
+                                        }
+
                                         color: "white"
                                         font.pixelSize: 13
                                         elide: Text.ElideRight
@@ -669,7 +744,7 @@ Rectangle {
                                     // Заказ
                                     Text {
                                         Layout.preferredWidth: 100
-                                        text: "-"
+                                        text: modelData.order != undefined ? modelData.order.name : "-"
                                         color: "white"
                                         font.pixelSize: 13
                                     }
@@ -677,7 +752,8 @@ Rectangle {
                                     // Склад
                                     Text {
                                         Layout.fillWidth: true
-                                        text: qsTr("пр. Ленина, д. 8...")
+                                        text: qsTr("%1,%2...").arg(modelData.warehouse.address.street).arg(modelData.warehouse.address.building)
+
                                         color: "white"
                                         font.pixelSize: 13
                                         elide: Text.ElideRight
@@ -686,7 +762,7 @@ Rectangle {
                                     // Дата
                                     Text {
                                         Layout.preferredWidth: 80
-                                        text: "01.01.26"
+                                        text: modelData.manufacture_date
                                         color: "white"
                                         font.pixelSize: 13
                                     }

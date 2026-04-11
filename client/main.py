@@ -25,12 +25,14 @@ if __name__ == "__main__":
 
     ''' василий поменяешь если чето не понравится
     '''
+    #👍👍👍👍👍👍👍 ok ^
 
     # Font loading
-    font_ids = []
-    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Regular.ttf"))
-    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Medium.ttf"))
-    font_ids.append(QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Bold.ttf"))
+    font_ids = [
+        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Regular.ttf"),
+        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Medium.ttf"),
+        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Bold.ttf")
+    ]
 
     # Default font for entire app
     default_font = QFont("Roboto", 12)

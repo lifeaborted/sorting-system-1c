@@ -4,8 +4,6 @@
         "Components/qmldir",
         "Pages/Login.qml",
         "Pages/Details.qml",
-        "README.md",
-        "controller/router.py",
         "main.py",
         "main.qml",
         "qmldir",
@@ -13,6 +11,8 @@
         "resources.qrc",
         "controller/backend.py",
         "controller/notification.py",
-        "controller/user.py"
+        "controller/user.py",
+        "controller/router.py",
+        "controller/detail.py"
     ]
 }
