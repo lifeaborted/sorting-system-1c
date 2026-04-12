@@ -202,7 +202,6 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                                 leftPadding: 10
 
-
                                 background: Rectangle {
                                     color: "transparent"
                                 }
@@ -211,34 +210,49 @@ Rectangle {
                     }
 
                     // Профиль пользователя
-                    RowLayout {
-                        spacing: 10
+                    Rectangle {
+                        Layout.preferredWidth: 180
+                        Layout.preferredHeight: 50
+                        color: "transparent"
 
-                        Rectangle {
-                            width: 40
-                            height: 40
-                            radius: 20
-                            color: "#3e3e3e"
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.rightMargin: 10
+                            spacing: 10
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: Backend.user.format_username("{first[0]}{second[0]}")
-                                color: "white"
-                                font.pixelSize: 16
-                                font.weight: Font.Bold
+                            // Аватарка
+                            Rectangle {
+                                Layout.preferredWidth: 48
+                                Layout.preferredHeight: 48
+                                radius: 24
+                                color: "#3e3e42"
+
+                                Image {
+                                    anchors.centerIn: parent
+                                    source: "qrc:/resources/icons/profile-picture.svg"
+                                    width: 24
+                                    height: 24
+                                    fillMode: Image.PreserveAspectFit
+                                }
                             }
-                        }
 
-                        Text {
-                            text: Backend.user.format_username("{first} {second[0]}.{middle[0]}.")
-                            color: "white"
-                            font.pixelSize: 14
-                        }
+                            // Имя пользователя
+                            Text {
+                                text: Backend.user.format_username("{first} {second[0]}.{middle[0]}.")
+                                color: "#B2B4BC"
+                                font.pixelSize: 16
+                                font.weight: 500
+                                font.family: "Roboto"
+                                elide: Text.ElideRight
+                            }
 
-                        Text {
-                            text: "▼"
-                            color: "white"
-                            font.pixelSize: 10
+                            // Треугольник
+                            Image {
+                                source: "qrc:/resources/icons/profile-triangle.svg"
+                                width: 16
+                                height: 12
+                                fillMode: Image.PreserveAspectFit
+                            }
                         }
                     }
                 }
