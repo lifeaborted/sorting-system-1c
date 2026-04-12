@@ -260,7 +260,7 @@ Rectangle {
                 // Фильтры
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 10
+                    spacing: 15
 
                     // Тип детали
                     ColumnLayout {
@@ -681,75 +681,454 @@ Rectangle {
                             }
                         }
                     }
+
+                    ColumnLayout {
+                        Layout.preferredWidth: 120
+                        Layout.preferredHeight: 50
+                        spacing: -3
+
+                        Text {
+                            text: ""
+                            font.pixelSize: 12
+                        }
+
+                        Button {
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 40
+                            text: "Сбросить"
+
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.pressed ? "#505050" : "#181819"
+                                font.pixelSize: 12
+                                font.weight: 500
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            background: Rectangle {
+                                color: parent.pressed ? "#C8CACC" : "#E6E8E9"
+                                radius: 5
+                            }
+
+                            HoverHandler {
+                                cursorShape: Qt.PointingHandCursor
+                            }
+
+                            onClicked: {
+                                // Сброс всех фильтров
+                            }
+                        }
+                    }
                 }
 
                 // Заголовки таблицы
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    color: "#3e3e3e"
-                    radius: 4
+                    id: headerRow
+                    Layout.preferredWidth: 980
+                    Layout.preferredHeight: 60
+                    color: "#3E3E42"
+                    radius: 5
+
+                    // Свойства для сортировки
+                    property string sortColumn: "date"  // По умолчанию сортировка по дате
+                    property bool sortAscending: false  // false = по убыванию (новые сверху)
+
+                    // Функция сортировки массива деталей
+                    function sortDetailsList() {
+                        if (!details || details.length === 0) return
+
+                        // Создаем копию массива и сортируем
+                        var sorted = JSON.parse(JSON.stringify(details))
+
+                        sorted.sort(function(a, b) {
+                            var valA, valB
+
+                            // Получаем значения для сравнения в зависимости от колонки
+                            switch(headerRow.sortColumn) {
+                                case "action": return 0
+                                case "type":
+                                    valA = a.type ? a.type.name : ""
+                                    valB = b.type ? b.type.name : ""
+                                    break
+                                case "number":
+                                    valA = a.serial_number || ""
+                                    valB = b.serial_number || ""
+                                    break
+                                case "batch":
+                                    valA = a.batch || ""
+                                    valB = b.batch || ""
+                                    break
+                                case "status":
+                                    valA = a.status || ""
+                                    valB = b.status || ""
+                                    break
+                                case "order":
+                                    valA = a.order ? a.order.name : ""
+                                    valB = b.order ? b.order.name : ""
+                                    break
+                                case "warehouse":
+                                    valA = a.warehouse ? (a.warehouse.address?.street + a.warehouse.address?.building) : ""
+                                    valB = b.warehouse ? (b.warehouse.address?.street + b.warehouse.address?.building) : ""
+                                    break
+                                case "date":
+                                    valA = a.manufacture_date || ""
+                                    valB = b.manufacture_date || ""
+                                    break
+                                default: return 0
+                            }
+
+                            // Сравнение
+                            if (valA < valB) return headerRow.sortAscending ? -1 : 1
+                            if (valA > valB) return headerRow.sortAscending ? 1 : -1
+                            return 0
+                        })
+
+                        details = sorted
+                    }
+
+                    // Функция переключения сортировки
+                    function toggleSort(columnName) {
+                        if (headerRow.sortColumn === columnName) {
+                            headerRow.sortAscending = !headerRow.sortAscending
+                        } else {
+                            headerRow.sortColumn = columnName
+                            headerRow.sortAscending = false
+                        }
+
+                        sortDetailsList()
+                    }
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 15
-                        anchors.rightMargin: 15
-                        spacing: 10
+                        anchors.leftMargin: 10
+                        anchors.rightMargin: 10
+                        spacing: 0
 
-                        Text {
+                        // Действие
+                        Rectangle {
+                            Layout.preferredWidth: 180
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Действие")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+                                Item { Layout.fillWidth: true }
+                            }
+                        }
+
+                        // Тип
+                        Rectangle {
+                            Layout.preferredWidth: 80
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Тип")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                    leftPadding: -10
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "type"
+                                    rotation: headerRow.sortColumn === "type" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("type")
+                                }
+                            }
+                        }
+
+                        // Номер
+                        Rectangle {
                             Layout.preferredWidth: 120
-                            text: qsTr("Действие")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Номер")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "number"
+                                    rotation: headerRow.sortColumn === "number" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    headerRow.toggleSort("number")
+                                }
+                            }
                         }
 
-                        Text {
-                            Layout.preferredWidth: 80
-                            text: qsTr("Тип")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
+                        // Партия
+                        Rectangle {
+                            Layout.preferredWidth: 115
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Партия")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "batch"
+                                    rotation: headerRow.sortColumn === "batch" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("batch")
+                                }
+                            }
                         }
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: qsTr("Номер")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
+                        // Статус
+                        Rectangle {
+                            Layout.preferredWidth: 110
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Статус")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "status"
+                                    rotation: headerRow.sortColumn === "status" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("status")
+                                }
+                            }
                         }
 
-                        Text {
+                        // Заказ
+                        Rectangle {
+                            Layout.preferredWidth: 125
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Заказ")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "order"
+                                    rotation: headerRow.sortColumn === "order" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("order")
+                                }
+                            }
+                        }
+
+                        // Склад
+                        Rectangle {
+                            Layout.preferredWidth: 160
+                            Layout.fillHeight: true
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
+
+                                Text {
+                                    text: qsTr("Склад")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "warehouse"
+                                    rotation: headerRow.sortColumn === "warehouse" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
+
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("warehouse")
+                                }
+                            }
+                        }
+
+                        // Дата
+                        Rectangle {
                             Layout.preferredWidth: 100
-                            text: qsTr("Партия")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
-                        }
+                            Layout.fillHeight: true
+                            color: "transparent"
 
-                        Text {
-                            Layout.preferredWidth: 150
-                            text: qsTr("Статус")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
-                        }
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 4
 
-                        Text {
-                            Layout.preferredWidth: 100
-                            text: qsTr("Заказ")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
-                        }
+                                Text {
+                                    text: qsTr("Дата")
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 14
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: qsTr("Склад")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
-                        }
+                                Image {
+                                    source: "qrc:/resources/icons/list-triangle.svg"
+                                    width: 12
+                                    height: 12
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: headerRow.sortColumn === "date"
+                                    rotation: headerRow.sortColumn === "date" ? (headerRow.sortAscending ? 180 : 0) : 0
+                                    Behavior on rotation {
+                                        NumberAnimation { duration: 0 }
+                                    }
+                                }
 
-                        Text {
-                            Layout.preferredWidth: 80
-                            text: qsTr("Дата")
-                            color: "#aaaaaa"
-                            font.pixelSize: 13
+                                Item { Layout.fillWidth: true }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    headerRow.toggleSort("date")
+                                }
+                            }
                         }
                     }
                 }
@@ -797,15 +1176,20 @@ Rectangle {
                                         }
                                         contentItem: Text {
                                             text: parent.text
-                                            color: "#2e2e2e"
+                                            color: parent.pressed ? "#505050" : "#181819"
                                             font.pixelSize: 12
-                                            font.weight: Font.Medium
+                                            font.weight: 500
+                                            font.family: "Roboto"
                                             horizontalAlignment: Text.AlignHCenter
                                             verticalAlignment: Text.AlignVCenter
                                         }
 
+                                        HoverHandler {
+                                            cursorShape: Qt.PointingHandCursor
+                                        }
+
                                         background: Rectangle {
-                                            color: "#f5f5f5"
+                                            color: parent.pressed ? "#C8CACC" : "#E6E8E9"
                                             radius: 5
                                         }
 
@@ -828,37 +1212,51 @@ Rectangle {
                                             height: 20
                                             fillMode: Image.PreserveAspectFit
                                         }
+
+                                        HoverHandler {
+                                            cursorShape: Qt.PointingHandCursor
+                                        }
                                     }
 
                                     // Тип
                                     Text {
                                         Layout.preferredWidth: 80
                                         text: modelData.type.name
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
                                         elide: Text.ElideRight
+                                        leftPadding: 5
                                     }
 
                                     // Номер
                                     Text {
-                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: 120
                                         text: modelData.serial_number
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
                                         elide: Text.ElideRight
+                                        leftPadding: 5
                                     }
 
                                     // Партия
                                     Text {
                                         Layout.preferredWidth: 100
                                         text: modelData.serial_number
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
+                                        elide: Text.ElideRight
+                                        leftPadding: -5
                                     }
 
                                     // Статус
                                     Text {
-                                        Layout.preferredWidth: 150
+                                        Layout.preferredWidth: 100
                                         text: {
                                             switch (modelData.status) {
                                                 case "pending": return "Обрабатывается"
@@ -872,36 +1270,46 @@ Rectangle {
                                                 }
                                             }
                                         }
-
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
                                         elide: Text.ElideRight
                                     }
 
                                     // Заказ
                                     Text {
-                                        Layout.preferredWidth: 100
+                                        Layout.preferredWidth: 120
                                         text: modelData.order != undefined ? modelData.order.name : "-"
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
+                                        elide: Text.ElideRight
                                     }
 
                                     // Склад
                                     Text {
-                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: 145
                                         text: qsTr("%1,%2...").arg(modelData.warehouse.address.street).arg(modelData.warehouse.address.building)
-
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
                                         elide: Text.ElideRight
+                                        leftPadding: -5
                                     }
 
                                     // Дата
                                     Text {
-                                        Layout.preferredWidth: 80
+                                        Layout.preferredWidth: 100
                                         text: modelData.manufacture_date
-                                        color: "white"
-                                        font.pixelSize: 13
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 12
+                                        font.family: "Roboto"
+                                        font.weight: 400
+                                        elide: Text.ElideRight
+                                        leftPadding: -2
                                     }
                                 }
                             }
