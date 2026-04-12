@@ -909,7 +909,6 @@ Rectangle {
 
                             MouseArea {
                                 anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     headerRow.toggleSort("number")
                                 }
