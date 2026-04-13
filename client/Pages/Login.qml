@@ -3,12 +3,13 @@ import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import io.backend 1.0
-
+import "../Components"
 Item {
     id: window
     anchors.fill: parent
     visible: true
-
+    property string password: passwordField.text
+    property string login: loginField.text
     // Фон
     Image {
         anchors.fill: parent
@@ -133,78 +134,19 @@ Item {
             }
 
             // Поле логина
-            ColumnLayout {
-                spacing: 5
-                Layout.fillWidth: true
-
-                Text {
-                    text: qsTr("Логин")
-                    font.pixelSize: 8
-                    font.weight: 500
-                    font.family: "Roboto"
-                    color: "#3E3E42"
-                }
-
-                TextField {
-                    id: loginField
-                    placeholderText: qsTr("Логин")
-                    placeholderTextColor: "#B2B4BC"
-                    Layout.fillWidth: true
-                    font.pixelSize: 14
-                    font.weight: 700
-                    font.family: "Roboto"
-                    leftPadding: 10
-                    Layout.preferredHeight: 40
-
-                    background: Rectangle {
-                        color: "transparent"
-                    }
-                }
-
-                // Нижняя линия
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 1.5 // 2 - шире нижней, 1 - уже нижней. 1.5 - оптимальное значение
-                    color: loginField.activeFocus ? "#6e707b" : "#B2B4BC"
-                }
+            CTextField {
+                placeholder: "Логин"
+                id: loginField
+                // Альтернатива с калбэком, впринципе для кнопочек там или обратной связи чеб нет
+                // onValueChanged: {
+                //     console.log(arguments[0])
+                // }
             }
-
             // Поле пароля
-            ColumnLayout {
-                spacing: 5
-                Layout.fillWidth: true
-
-                Text {
-                    text: qsTr("Пароль")
-                    font.pixelSize: 8
-                    font.weight: 500
-                    font.family: "Roboto"
-                    color: "#3E3E42"
-                }
-
-                TextField {
-                    id: passwordField
-                    placeholderText: qsTr("Пароль")
-                    placeholderTextColor: "#B2B4BC"
-                    echoMode: TextField.Password
-                    Layout.fillWidth: true
-                    font.pixelSize: 14
-                    font.weight: 700
-                    font.family: "Roboto"
-                    leftPadding: 10
-                    Layout.preferredHeight: 40
-
-                    background: Rectangle {
-                        color: "transparent"
-                    }
-                }
-
-                // Нижняя линия
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 2
-                    color: passwordField.activeFocus ? "#6e707b" : "#B2B4BC"
-                }
+            CTextField {
+                placeholder: "Пароль"
+                id: passwordField
+                echo: TextField.Password
             }
 
             // Кнопка Войти
@@ -233,6 +175,7 @@ Item {
                 onClicked: {
                     // Логика авторизации
                     // заглушка для переноса на другую страницу
+                    console.log(login, password)
                     Backend.login("Гайдулян", "Андрей", "Сергевич")
                     Backend.router.route = "/details"
                 }

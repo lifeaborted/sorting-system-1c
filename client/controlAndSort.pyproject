@@ -13,6 +13,7 @@
         "controller/notification.py",
         "controller/user.py",
         "controller/router.py",
-        "controller/detail.py"
+        "controller/detail.py",
+        "Components/CTextField.qml"
     ]
 }
