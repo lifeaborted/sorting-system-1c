@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
 import io.backend 1.0
+import "../Components"
 Rectangle {
     id: detailsPage
     color: "#2e2e2e"
@@ -47,113 +48,7 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        // Левая боковая панель
-        Rectangle {
-            Layout.preferredWidth: 250
-            Layout.fillHeight: true
-            color: "#1e1e1e"
-
-            Column {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.topMargin: 60
-                spacing: 5
-
-                // Детали
-                Rectangle {
-                    id: detailsButton
-                    width: 220
-                    height: 50
-                    color: "#46464A"
-                    radius: 5
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    RowLayout {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 20
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 10
-
-                        Image {
-                            source: "qrc:/resources/icons/clipboard.svg"
-                            width: 24
-                            height: 24
-                            fillMode: Image.PreserveAspectFit
-                        }
-
-                        Text {
-                            id: detailsText
-                            text: qsTr("Детали")
-                            color: "white"
-                            font.pixelSize: 14
-                            font.family: "Roboto"
-                            font.weight: 300
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            detailsButton.color = "#46464A"
-                            ordersButton.color = "transparent"
-                            detailsText.color = "white"
-                            ordersText.color = "#aaaaaa"
-
-                            // Далее логика переключения на страницу "Детали"
-                        }
-                    }
-                }
-
-                // Заказы
-                Rectangle {
-                    id: ordersButton
-                    width: 220
-                    height: 50
-                    color: "transparent"
-                    radius: 5
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    RowLayout {
-                        anchors.left: parent.left
-                        anchors.leftMargin: 20
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 10
-
-                        Image {
-                            id: ordersIcon
-                            source: "qrc:/resources/icons/tag.svg"
-                            width: 24
-                            height: 24
-                            fillMode: Image.PreserveAspectFit
-                        }
-
-                        Text {
-                            id: ordersText
-                            text: qsTr("Заказы")
-                            color: "#aaaaaa"
-                            font.pixelSize: 14
-                            font.family: "Roboto"
-                            font.weight: 300
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            ordersButton.color = "#46464A"
-                            detailsButton.color = "transparent"
-                            ordersText.color = "white"
-                            detailsText.color = "#aaaaaa"
-
-                            // Далее логика переключения на страницу "Заказы"
-                        }
-                    }
-                }
-            }
-        }
+        LeftSidebar{}
 
         // Основная часть
         Rectangle {
@@ -161,101 +56,15 @@ Rectangle {
             Layout.fillHeight: true
             color: "#2e2e2e"
 
+            NavButtons{}
+
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 20
+                anchors.topMargin: 60
                 spacing: 15
 
-                // Верхняя панель с поиском и профилем
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 15
-
-                    // Поиск
-                    Rectangle {
-                        Layout.preferredWidth: 780
-                        Layout.preferredHeight: 50
-                        color: "#3E3E42"
-                        radius: 5
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 15
-                            anchors.rightMargin: 15
-
-                            Image {
-                                source: "qrc:/resources/icons/search.svg"
-                                width: 24
-                                height: 24
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            TextField {
-                                id: searchField
-                                Layout.fillWidth: true
-                                placeholderText: qsTr("Поиск...")
-                                color: "#B2B4BC"
-                                font.pixelSize: 14
-                                font.weight: 400
-                                font.family: "Roboto"
-                                placeholderTextColor: activeFocus || text.length > 0 ? "transparent" : "#B2B4BC"
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-
-                                background: Rectangle {
-                                    color: "transparent"
-                                }
-                            }
-                        }
-                    }
-
-                    // Профиль пользователя
-                    Rectangle {
-                        Layout.preferredWidth: 180
-                        Layout.preferredHeight: 50
-                        color: "transparent"
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.rightMargin: 10
-                            spacing: 10
-
-                            // Аватарка
-                            Rectangle {
-                                Layout.preferredWidth: 48
-                                Layout.preferredHeight: 48
-                                radius: 24
-                                color: "#3e3e42"
-
-                                Image {
-                                    anchors.centerIn: parent
-                                    source: "qrc:/resources/icons/profile-picture.svg"
-                                    width: 24
-                                    height: 24
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                            }
-
-                            // Имя пользователя
-                            Text {
-                                text: Backend.user.format_username("{first} {second[0]}.{middle[0]}.")
-                                color: "#B2B4BC"
-                                font.pixelSize: 16
-                                font.weight: 500
-                                font.family: "Roboto"
-                                elide: Text.ElideRight
-                            }
-
-                            // Треугольник
-                            Image {
-                                source: "qrc:/resources/icons/profile-triangle.svg"
-                                width: 16
-                                height: 12
-                                fillMode: Image.PreserveAspectFit
-                            }
-                        }
-                    }
-                }
+                ProfileAndSearch{}
 
                 // Фильтры
                 RowLayout {
@@ -263,374 +72,57 @@ Rectangle {
                     spacing: 15
 
                     // Тип детали
-                    ColumnLayout {
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 50
-
-                        Text {
-                            text: qsTr("Тип детали")
-                            color: "#B2B4BC"
-                            font.pixelSize: 12
-                            font.weight: 400
-                            font.family: "Roboto"
-                            leftPadding: 5
-                            bottomPadding: -5
-                        }
-
-                        ComboBox {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 30
-                            model: ["Все"].concat(Object.keys(detailsFilter.detail_type))
-                            currentIndex: 0
-
-                            contentItem: Text {
-                                text: parent.displayText
-                                color: "#B2B4BC"
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-                            }
-
-                            background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                                implicitHeight: 30
-                            }
-
-                            popup.background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                            }
-
-                            indicator: Image {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 7
-                                source: "qrc:/resources/icons/list-triangle.svg"
-                                width: 7
-                                height: 6
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            delegate: ItemDelegate {
-                                width: parent.width
-                                height: 30
-
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                background: Rectangle {
-                                    color: parent.hovered ? "#46464A" : "#3E3E42"
-                                    radius: 3
-                                }
-                            }
-
-                            onActivated: {
-                                sortingParams.type = currentValue
-                                loadDetails()
-                            }
+                    Filter {
+                        filterLabel: qsTr("Тип детали")
+                        filterModel: ["Все"].concat(Object.keys(detailsFilter.detail_type))
+                        selectedValue: sortingParams.type
+                        onValueSelected: function(value) {
+                            sortingParams.type = value
+                            loadDetails()
                         }
                     }
 
                     // Партия
-                    ColumnLayout {
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 50
-                        spacing: 5
-
-                        Text {
-                            text: qsTr("Партия")
-                            color: "#B2B4BC"
-                            font.pixelSize: 12
-                            font.weight: 400
-                            font.family: "Roboto"
-                            leftPadding: 5
-                            bottomPadding: -5
-                        }
-
-                        ComboBox {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 30
-                            model: ["Все"].concat(Object.keys(detailsFilter.batch))
-                            currentIndex: 0
-                            contentItem: Text {
-                                text: parent.displayText
-                                color: "#B2B4BC"
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-                            }
-
-                            background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                                implicitHeight: 30
-                            }
-
-                            popup.background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                            }
-
-                            indicator: Image {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 7
-                                source: "qrc:/resources/icons/list-triangle.svg"
-                                width: 7
-                                height: 6
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            delegate: ItemDelegate {
-                                width: parent.width
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                background: Rectangle {
-                                    color: parent.hovered ? "#46464A" : "#3E3E42"
-                                    radius: 3
-                                }
-                            }
-
-                            onActivated: {
-                                sortingParams.batch = currentValue
-                                loadDetails()
-                            }
+                    Filter {
+                        filterLabel: qsTr("Партия")
+                        filterModel: ["Все"].concat(Object.keys(detailsFilter.batch))
+                        selectedValue: sortingParams.batch
+                        onValueSelected: function(value) {
+                            sortingParams.batch = value
+                            loadDetails()
                         }
                     }
 
                     // Статус
-                    ColumnLayout {
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 50
-                        spacing: 5
-
-                        Text {
-                            text: qsTr("Статус")
-                            color: "#B2B4BC"
-                            font.pixelSize: 12
-                            font.weight: 400
-                            font.family: "Roboto"
-                            leftPadding: 5
-                            bottomPadding: -5
-                        }
-
-                        ComboBox {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 30
-                            model: ["Все"].concat(Object.keys(detailsFilter.status))
-                            currentIndex: 0
-                            contentItem: Text {
-                                text: parent.displayText
-                                color: "#B2B4BC"
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-                            }
-
-                            background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                                implicitHeight: 30
-                            }
-
-                            popup.background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                            }
-
-                            indicator: Image {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 7
-                                source: "qrc:/resources/icons/list-triangle.svg"
-                                width: 7
-                                height: 6
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            delegate: ItemDelegate {
-                                width: parent.width
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                background: Rectangle {
-                                    color: parent.hovered ? "#46464A" : "#3E3E42"
-                                    radius: 3
-                                }
-                            }
-
-                            onActivated: {
-                                sortingParams.status = currentValue
-                                loadDetails()
-                            }
+                    Filter {
+                        filterLabel: qsTr("Статус")
+                        filterModel: ["Все"].concat(Object.keys(detailsFilter.status))
+                        selectedValue: sortingParams.status
+                        onValueSelected: function(value) {
+                            sortingParams.status = value
+                            loadDetails()
                         }
                     }
 
                     // Заказ
-                    ColumnLayout {
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 50
-                        spacing: 5
-
-                        Text {
-                            text: qsTr("Заказ")
-                            color: "#B2B4BC"
-                            font.pixelSize: 12
-                            font.weight: 400
-                            font.family: "Roboto"
-                            leftPadding: 5
-                            bottomPadding: -5
-                        }
-
-                        ComboBox {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 30
-                            model: ["Все"].concat(Object.keys(detailsFilter.order))
-                            currentIndex: 0
-                            contentItem: Text {
-                                text: parent.displayText
-                                color: "#B2B4BC"
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-                            }
-
-                            background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                                implicitHeight: 30
-                            }
-
-                            popup.background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                            }
-
-                            indicator: Image {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 7
-                                source: "qrc:/resources/icons/list-triangle.svg"
-                                width: 7
-                                height: 6
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            delegate: ItemDelegate {
-                                width: 120 // высыпает ошибку (TypeError: Cannot read property 'width' of null) при width: parent.width
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                background: Rectangle {
-                                    color: parent.hovered ? "#46464A" : "#3E3E42"
-                                    radius: 3
-                                }
-                            }
-
-                            onActivated: {
-                                sortingParams.order = currentValue
-                                loadDetails()
-                            }
+                    Filter {
+                        filterLabel: qsTr("Заказ")
+                        filterModel: ["Все"].concat(Object.keys(detailsFilter.order))
+                        selectedValue: sortingParams.order
+                        onValueSelected: function(value) {
+                            sortingParams.order = value
+                            loadDetails()
                         }
                     }
 
                     // Склад
-                    ColumnLayout {
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 50
-                        spacing: 5
-
-                        Text {
-                            text: qsTr("Склад")
-                            color: "#B2B4BC"
-                            font.pixelSize: 12
-                            font.weight: 400
-                            font.family: "Roboto"
-                            leftPadding: 5
-                            bottomPadding: -5
-                        }
-
-                        ComboBox {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 30
-                            model: ["Все"].concat(Object.keys(detailsFilter.warehouse))
-                            currentIndex: 0
-                            contentItem: Text {
-                                text: parent.displayText
-                                color: "#B2B4BC"
-                                font.pixelSize: 12
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 10
-                            }
-
-                            background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                                implicitHeight: 30
-                            }
-
-                            popup.background: Rectangle {
-                                color: "#3E3E42"
-                                radius: 5
-                            }
-
-                            indicator: Image {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.rightMargin: 7
-                                source: "qrc:/resources/icons/list-triangle.svg"
-                                width: 7
-                                height: 6
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            delegate: ItemDelegate {
-                                width: parent.width
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                background: Rectangle {
-                                    color: parent.hovered ? "#46464A" : "#3E3E42"
-                                    radius: 3
-                                }
-                            }
-
-                            onActivated: {
-                                sortingParams.warehouse = currentValue
-                                loadDetails()
-                            }
+                    Filter {
+                        filterLabel: qsTr("Склад")
+                        filterModel: ["Все"].concat(Object.keys(detailsFilter.warehouse))
+                        selectedValue: sortingParams.warehouse
+                        onValueSelected: function(value) {
+                            sortingParams.warehouse = value
+                            loadDetails()
                         }
                     }
 
@@ -692,30 +184,10 @@ Rectangle {
                             font.pixelSize: 12
                         }
 
-                        Button {
-                            Layout.preferredWidth: 120
-                            Layout.preferredHeight: 40
-                            text: "Сбросить"
-
-                            contentItem: Text {
-                                text: parent.text
-                                color: parent.pressed ? "#505050" : "#181819"
-                                font.pixelSize: 12
-                                font.weight: 500
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            background: Rectangle {
-                                color: parent.pressed ? "#C8CACC" : "#E6E8E9"
-                                radius: 5
-                            }
-
-                            HoverHandler {
-                                cursorShape: Qt.PointingHandCursor
-                            }
-
-                            onClicked: {
+                        // Кнопка сброса фильтров
+                        WhiteButton {
+                            buttonText: "Сбросить"
+                            onClickedHandler: function() {
                                 // Сброс всех фильтров
                             }
                         }
@@ -731,20 +203,18 @@ Rectangle {
                     radius: 5
 
                     // Свойства для сортировки
-                    property string sortColumn: "date"  // По умолчанию сортировка по дате
-                    property bool sortAscending: false  // false = по убыванию (новые сверху)
+                    property string sortColumn: "date"
+                    property bool sortAscending: false
 
                     // Функция сортировки массива деталей
                     function sortDetailsList() {
                         if (!details || details.length === 0) return
 
-                        // Создаем копию массива и сортируем
                         var sorted = JSON.parse(JSON.stringify(details))
 
                         sorted.sort(function(a, b) {
                             var valA, valB
 
-                            // Получаем значения для сравнения в зависимости от колонки
                             switch(headerRow.sortColumn) {
                                 case "action": return 0
                                 case "type":
@@ -778,7 +248,6 @@ Rectangle {
                                 default: return 0
                             }
 
-                            // Сравнение
                             if (valA < valB) return headerRow.sortAscending ? -1 : 1
                             if (valA > valB) return headerRow.sortAscending ? 1 : -1
                             return 0
@@ -829,304 +298,87 @@ Rectangle {
                         }
 
                         // Тип
-                        Rectangle {
-                            Layout.preferredWidth: 80
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Тип")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                    leftPadding: -10
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "type"
-                                    rotation: headerRow.sortColumn === "type" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("type")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Тип"
+                            columnKey: "type"
+                            columnWidth: 80
+                            textLeftPadding: -10
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Номер
-                        Rectangle {
-                            Layout.preferredWidth: 120
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Номер")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "number"
-                                    rotation: headerRow.sortColumn === "number" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("number")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Номер"
+                            columnKey: "number"
+                            columnWidth: 120
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Партия
-                        Rectangle {
-                            Layout.preferredWidth: 115
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Партия")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "batch"
-                                    rotation: headerRow.sortColumn === "batch" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("batch")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Партия"
+                            columnKey: "batch"
+                            columnWidth: 115
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Статус
-                        Rectangle {
-                            Layout.preferredWidth: 110
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Статус")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "status"
-                                    rotation: headerRow.sortColumn === "status" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("status")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Статус"
+                            columnKey: "status"
+                            columnWidth: 110
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Заказ
-                        Rectangle {
-                            Layout.preferredWidth: 125
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Заказ")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "order"
-                                    rotation: headerRow.sortColumn === "order" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("order")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Заказ"
+                            columnKey: "order"
+                            columnWidth: 125
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Склад
-                        Rectangle {
-                            Layout.preferredWidth: 160
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Склад")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "warehouse"
-                                    rotation: headerRow.sortColumn === "warehouse" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("warehouse")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Склад"
+                            columnKey: "warehouse"
+                            columnWidth: 160
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
 
                         // Дата
-                        Rectangle {
-                            Layout.preferredWidth: 100
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Дата")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-
-                                Image {
-                                    source: "qrc:/resources/icons/list-triangle.svg"
-                                    width: 12
-                                    height: 12
-                                    fillMode: Image.PreserveAspectFit
-                                    visible: headerRow.sortColumn === "date"
-                                    rotation: headerRow.sortColumn === "date" ? (headerRow.sortAscending ? 180 : 0) : 0
-                                    Behavior on rotation {
-                                        NumberAnimation { duration: 0 }
-                                    }
-                                }
-
-                                Item { Layout.fillWidth: true }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    headerRow.toggleSort("date")
-                                }
+                        TableHeaderColumn {
+                            columnHeader: "Дата"
+                            columnKey: "date"
+                            columnWidth: 100
+                            currentSortColumn: headerRow.sortColumn
+                            sortAscending: headerRow.sortAscending
+                            onSortClicked: function(key) {
+                                headerRow.toggleSort(key)
                             }
                         }
                     }
@@ -1157,10 +409,8 @@ Rectangle {
                                     anchors.rightMargin: 15
                                     spacing: 10
 
-                                    Button {
-                                        Layout.preferredWidth: 120
-                                        Layout.preferredHeight: 40
-                                        text: {
+                                    WhiteButton {
+                                        buttonText: {
                                             switch (modelData.status) {
                                                 case "pending": return "Распределить"
                                                 case "in_production": return "Распределить"
@@ -1168,31 +418,13 @@ Rectangle {
                                                 case "completed": return "Отменить"
                                                 case "canceled": return "-"
                                                 default: {
-                                                    console.error("Uknown type of modelData.status=", modelData.status)
+                                                    console.error("Unknown type of modelData.status=", modelData.status)
                                                     return "undefined"
                                                 }
                                             }
                                         }
-                                        contentItem: Text {
-                                            text: parent.text
-                                            color: parent.pressed ? "#505050" : "#181819"
-                                            font.pixelSize: 12
-                                            font.weight: 500
-                                            font.family: "Roboto"
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                        }
-
-                                        HoverHandler {
-                                            cursorShape: Qt.PointingHandCursor
-                                        }
-
-                                        background: Rectangle {
-                                            color: parent.pressed ? "#C8CACC" : "#E6E8E9"
-                                            radius: 5
-                                        }
-
-                                        onClicked: {
+                                        isDisabled: modelData.status === "canceled"
+                                        onClickedHandler: function() {
                                             // Действие с деталью
                                         }
                                     }
@@ -1218,97 +450,64 @@ Rectangle {
                                     }
 
                                     // Тип
-                                    Text {
-                                        Layout.preferredWidth: 80
-                                        text: modelData.type.name
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
-                                        leftPadding: 5
+                                    TableCell {
+                                        cellText: modelData.type?.name || "-"
+                                        cellWidth: 80
+                                        textLeftPadding: 5
                                     }
 
                                     // Номер
-                                    Text {
-                                        Layout.preferredWidth: 120
-                                        text: modelData.serial_number
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
-                                        leftPadding: 5
+                                    TableCell {
+                                        cellText: modelData.serial_number || "-"
+                                        cellWidth: 120
+                                        textLeftPadding: 5
                                     }
 
                                     // Партия
-                                    Text {
-                                        Layout.preferredWidth: 100
-                                        text: modelData.serial_number
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
-                                        leftPadding: -5
+                                    TableCell {
+                                        cellText: modelData.serial_number || "-" // сделай чтобы modelData.batch корректно отрабатывало
+                                        cellWidth: 100
+                                        textLeftPadding: -5
                                     }
 
                                     // Статус
-                                    Text {
-                                        Layout.preferredWidth: 100
-                                        text: {
+                                    TableCell {
+                                        cellText: {
                                             switch (modelData.status) {
                                                 case "pending": return "Обрабатывается"
                                                 case "in_production": return "В производстве"
                                                 case "sorting": return "Сортировка"
                                                 case "completed": return "Отсортирован"
                                                 case "canceled": return "Отменён"
-                                                default: {
-                                                    console.error("Uknown type of modelData.status=", modelData.status)
-                                                    return "undefined"
-                                                }
+                                                default: return "—"
                                             }
                                         }
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
+                                        cellWidth: 100
+                                        textLeftPadding: -1
                                     }
 
                                     // Заказ
-                                    Text {
-                                        Layout.preferredWidth: 120
-                                        text: modelData.order != undefined ? modelData.order.name : "-"
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
+                                    TableCell {
+                                        cellText: modelData.order?.name || "-"
+                                        cellWidth: 120
+                                        textLeftPadding: -1
                                     }
 
                                     // Склад
-                                    Text {
-                                        Layout.preferredWidth: 145
-                                        text: qsTr("%1,%2...").arg(modelData.warehouse.address.street).arg(modelData.warehouse.address.building)
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
-                                        leftPadding: -5
+                                    TableCell {
+                                        cellText: modelData.warehouse?.address
+                                                 ? qsTr("%1,%2...").arg(modelData.warehouse.address.street)
+                                                                   .arg(modelData.warehouse.address.building)
+                                                 : "-"
+                                        cellWidth: 145
+                                        textLeftPadding: -5
                                     }
 
                                     // Дата
-                                    Text {
-                                        Layout.preferredWidth: 100
-                                        text: modelData.manufacture_date
-                                        color: "#B2B4BC"
-                                        font.pixelSize: 12
-                                        font.family: "Roboto"
-                                        font.weight: 400
-                                        elide: Text.ElideRight
-                                        leftPadding: -2
+                                    TableCell {
+                                        cellText: modelData.manufacture_date || "-"
+                                        cellWidth: 100
+                                        textLeftPadding: -2
                                     }
                                 }
                             }

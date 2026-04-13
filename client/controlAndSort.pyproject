@@ -14,6 +14,13 @@
         "controller/user.py",
         "controller/router.py",
         "controller/detail.py",
-        "Components/CTextField.qml"
+        "Components/CTextField.qml",
+        "Components/Filter.qml",
+        "Components/LeftSidebar.qml",
+        "Components/NavButtons.qml",
+        "Components/ProfileAndSearch.qml",
+        "Components/TableCell.qml",
+        "Components/TableHeaderColumn.qml",
+        "Components/WhiteButton.qml"
     ]
 }
