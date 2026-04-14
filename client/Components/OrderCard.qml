@@ -2,10 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
+import "../Components"
 
 Rectangle {
     id: root
@@ -39,7 +36,7 @@ Rectangle {
             text: root.customerName
             color: "white"
             font.pixelSize: 18
-            font.weight: Font.Bold
+            font.weight: 500
             font.family: "Roboto"
             wrapMode: Text.Wrap
         }
@@ -133,7 +130,7 @@ Rectangle {
                     text: Math.round(root.progress) + "%"
                     color: "white"
                     font.pixelSize: 16
-                    font.weight: Font.Bold
+                    font.weight: 500
                     font.family: "Roboto"
                 }
             }
@@ -214,27 +211,10 @@ Rectangle {
             Layout.alignment: Qt.AlignBottom
 
             // Кнопка редактирования
-            Rectangle {
-                Layout.preferredWidth: 40
-                Layout.preferredHeight: 40
-                radius: 5
-                color: "#E6E8E9"
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        if (root.onEditClicked)
-                            root.onEditClicked()
-                    }
-                }
-
-                // Иконка карандаша (простая)
-                Text {
-                    anchors.centerIn: parent
-                    text: "✎"
-                    color: "#181819"
-                    font.pixelSize: 18
+            IconButton {
+                onClickedHandler: function() {
+                    if (root.onEditClicked)
+                        root.onEditClicked()
                 }
             }
 
