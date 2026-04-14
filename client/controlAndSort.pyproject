@@ -23,6 +23,7 @@
         "Components/TableCell.qml",
         "Components/TableHeaderColumn.qml",
         "Components/WhiteButton.qml",
-        "Components/OrderCard.qml"
+        "Components/OrderCard.qml",
+        "Components/LeftSidebarTab.qml"
     ]
 }

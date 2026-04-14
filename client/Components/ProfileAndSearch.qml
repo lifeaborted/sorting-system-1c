@@ -6,6 +6,9 @@ import io.backend 1.0
 
 // Верхняя панель с поиском и профилем
 RowLayout {
+    id: root
+    signal valueChanged(text: string)
+    property string text
     Layout.fillWidth: true
     spacing: 15
 
@@ -34,14 +37,17 @@ RowLayout {
                 placeholderText: qsTr("Поиск...")
                 color: "#B2B4BC"
                 font.pixelSize: 14
+                text: root.text
                 font.weight: 400
                 font.family: "Roboto"
                 placeholderTextColor: activeFocus || text.length > 0 ? "transparent" : "#B2B4BC"
                 verticalAlignment: Text.AlignVCenter
                 leftPadding: 10
-
                 background: Rectangle {
                     color: "transparent"
+                }
+                onTextEdited: {
+                    root.valueChanged(searchField.text)
                 }
             }
         }

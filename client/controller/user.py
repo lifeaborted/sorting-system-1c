@@ -154,50 +154,65 @@ class User(QObject):
 
     @Slot("QVariant", result = "QVariantList")
     def load_details_filter(self, f: QObject):
-        data = self._details
-        if f.property("search") is not None:
-            # data = filter(lambda d: d[""])
-            pass
+        ru_translate = {
+            "pending": "обрабатывается",
+            "in_production": "в производстве",
+            "sorting": "сортировка",
+            "completed": "отсортирован",
+            "canceled": "отменён"
+        }
+        def filter_detail(d: Detail) -> bool:
+            if f.property("date") is not None:
+                # data = filter(lambda d: d[""])
+                pass
 
-        if f.property("date") is not None:
-            # data = filter(lambda d: d[""])
-            pass
+            type_f = f.property("type")
+            if type_f is not None and type_f != "Все":
+                if d["type"]["id"] != self._details_filter["detail_type"][type_f]:
+                    return False
 
-        type_f = f.property("type")
-        if type_f is not None and type_f != "Все":
-            data = filter(
-                lambda d: d["type"]["id"] == self._details_filter["detail_type"][type_f],
-                data
-            )
+            batch_f = f.property("batch")
+            if batch_f is not None and batch_f != "Все":
+                if d["batch_number"] != self._details_filter["batch"][batch_f]:
+                    return False
 
-        batch_f = f.property("batch")
-        if batch_f is not None and batch_f != "Все":
-            data = filter(
-                lambda d: d["batch_number"] == self._details_filter["batch"][batch_f],
-                data
-            )
+            status_f = f.property("status")
+            if status_f is not None and status_f != "Все":
+                if d["status"] != self._details_filter["status"][status_f]:
+                    return False
 
-        status_f = f.property("status")
-        if status_f is not None and status_f != "Все":
-            data = filter(
-                lambda d: d["status"] == self._details_filter["status"][status_f],
-                data
-            )
+            order_f = f.property("order")
+            if order_f is not None and order_f != "Все":
+                if d["order"] is None or d["order"]["id"] != self._details_filter["order"][order_f]:
+                    return False
 
-        order_f = f.property("order")
-        if order_f is not None and order_f != "Все":
-            data = filter(
-                lambda d: d["order"] is not None and
-                          d["order"]["id"] == self._details_filter["order"][order_f],
-                data
-            )
+            warehouse_f = f.property("warehouse")
+            if warehouse_f is not None and warehouse_f != "Все":
+                if d["warehouse"]["id"] != self._details_filter["warehouse"][warehouse_f]:
+                    return False
 
-        warehouse_f = f.property("warehouse")
-        if warehouse_f is not None and warehouse_f != "Все":
-            data = filter(
-                lambda d: d["warehouse"]["id"] == self._details_filter["warehouse"][warehouse_f],
-                data
-            )
+            words: dict = {}
+            for k, v in dict_iterator(d):
+                words[str(v).lower()] = True
+
+            if f.property("search") is not None and f.property("search") != "":
+                search_arr = str.split(f.property("search"), " ")
+                for word in search_arr:
+                    word = word.lower()
+                    found=False
+                    for k in words:
+                        if ru_translate.get(k) is not None:
+                            k = ru_translate[k]
+                        if str.__contains__(k, word):
+                            found=True
+                            break
+                    if not found:
+                        return False
+
+            return True
+
+
+        data = filter(filter_detail, self._details)
 
         arr = list(data)
         logging.info(f"For current filter found {len(arr)} entry")

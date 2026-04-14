@@ -27,6 +27,24 @@ Rectangle {
         //       ^^^^^^ <-- ???
     }
 
+
+    function createSortingParams() {
+        return Qt.createQmlObject(`
+            import QtQuick
+                QtObject {
+                    property string search: ""
+                    property string type: "Все"
+                    property string batch: "Все"
+                    property string status: "Все"
+                    property string order: "Все"
+                    property string warehouse: "Все"
+                    property var date: undefined
+                    //       ^^^^^^ <-- ???
+                }
+        `, detailsPage, "sortingParams")
+
+    }
+
     function loadDetails() {
         detailsFilter = Backend.user.load_sorting_options()
         // Биндинг из  controller.detail.py Детали
@@ -64,7 +82,14 @@ Rectangle {
                 anchors.topMargin: 60
                 spacing: 15
 
-                ProfileAndSearch{}
+                ProfileAndSearch{
+                    text: sortingParams.search
+                    onValueChanged: (value) => {
+                        sortingParams.search = value
+                        // If this laggs add timeout debouncer
+                        loadDetails()
+                    }
+                }
 
                 // Фильтры
                 RowLayout {
@@ -188,7 +213,7 @@ Rectangle {
                         WhiteButton {
                             buttonText: "Сбросить"
                             onClickedHandler: function() {
-                                // Сброс всех фильтров
+                                sortingParams = createSortingParams()
                             }
                         }
                     }

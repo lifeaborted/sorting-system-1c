@@ -11,7 +11,7 @@ ColumnLayout {
     // Настраиваемые свойства
     property string filterLabel: "Фильтр"
     property var filterModel: ["Все"]
-    property string selectedValue: "Все"
+    default property string selectedValue: "Все"
     property var onValueSelected: null  // Функция-колбэк: function(value)
 
     // Заголовок фильтра
@@ -84,26 +84,10 @@ ColumnLayout {
         }
 
         onActivated: {
-            root.selectedValue = currentValue
+            // This breaks qml bindings, update should be made only from parent
+            // root.selectedValue = currentValue
             if (root.onValueSelected)
                 root.onValueSelected(currentValue)
-        }
-    }
-
-    // Функция для изменения значения
-    function setValue(value) {
-        if (filterModel.indexOf(value) >= 0) {
-            comboBox.currentIndex = filterModel.indexOf(value)
-            selectedValue = value
-        }
-    }
-
-    // Функция для обновления модели
-    function setModel(newModel) {
-        filterModel = newModel
-        if (filterModel.indexOf(selectedValue) < 0) {
-            selectedValue = "Все"
-            comboBox.currentIndex = 0
         }
     }
 }

@@ -43,3 +43,9 @@ class Detail(TypedDict):
     type: DetailType
     status: Literal["pending", "in_production", "sorting", "completed", "canceled"]
 
+def dict_iterator(d: dict):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            yield from dict_iterator(v)
+        else:
+            yield k, v
