@@ -108,7 +108,7 @@ Item {
                     // заглушка для переноса на другую страницу
                     console.log(login, password)
                     Backend.login("Гайдулян", "Андрей", "Сергевич")
-                    Backend.router.route = "/details"
+                    Backend.router.route = "/orders"
                 }
             }
         }

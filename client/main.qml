@@ -32,9 +32,16 @@ Window {
             Page {
                 path: "/details"
                 page: Component {
-                    Details{}
+                    Details {}
+                }
+            },
+            Page{
+                path: "/orders"
+                page: Component {
+                    Orders {}
                 }
             }
+
         ]
         notFound:  Text {
             text: "not found"
