@@ -22,6 +22,7 @@
         "Components/ProfileAndSearch.qml",
         "Components/TableCell.qml",
         "Components/TableHeaderColumn.qml",
-        "Components/WhiteButton.qml"
+        "Components/WhiteButton.qml",
+        "Components/OrderCard.qml"
     ]
 }
