@@ -4,6 +4,7 @@
         "Components/qmldir",
         "Pages/Login.qml",
         "Pages/Details.qml",
+        "Pages/Orders.qml"
         "main.py",
         "main.qml",
         "qmldir",

@@ -10,7 +10,6 @@ __pycache__/
 MANIFEST
 pip-log.txt
 *.mo
-rc_resources.py
 
 # Packages & Eggs
 *.egg
