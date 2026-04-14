@@ -490,7 +490,7 @@ Rectangle {
 
                                     // Партия
                                     TableCell {
-                                        cellText: modelData.serial_number || "-" // сделай чтобы modelData.batch корректно отрабатывало
+                                        cellText: modelData.batch_number || "-"
                                         cellWidth: 100
                                         textLeftPadding: -5
                                     }
