@@ -6,7 +6,7 @@ import io.backend 1.0
 import "../Components"
 Item {
     id: window
-    anchors.fill: parent
+    width: 1280
     visible: true
     property string password: passwordField.text
     property string login: loginField.text
@@ -17,7 +17,6 @@ Item {
         fillMode: Image.PreserveAspectCrop
     }
 
-    NavButtons{}
 
     // Центральная карточка
     Rectangle {

@@ -12,7 +12,6 @@ Rectangle {
     color: "#28282A"
 
 
-    NavButtons {}
 
     // Заголовок окна
     RowLayout {

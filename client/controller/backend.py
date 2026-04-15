@@ -44,7 +44,7 @@ class Backend(QObject):
     def login(self, *args):
         if self._user is None:
             self._user = User(args[0], args[1], args[2])
-            logging.info(f"Login as {self._user.format_username("{first} {second} {middle}")}")
+            logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
         else:
             logging.warning("Tried to login while being already, skipping...")
 

@@ -23,6 +23,7 @@ if __name__ == "__main__":
     engine.addImportPath(sys.path[0].join("/controller"))
     engine.load(qml_file)
 
+
     ''' василий поменяешь если чето не понравится
     '''
     #👍👍👍👍👍👍👍 ok ^

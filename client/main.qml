@@ -1,16 +1,23 @@
 import QtQuick 2.9
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 6.11
 import io.backend 1.0
 import "Pages"
 import "Components"
 
 Window {
+    id: window
     width: 1280
     height: 720
     visible: true
     title: qsTr("sorting system 1c")
-    flags: Qt.FramelessWindowHint
+    flags: Qt.FramelessWindowHint | Qt.WindowSystemMenuHint | Qt.WindowMinimizeButtonHint | Qt.Window
+
+    NavButtons{
+        z:999
+        onDragAreaPressed: window.startSystemMove()
+    }
     NavRouter {
         id: router
         defaultPath: "/login"

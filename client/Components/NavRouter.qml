@@ -1,11 +1,12 @@
 import QtQuick 2.9
 import io.backend 1.0
 import QtQuick.Controls 2.15
-
+import QtQuick.Layouts 6.11
 Item {
-    // anchors.fill: parent
     width: 1280
     height: 720
+    // Layout.fillWidth: true
+    // Layout.fillHeight: true
     id: root
     required property list<Page> pages
     required property Item notFound

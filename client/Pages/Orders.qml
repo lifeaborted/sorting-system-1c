@@ -7,8 +7,7 @@ import "../Components"
 Rectangle {
     id: detailsPage
     color: "#2e2e2e"
-    width: 1280
-    height: 720
+    anchors.fill: parent
 
     Material.theme: Material.Dark
     Material.accent: Material.Blue
@@ -56,7 +55,6 @@ Rectangle {
             Layout.fillHeight: true
             color: "#2e2e2e"
 
-            NavButtons{}
 
             ColumnLayout {
                 anchors.fill: parent
