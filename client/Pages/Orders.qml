@@ -190,7 +190,7 @@ Rectangle {
                             customerName: "ООО «Рога и Копыта»"
                             status: "выполняется"
                             priority: 5
-                            note: "Производство цинковых гробов"
+                            note: "Производство деревянных домов"
                             progress: 75.0
                             price: 25000
                             materials: [
