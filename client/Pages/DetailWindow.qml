@@ -72,7 +72,7 @@ Rectangle {
 
                 // 3. Номер партии
                 InfoRow {
-                    iconSource: "qrc:/resources/icons/batch.svg"
+                    iconSource: "qrc:/resources/icons/batch-number.svg"
                     labelText: qsTr("Номер партии")
                 }
 

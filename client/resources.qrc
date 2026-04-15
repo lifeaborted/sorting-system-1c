@@ -15,6 +15,11 @@
         <file>resources/icons/pencil.svg</file>
         <file>resources/icons/type.svg</file>
         <file>resources/icons/serial-number.svg</file>
+        <file>resources/icons/batch-number.svg</file>
+        <file>resources/icons/status.svg</file>
+        <file>resources/icons/order.svg</file>
+        <file>resources/icons/warehouse.svg</file>
+        <file>resources/icons/date.svg</file>
 
 
 
