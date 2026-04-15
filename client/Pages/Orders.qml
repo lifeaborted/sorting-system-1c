@@ -163,7 +163,7 @@ Rectangle {
                         }
 
                         // Кнопка сброса фильтров
-                        WhiteButton {
+                        TextButton {
                             buttonText: "Сбросить"
                             onClickedHandler: function() {
                                 // Сброс всех фильтров

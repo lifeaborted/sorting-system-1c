@@ -210,7 +210,7 @@ Rectangle {
                         }
 
                         // Кнопка сброса фильтров
-                        WhiteButton {
+                        TextButton {
                             buttonText: "Сбросить"
                             onClickedHandler: function() {
                                 sortingParams = createSortingParams()
@@ -434,7 +434,7 @@ Rectangle {
                                     anchors.rightMargin: 15
                                     spacing: 10
 
-                                    WhiteButton {
+                                    TextButton {
                                         buttonText: {
                                             switch (modelData.status) {
                                                 case "pending": return "Распределить"
@@ -455,22 +455,18 @@ Rectangle {
                                     }
 
                                     // Иконка информации
-                                    Rectangle {
-                                        Layout.preferredWidth: 30
-                                        Layout.preferredHeight: 30
-                                        radius: 4
-                                        color: "#3e3e3e"
-
-                                        Image {
-                                            anchors.centerIn: parent
-                                            source: "qrc:/resources/icons/info-circle.svg"
-                                            width: 20
-                                            height: 20
-                                            fillMode: Image.PreserveAspectFit
+                                    IconButton {
+                                        iconSource: "qrc:/resources/icons/info-circle.svg"
+                                        buttonWidth: 30
+                                        buttonHeight: 30
+                                        iconSize: 20
+                                        onClickedHandler: function() {
+                                            Backend.router.route = "/detailWindow"
                                         }
 
-                                        HoverHandler {
-                                            cursorShape: Qt.PointingHandCursor
+                                        background: Rectangle {
+                                            color: "#3e3e3e"
+                                            radius: 4
                                         }
                                     }
 

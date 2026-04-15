@@ -40,6 +40,12 @@ Window {
                 page: Component {
                     Orders {}
                 }
+            },
+            Page{
+                path: "/detailWindow"
+                page: Component {
+                    DetailWindow {}
+                }
             }
 
         ]
