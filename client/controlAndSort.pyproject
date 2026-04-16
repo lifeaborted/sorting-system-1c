@@ -25,6 +25,7 @@
         "Components/TableHeaderColumn.qml",
         "Components/TextButton.qml",
         "Components/OrderCard.qml",
+        "Components/FilterCalendar.qml",
         "Components/LeftSidebarTab.qml",
         "Components/InfoRow.qml"
     ]

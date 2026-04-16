@@ -22,8 +22,10 @@ Rectangle {
         property string status: "Все"
         property string order: "Все"
         property string warehouse: "Все"
-        property var date: undefined
-        //       ^^^^^^ <-- ???
+        property QtObject date: QtObject {
+            property string from: "01.04.2026"
+            property string to: "20.04.2026"
+        }
     }
 
     property QtObject sortingProperty: QtObject {
@@ -61,8 +63,10 @@ Rectangle {
                     property string status: "Все"
                     property string order: "Все"
                     property string warehouse: "Все"
-                    property var date: undefined
-                    //       ^^^^^^ <-- ???
+                    property QtObject date: QtObject {
+                        property string from: "01.04.2026"
+                        property string to: "20.04.2026"
+                    }
                 }
         `, detailsPage, "sortingParams")
 
@@ -173,6 +177,7 @@ Rectangle {
                     }
 
                     // Дата производства
+
                     ColumnLayout {
                         Layout.preferredWidth: 120
                         Layout.preferredHeight: 50
@@ -188,34 +193,16 @@ Rectangle {
                             bottomPadding: -5
                         }
 
-                        Rectangle {
+                        FilterCalendar {
                             Layout.preferredWidth: 160
                             Layout.preferredHeight: 30
-                            color: "#3E3E42"
-                            radius: 5
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-
-                                Text {
-                                    text: qsTr("01.01.26 - 01.01.27")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Image {
-                                    source: "qrc:/resources/icons/calendar.svg"
-                                    width: 16
-                                    height: 16
-                                    fillMode: Image.PreserveAspectFit
-                                }
+                            from: sortingParams.date.from
+                            to: sortingParams.date.to
+                            onFromSelected: (date) => {
+                                sortingParams.date.from = date
+                            }
+                            onToSelected: (date) => {
+                                sortingParams.date.to = date
                             }
                         }
                     }
