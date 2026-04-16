@@ -12,6 +12,11 @@ RowLayout {
     Layout.fillWidth: true
     spacing: 15
 
+    function logout() {
+        Backend.logout()
+        Backend.router.route = "/login"
+    }
+
     // Поиск
     Rectangle {
         Layout.preferredWidth: 780
@@ -55,6 +60,7 @@ RowLayout {
 
     // Профиль пользователя
     Rectangle {
+        id: userProfile
         Layout.preferredWidth: 180
         Layout.preferredHeight: 50
         color: "transparent"
@@ -91,11 +97,37 @@ RowLayout {
             }
 
             // Треугольник
-            Image {
-                source: "qrc:/resources/icons/profile-triangle.svg"
+            MouseArea {
                 width: 16
                 height: 12
-                fillMode: Image.PreserveAspectFit
+                cursorShape: "PointingHandCursor"
+                onClicked: popup.open()
+                Image {
+                    source: "qrc:/resources/icons/profile-triangle.svg"
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+                }
+                Popup {
+                    x: -userProfile.width
+                    y: userProfile.y + userProfile.height / 2
+                    id: popup
+                    Rectangle {
+                        width: userProfile.width + 16/2
+                        height: userProfile.height
+                        color: "#B2B4BC"
+                        RowLayout {
+                            width: parent.width
+                            Button {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                text: "ВЫХОД"
+                                onClicked: {
+                                    logout()
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
