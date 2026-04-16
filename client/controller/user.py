@@ -165,9 +165,14 @@ class User(QObject):
         }
         def filter_detail(d: Detail) -> bool:
             if f.property("date") is not None:
-                # data = filter(lambda d: d[""])
-                pass
+                from_date = f.property("date").property("from")
+                to_date = f.property("date").property("to")
+                from_p = datetime.strptime(from_date, "%d.%m.%Y")
+                to_p = datetime.strptime(f"{to_date} 23:59", "%d.%m.%Y %H:%M")
 
+                detail_date = datetime.strptime(d["manufacture_date"], "%d.%m.%y %H:%M:%S")
+                if detail_date < from_p or detail_date > to_p:
+                    return False
             type_f = f.property("type")
             if type_f is not None and type_f != "Все":
                 if d["type"]["id"] != self._details_filter["detail_type"][type_f]:

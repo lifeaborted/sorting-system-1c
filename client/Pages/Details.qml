@@ -200,9 +200,11 @@ Rectangle {
                             to: sortingParams.date.to
                             onFromSelected: (date) => {
                                 sortingParams.date.from = date
+                                loadDetails()
                             }
                             onToSelected: (date) => {
                                 sortingParams.date.to = date
+                                loadDetails()
                             }
                         }
                     }
