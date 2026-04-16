@@ -30,9 +30,9 @@ if __name__ == "__main__":
 
     # Font loading
     font_ids = [
-        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Regular.ttf"),
-        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Medium.ttf"),
-        QFontDatabase.addApplicationFont("qrc:/resources/fonts/Roboto-Bold.ttf")
+        QFontDatabase.addApplicationFont(":/resources/fonts/Roboto-Regular.ttf"),
+        QFontDatabase.addApplicationFont(":/resources/fonts/Roboto-Medium.ttf"),
+        QFontDatabase.addApplicationFont(":/resources/fonts/Roboto-Bold.ttf")
     ]
 
     # Default font for entire app

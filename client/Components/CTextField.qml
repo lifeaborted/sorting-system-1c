@@ -23,6 +23,7 @@ ColumnLayout {
         id: textField
         placeholderText: placeholder
         placeholderTextColor: "#B2B4BC"
+        color: "#B2B4BC"
         Layout.fillWidth: true
         font.pixelSize: 14
         font.weight: 700
