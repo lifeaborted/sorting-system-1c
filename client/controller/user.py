@@ -3,6 +3,7 @@ import json
 import logging
 import random
 from datetime import datetime, timedelta
+from operator import attrgetter, itemgetter
 from typing import List
 
 from PySide6 import QtCore
@@ -115,8 +116,7 @@ class User(QObject):
             end = datetime(2026, 12, 31)
             delta = end - start
             random_days = random.randint(0, delta.days)
-            manufacture_date = (start + timedelta(days=random_days)).strftime("%d.%m.%y")
-
+            manufacture_date = (start + timedelta(days=random_days)).strftime("%d.%m.%y %H:%M:%S")
             detail: Detail = {
                 "id": i,
                 "serial_number": serial_number,
@@ -152,8 +152,10 @@ class User(QObject):
     def load_sorting_options(self):
         return self._details_filter
 
-    @Slot("QVariant", result = "QVariantList")
-    def load_details_filter(self, f: QObject):
+
+
+    @Slot("QVariant", "QVariant", result = "QVariantList")
+    def load_details_filter(self, f: QObject, sortParams: QObject):
         ru_translate = {
             "pending": "обрабатывается",
             "in_production": "в производстве",
@@ -214,6 +216,27 @@ class User(QObject):
 
         data = filter(filter_detail, self._details)
 
+        attr_getter = None
+        sort_name = sortParams.property("propertyName")
+        match sort_name:
+            case "type":
+                attr_getter = lambda x: x["type"]["name"]
+            case "serial":
+                attr_getter = lambda x: x["serial_number"]
+            case "batch":
+                attr_getter = lambda x: x["batch_number"]
+            case "status":
+                attr_getter = lambda x: x["status"]
+            case "order":
+                attr_getter = lambda x: (x.get("order") or {}).get("name", "")
+            case "warehouse":
+                attr_getter = lambda x: (itemgetter("country", "region", "city", "street", "building"))(x["warehouse"]["address"])
+            case "date":
+                attr_getter = lambda x: datetime.strptime(x["manufacture_date"], "%d.%m.%y %H:%M:%S")
+            case _:
+                logging.error(f"Unknown sorting property. propertyName={sort_name}")
+
+        data = sorted(data, key=attr_getter, reverse=sortParams.property("sortAsc"))
         arr = list(data)
         logging.info(f"For current filter found {len(arr)} entry")
         return arr

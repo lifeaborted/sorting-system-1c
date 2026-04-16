@@ -26,9 +26,33 @@ Rectangle {
         //       ^^^^^^ <-- ???
     }
 
+    property QtObject sortingProperty: QtObject {
+        property string propertyName: "date"
+        property bool sortAsc: true
 
-    function createSortingParams() {
-        return Qt.createQmlObject(`
+    }
+
+    function toggleSort(columnName) {
+        if (sortingProperty.propertyName === columnName) {
+            sortingProperty.sortAsc = !sortingProperty.sortAsc
+        } else {
+            sortingProperty.propertyName = columnName
+            sortingProperty.sortAsc = false
+        }
+
+        loadDetails()
+    }
+
+
+    function resetParams() {
+        sortingProperty = Qt.createQmlObject(`
+            import QtQuick
+            QtObject {
+                property string propertyName: "date"
+                property bool sortAsc: true
+            }
+        `, detailsPage, "sortingProperty")
+        sortingParams = Qt.createQmlObject(`
             import QtQuick
                 QtObject {
                     property string search: ""
@@ -50,7 +74,7 @@ Rectangle {
         // Можно считать, что значения закешированы, и никакой дополнительной нагрузке вызов функции не несёт
         // Детали не надо напрямую редачить
         // и массив тоже не имеет смысла :p
-        details = Backend.user.load_details_filter(sortingParams)
+        details = Backend.user.load_details_filter(sortingParams, sortingProperty)
     }
 
     Component.onCompleted: {
@@ -210,7 +234,7 @@ Rectangle {
                         TextButton {
                             buttonText: "Сбросить"
                             onClickedHandler: function() {
-                                sortingParams = createSortingParams()
+                                resetParams()
                             }
                         }
                     }
@@ -223,73 +247,6 @@ Rectangle {
                     Layout.preferredHeight: 60
                     color: "#3E3E42"
                     radius: 5
-
-                    // Свойства для сортировки
-                    property string sortColumn: "date"
-                    property bool sortAscending: false
-
-                    // Функция сортировки массива деталей
-                    function sortDetailsList() {
-                        if (!details || details.length === 0) return
-
-                        var sorted = JSON.parse(JSON.stringify(details))
-
-                        sorted.sort(function(a, b) {
-                            var valA, valB
-
-                            switch(headerRow.sortColumn) {
-                                case "action": return 0
-                                case "type":
-                                    valA = a.type ? a.type.name : ""
-                                    valB = b.type ? b.type.name : ""
-                                    break
-                                case "number":
-                                    valA = a.serial_number || ""
-                                    valB = b.serial_number || ""
-                                    break
-                                case "batch":
-                                    valA = a.batch || ""
-                                    valB = b.batch || ""
-                                    break
-                                case "status":
-                                    valA = a.status || ""
-                                    valB = b.status || ""
-                                    break
-                                case "order":
-                                    valA = a.order ? a.order.name : ""
-                                    valB = b.order ? b.order.name : ""
-                                    break
-                                case "warehouse":
-                                    valA = a.warehouse ? (a.warehouse.address?.street + a.warehouse.address?.building) : ""
-                                    valB = b.warehouse ? (b.warehouse.address?.street + b.warehouse.address?.building) : ""
-                                    break
-                                case "date":
-                                    valA = a.manufacture_date || ""
-                                    valB = b.manufacture_date || ""
-                                    break
-                                default: return 0
-                            }
-
-                            if (valA < valB) return headerRow.sortAscending ? -1 : 1
-                            if (valA > valB) return headerRow.sortAscending ? 1 : -1
-                            return 0
-                        })
-
-                        details = sorted
-                    }
-
-                    // Функция переключения сортировки
-                    function toggleSort(columnName) {
-                        if (headerRow.sortColumn === columnName) {
-                            headerRow.sortAscending = !headerRow.sortAscending
-                        } else {
-                            headerRow.sortColumn = columnName
-                            headerRow.sortAscending = false
-                        }
-
-                        sortDetailsList()
-                    }
-
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 10
@@ -325,22 +282,22 @@ Rectangle {
                             columnKey: "type"
                             columnWidth: 80
                             textLeftPadding: -10
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
                         // Номер
                         TableHeaderColumn {
                             columnHeader: "Номер"
-                            columnKey: "number"
+                            columnKey: "serial"
                             columnWidth: 120
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
@@ -349,10 +306,10 @@ Rectangle {
                             columnHeader: "Партия"
                             columnKey: "batch"
                             columnWidth: 115
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
@@ -361,10 +318,10 @@ Rectangle {
                             columnHeader: "Статус"
                             columnKey: "status"
                             columnWidth: 110
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
@@ -373,10 +330,10 @@ Rectangle {
                             columnHeader: "Заказ"
                             columnKey: "order"
                             columnWidth: 125
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
@@ -385,10 +342,10 @@ Rectangle {
                             columnHeader: "Склад"
                             columnKey: "warehouse"
                             columnWidth: 160
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
 
@@ -397,10 +354,10 @@ Rectangle {
                             columnHeader: "Дата"
                             columnKey: "date"
                             columnWidth: 100
-                            currentSortColumn: headerRow.sortColumn
-                            sortAscending: headerRow.sortAscending
+                            currentSortColumn: sortingProperty.propertyName
+                            sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
-                                headerRow.toggleSort(key)
+                                toggleSort(key)
                             }
                         }
                     }

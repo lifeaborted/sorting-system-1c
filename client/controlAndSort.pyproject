@@ -5,7 +5,7 @@
         "Pages/Login.qml",
         "Pages/Details.qml",
         "Pages/Orders.qml",
-        "Pages/DetailWindows.qml",
+        "Pages/DetailWindow.qml",
         "main.py",
         "main.qml",
         "qmldir",
