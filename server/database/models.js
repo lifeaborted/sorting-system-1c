@@ -1,7 +1,7 @@
 const sequelize = require('./database');
 const { DataTypes } = require('sequelize');
 
-const Address = sequelize.define('Address', {
+const Address = sequelize.define('address', {
     address_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     country: { type: DataTypes.STRING(100), allowNull: false },
     region: { type: DataTypes.STRING(100) },
@@ -14,7 +14,7 @@ const Address = sequelize.define('Address', {
     timestamps: false
 });
 
-const Warehouse = sequelize.define('Warehouse', {
+const Warehouse = sequelize.define('warehouse', {
     warehouse_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING(150), allowNull: false },
     address_id: { type: DataTypes.INTEGER, allowNull: false }
@@ -25,7 +25,7 @@ const Warehouse = sequelize.define('Warehouse', {
     updatedAt: false
 });
 
-const Employee = sequelize.define('Employee', {
+const Employee = sequelize.define('employee', {
     employee_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     first_name: { type: DataTypes.STRING(50), allowNull: false },
     last_name: { type: DataTypes.STRING(50), allowNull: false },
@@ -42,7 +42,7 @@ const Employee = sequelize.define('Employee', {
     indexes: [{ name: 'idx_employee_login', fields: ['login'] }]
 });
 
-const Customer = sequelize.define('Customer', {
+const Customer = sequelize.define('customer', {
     customer_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     company_name: { type: DataTypes.STRING(200), allowNull: false },
     inn: { type: DataTypes.STRING(12), allowNull: false, unique: true },
@@ -56,7 +56,7 @@ const Customer = sequelize.define('Customer', {
     indexes: [{ name: 'idx_customer', fields: ['company_name', 'inn', 'ogrn'] }]
 });
 
-const Order = sequelize.define('Order', {
+const Order = sequelize.define('order', {
     order_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_number: { type: DataTypes.STRING(50), allowNull: false, unique: true },
     customer_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -73,7 +73,7 @@ const Order = sequelize.define('Order', {
     indexes: [{ name: 'idx_orders', fields: ['order_number', 'created_at', 'status'] }]
 });
 
-const OrderItem = sequelize.define('OrderItem', {
+const OrderItem = sequelize.define('orderItem', {
     order_item_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_id: { type: DataTypes.INTEGER, allowNull: false },
     required_quantity: {
@@ -90,7 +90,7 @@ const OrderItem = sequelize.define('OrderItem', {
     ]
 });
 
-const PartType = sequelize.define('PartType', {
+const PartType = sequelize.define('partType', {
     part_type_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING(150), allowNull: false, unique: true },
     type_code: { type: DataTypes.STRING(100), allowNull: false, unique: true }
@@ -100,7 +100,7 @@ const PartType = sequelize.define('PartType', {
     indexes: [{ name: 'idx_part_types_type_code', fields: ['type_code'] }]
 });
 
-const Part = sequelize.define('Part', {
+const Part = sequelize.define('part', {
     part_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     serial_number: { type: DataTypes.STRING(100), allowNull: false, unique: true },
     batch_number: { type: DataTypes.STRING(100) },
@@ -117,8 +117,8 @@ const Part = sequelize.define('Part', {
     indexes: [{ name: 'idx_parts_search', fields: ['part_type_id', 'manufacture_date', 'serial_number', 'batch_number'] }]
 });
 
-const OrderItemPart = sequelize.define('OrderItemPart', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, // Суррогатный ключ для Sequelize
+const OrderItemPart = sequelize.define('orderItemPart', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_item_id: { type: DataTypes.INTEGER, allowNull: false },
     part_id: { type: DataTypes.INTEGER, allowNull: false, unique: true }
 }, {
