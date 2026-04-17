@@ -1,29 +1,35 @@
 require('dotenv').config()
+
 const express = require('express')
+const {WebSocketServer} = require('ws')
 const cors = require('cors')
 
 const database = require('./database/database')
-const router = require('./routes/router')
+const getRouter = require('./routes/router')
 
-const PORT = process.env.PORT || 5000
+// Server settings
+const HTTP_PORT = process.env.HTTP_PORT || 5000
+const WS_PORT = process.env.WS_PORT || 5050
+
+const wss = new WebSocketServer({port: WS_PORT})
 
 const app = express()
 app.use(cors())
 app.use(express.json())
-app.use('/api', router)
+app.use('/api', getRouter({wss: wss}))
 
 const start = async () => {
     try
     {
+        // Init database
         await database.authenticate()
         await database.sync()
-        app.listen(PORT, () => console.log(`REST API server started on port ${PORT}`))
+        app.listen(HTTP_PORT, () => console.log(`REST API server started on port ${HTTP_PORT}`))
     }
     catch (e)
     {
         console.log(e)
     }
 }
-
 
 start()

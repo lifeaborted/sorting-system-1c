@@ -31,6 +31,11 @@ class ApiError extends Error
     {
         return new ApiError(409, message)
     }
+
+    static ok()
+    {
+        return new ApiError(200, 'Ok')
+    }
 }
 
 module.exports = ApiError
