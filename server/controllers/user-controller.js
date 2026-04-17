@@ -44,7 +44,7 @@ class UserController
         }
     }
 
-    async login(req, res, next)
+    async login(req, res)
     {
         try
         {
@@ -83,7 +83,7 @@ class UserController
         }
     }
 
-    async check(req, res, next)
+    async check(req, res)
     {
         try
         {
@@ -100,7 +100,7 @@ class UserController
         }
     }
 
-    async getAll(req, res, next)
+    async getAll(req, res)
     {
         try
         {
@@ -123,14 +123,14 @@ class UserController
         }
     }
 
-    async getOne(req, res, next)
+    async getOne(req, res)
     {
         try
         {
             const {id} = req.params
             if (isNaN(id))
             {
-                return next(ApiError.badRequest("Incorrect request data"))
+                return res.json(ApiError.badRequest("Incorrect request data"))
             }
             const user = await Employee.findOne({where: {employee_id: id}, attributes: [
                     "employee_id",
@@ -140,7 +140,7 @@ class UserController
                     "role",
                     "is_active",
                     "login",
-                    "created_at",
+                    "created_at"
                 ]})
 
             if (user)

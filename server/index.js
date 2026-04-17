@@ -17,7 +17,7 @@ const start = async () => {
     {
         await database.authenticate()
         await database.sync()
-        app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
+        app.listen(PORT, () => console.log(`REST API server started on port ${PORT}`))
     }
     catch (e)
     {
