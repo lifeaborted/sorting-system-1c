@@ -1,5 +1,5 @@
 setlocal
-FOR /F "tokens=*" %%i in ('type Settings.txt') do SET %%i
+FOR /F "tokens=*" %%i in ('type build_meta.env') do SET %%i
 if exist build\ (
 	echo "folder [build] exists. deleting"
 	rmdir /s /q "build"

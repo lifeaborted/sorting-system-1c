@@ -7,5 +7,4 @@ if [ -d dist ]; then
 	echo "folder [dist] exists. deleting"
 	rm -r "dist"
 fi
-echo --icon="$ICON"
 pyinstaller --add-data "main.qml:." --add-data "Components:Components" --add-data "ProgramWindow.qml:." --add-data "Pages:Pages" --add-data "resources:resources"  --name="$APP_NAME" --windowed --onefile main.py --icon="$ICON"
