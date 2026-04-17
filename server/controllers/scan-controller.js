@@ -1,4 +1,5 @@
 const {Op} = require('sequelize');
+const {WebSocket} = require('ws')
 
 const ApiError = require('../error/api-error')
 const {OrderItemPart, Part, PartType, Employee, Warehouse, Address, OrderItem,
@@ -29,7 +30,14 @@ class ScanController
         }
 
         const partInfo = getAllInfoAboutPart(serial_number).toJSON()
-        // Как отправить по WebSocket?
+
+        this.wss.clients.forEach(client => {
+            if (client.readyState !== WebSocket.OPEN) {
+                return
+            }
+
+            client.send(partInfo)
+        })
 
         return res.json(ApiError.ok())
     }

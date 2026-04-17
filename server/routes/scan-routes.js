@@ -6,7 +6,7 @@ const getScanRouter = (args) => {
     const router = new Router()
     const scanController = new ScanController(args)
 
-    router.post("/", scanController.handleNNResponse)
+    router.post("/", scanController.handleNNResponse.bind(scanController))
 
     return router
 }
