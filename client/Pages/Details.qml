@@ -404,7 +404,9 @@ Rectangle {
                                         buttonHeight: 30
                                         iconSize: 20
                                         onClickedHandler: function() {
-                                            Backend.router.route = "/detailWindow"
+                                            Backend.router.open_popup_detailed("/detailWindow", {
+                                                detailId: modelData.id
+                                            })
                                         }
 
                                         background: Rectangle {
