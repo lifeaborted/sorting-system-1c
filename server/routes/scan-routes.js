@@ -1,9 +1,14 @@
-const express = require('express')
 const Router = require('express')
-const router = new Router()
 
-const scanController = require("../controllers/scan-controller")
+const ScanController = require("../controllers/scan-controller")
 
-router.post("/", scanController.handleNNResponse)
+const getScanRouter = (args) => {
+    const router = new Router()
+    const scanController = new ScanController(args)
 
-module.exports = router
+    router.post("/", scanController.handleNNResponse)
+
+    return router
+}
+
+module.exports = getScanRouter

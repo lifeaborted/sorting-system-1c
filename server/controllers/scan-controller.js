@@ -7,6 +7,14 @@ const {OrderItemPart, Part, PartType, Employee, Warehouse, Address, OrderItem,
 
 class ScanController
 {
+    constructor(args)
+    {
+        if (!args || !args.wss) {
+            throw new Error("Fatal error: wss is not available")
+        }
+        this.wss = args.wss
+    }
+
     async handleNNResponse(req, res)
     {
         const {serial_number, batch_number, manufacture_date} = req.body
@@ -156,5 +164,4 @@ class ScanController
     }
 }
 
-
-module.exports = new ScanController()
+module.exports = ScanController
