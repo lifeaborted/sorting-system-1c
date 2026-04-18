@@ -27,6 +27,7 @@
         "Components/OrderCard.qml",
         "Components/FilterCalendar.qml",
         "Components/LeftSidebarTab.qml",
-        "Components/InfoRow.qml"
+        "Components/InfoRow.qml",
+        "ProgramWindow.qml"
     ]
 }

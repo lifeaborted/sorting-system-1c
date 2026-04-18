@@ -6,11 +6,13 @@ import io.backend 1.0
 import "../Components"
 
 Rectangle {
+    required property var routeData
+    required property Window window
+    property int detailId: routeData["detailId"]
+    property var detail: Backend.user.get_detail(detailId)
     id: detailInfoPage
-    width: 800
-    height: 500
+    anchors.fill: parent
     color: "#28282A"
-
 
 
     // Заголовок окна
@@ -117,7 +119,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "Шкив"
+                    text: detail.type.name
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -129,7 +131,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "Ш-123-4567890"
+                    text: detail.serial_number
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -141,7 +143,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "П-12345"
+                    text: detail.batch_number
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -153,7 +155,14 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "На сортировке"
+                    text: switch (detail.status) {
+                        case "pending": return "Обрабатывается"
+                        case "in_production": return "В производстве"
+                        case "sorting": return "Сортировка"
+                        case "completed": return "Отсортирован"
+                        case "canceled": return "Отменён"
+                        default: return "—"
+                    }
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -212,7 +221,13 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "Россия, Челябинская обл., г. Челябинск, пр. Ленина, д. 228, 456789"
+                    text: qsTr("%1, %2, %3, %4, %5, %6")
+                        .arg(detail.warehouse.address.country)
+                        .arg(detail.warehouse.address.region)
+                        .arg(detail.warehouse.address.city)
+                        .arg(detail.warehouse.address.street)
+                        .arg(detail.warehouse.address.building)
+                        .arg(detail.warehouse.address.postal_code)
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -227,7 +242,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.alignment: Qt.AlignVCenter
-                    text: "01.01.26"
+                    text: detail.manufacture_date
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -252,7 +267,7 @@ Rectangle {
                         textColor: "#B2B4BC"
                         textColorPressed: "#909092"
                         onClickedHandler: function() {
-                            Backend.router.route = "/details" // можно попробовать добавить команду Back
+                            detailInfoPage.window.close()
                         }
                     }
 
@@ -262,6 +277,7 @@ Rectangle {
                         buttonHeight: 30
                         onClickedHandler: function() {
                             // Логика сохранения
+                            // TODO
                         }
                     }
                 }
