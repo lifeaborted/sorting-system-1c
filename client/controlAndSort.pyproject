@@ -15,7 +15,7 @@
         "controller/notification.py",
         "controller/user.py",
         "controller/router.py",
-        "controller/detail.py",
+        "controller/types/detail.py",
         "Components/CTextField.qml",
         "Components/Filter.qml",
         "Components/LeftSidebar.qml",
@@ -28,6 +28,7 @@
         "Components/FilterCalendar.qml",
         "Components/LeftSidebarTab.qml",
         "Components/InfoRow.qml",
-        "ProgramWindow.qml"
+        "ProgramWindow.qml",
+        "Components/Notificator.qml"
     ]
 }

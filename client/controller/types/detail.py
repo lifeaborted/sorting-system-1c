@@ -1,4 +1,3 @@
-# This Python file uses the following encoding: utf-8
 import json
 from typing import Optional, Union, Literal, TypedDict
 
@@ -7,9 +6,6 @@ from PySide6.QtCore import QObject, Slot, Property, Signal
 from PySide6.QtQml import QmlElement
 from dataclasses import dataclass
 
-QML_IMPORT_NAME = "io.backend"
-QML_IMPORT_MAJOR_VERSION = 1
-QML_IMPORT_MINOR_VERSION = 0
 
 class Address(TypedDict):
     id: int
@@ -43,9 +39,10 @@ class Detail(TypedDict):
     type: DetailType
     status: Literal["pending", "in_production", "sorting", "completed", "canceled"]
 
-def dict_iterator(d: dict):
-    for k, v in d.items():
-        if isinstance(v, dict):
-            yield from dict_iterator(v)
-        else:
-            yield k, v
+class DetailsFilter(TypedDict):
+    search: str
+    detail_type: dict[str, int]
+    batch: dict[str, str]
+    status: dict[str, str]
+    order: dict[str, int]
+    warehouse: dict[str, int]

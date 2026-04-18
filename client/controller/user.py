@@ -1,29 +1,19 @@
 # This Python file uses the following encoding: utf-8
-import json
 import logging
-import random
-from datetime import datetime, timedelta
-from operator import attrgetter, itemgetter
+from operator import itemgetter
 from typing import List
 
-from PySide6 import QtCore
-from PySide6.QtCore import QObject, Slot
-from PySide6.QtQml import QmlElement
-
-from controller.detail import *
+from controller.types.detail import *
 import random
 from datetime import datetime, timedelta
+
+from controller.utils import dict_iterator
+
 QML_IMPORT_NAME = "io.backend"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
-class DetailsFilter(TypedDict):
-    search: str
-    detail_type: dict[str, int]
-    batch: dict[str, str]
-    status: dict[str, str]
-    order: dict[str, int]
-    warehouse: dict[str, int]
+
 
 @QmlElement
 class User(QObject):

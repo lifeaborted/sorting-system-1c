@@ -7,6 +7,9 @@ import "Pages"
 import "Components"
 
 ProgramWindow {
+    Notificator {
+        z:999
+    }
     NavRouter {
             id: router
             defaultPath: "/login"
