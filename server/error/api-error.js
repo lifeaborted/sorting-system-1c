@@ -32,6 +32,11 @@ class ApiError extends Error
         return new ApiError(409, message)
     }
 
+    static notAuthorized(message)
+    {
+        return new ApiError(403, message)
+    }
+
     static ok()
     {
         return new ApiError(200, 'Ok')

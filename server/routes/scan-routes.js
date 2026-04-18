@@ -1,14 +1,9 @@
 const Router = require('express')
+const router = new Router()
 
-const ScanController = require("../controllers/scan-controller")
+const scanController = require("../controllers/scan-controller")
+const checkApiKeyMiddleware = require("../middleware/check-api-key-middleware")
 
-const getScanRouter = (args) => {
-    const router = new Router()
-    const scanController = new ScanController(args)
+router.post("/scan", checkApiKeyMiddleware, scanController.scanCode.bind(scanController))
 
-    router.post("/", scanController.handleNNResponse.bind(scanController))
-
-    return router
-}
-
-module.exports = getScanRouter
+module.exports = router

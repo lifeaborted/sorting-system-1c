@@ -19,7 +19,7 @@ class OrderController
                 return res.json(ApiError.badRequest("Incorrect request data"))
             }
 
-            const [[{queue}]] = await sequelize.query("SELECT nextval('\"Orders_order_id_seq\"') as queue;");
+            const [[{queue}]] = await sequelize.query("SELECT nextval('\"Orders_order_id_seq\"') as queue;")
             const order = await Order.create({
                 customer_id,
                 notes,

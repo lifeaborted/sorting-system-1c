@@ -74,9 +74,20 @@ const Order = sequelize.define('order', {
     indexes: [{ name: 'idx_orders', fields: ['order_number', 'created_at', 'status'] }]
 });
 
+const PartType = sequelize.define('partType', {
+    part_type_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: DataTypes.STRING(150), allowNull: false, unique: true },
+    type_code: { type: DataTypes.STRING(100), allowNull: false, unique: true }
+}, {
+    tableName: 'Part_Types',
+    timestamps: false,
+    indexes: [{ name: 'idx_part_types_type_code', fields: ['type_code'] }]
+});
+
 const OrderItem = sequelize.define('orderItem', {
     order_item_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_id: { type: DataTypes.INTEGER, allowNull: false },
+    part_type_id: { type: DataTypes.INTEGER, allowNull: false },
     required_quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -91,16 +102,6 @@ const OrderItem = sequelize.define('orderItem', {
     ]
 });
 
-const PartType = sequelize.define('partType', {
-    part_type_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING(150), allowNull: false, unique: true },
-    type_code: { type: DataTypes.STRING(100), allowNull: false, unique: true }
-}, {
-    tableName: 'Part_Types',
-    timestamps: false,
-    indexes: [{ name: 'idx_part_types_type_code', fields: ['type_code'] }]
-});
-
 const Part = sequelize.define('part', {
     part_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     serial_number: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -110,8 +111,7 @@ const Part = sequelize.define('part', {
     warehouse_id: { type: DataTypes.INTEGER },
     qc_inspector_id: { type: DataTypes.INTEGER },
     part_type_id: { type: DataTypes.INTEGER, allowNull: false },
-    qc_status: { type: DataTypes.ENUM('pending', 'passed', 'failed'), defaultValue: 'pending' },
-    status: { type: DataTypes.ENUM('manufactured', 'sorted', 'shipped'), defaultValue: 'manufactured' }
+    status: { type: DataTypes.ENUM('manufactured', 'sorted'), defaultValue: 'manufactured' }
 }, {
     tableName: 'Parts',
     timestamps: false,
@@ -119,7 +119,7 @@ const Part = sequelize.define('part', {
 });
 
 const OrderItemPart = sequelize.define('orderItemPart', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    order_item_part_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     order_item_id: { type: DataTypes.INTEGER, allowNull: false },
     part_id: { type: DataTypes.INTEGER, allowNull: false, unique: true }
 }, {
@@ -154,6 +154,9 @@ OrderItemPart.belongsTo(OrderItem, { foreignKey: 'order_item_id' });
 
 Part.hasOne(OrderItemPart, { foreignKey: 'part_id', onDelete: 'RESTRICT' });
 OrderItemPart.belongsTo(Part, { foreignKey: 'part_id' });
+
+OrderItem.hasOne(PartType, { foreignKey: 'part_type_id', onDelete: 'DO NOTHING' });
+PartType.belongsTo(OrderItem, { foreignKey: 'part_type_id' });
 
 module.exports = {
     Address,
