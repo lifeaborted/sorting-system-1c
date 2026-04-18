@@ -143,10 +143,7 @@ class User(QObject):
 
     @Slot(result = "QVariantList")
     def load_details(self):
-        dict_list = []
-        for detail in self._details:
-            dict_list.append(json.loads(json.dumps(detail)))
-        return dict_list
+        return self._details
 
     @Slot(result = "QVariantMap")
     def load_sorting_options(self):
@@ -245,3 +242,11 @@ class User(QObject):
         arr = list(data)
         logging.info(f"For current filter found {len(arr)} entry")
         return arr
+
+    @Slot(int, result="QVariant")
+    def get_detail(self, id: int):
+        for i in self._details:
+            if i["id"] == id:
+                return i
+
+        return None
