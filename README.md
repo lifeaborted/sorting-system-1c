@@ -23,9 +23,13 @@ DB_NAME=    #Имя БД
 DB_USER=postgres
 DB_PASSWORD=    #Пароль БД
 
+PORT=5000
+
 ENCRYPTION_SALT=6fe1487911    #Случайные значения
 JWT_PASSWORD_CODE=efdc97875ae97d75507b415902eabbc5
 JWT_PASSWORD_DURATION=24
+
+SCANNER_API_KEY=f01556be8df7176f45136c5289bc4c4f #API ключ для сканера
 ```
 
 ## Запуск
@@ -43,7 +47,7 @@ npm run dev
 
 ```
 server/
-├── controllers/*                # Контроллеры маршрутов
+├── controllers/*                # Обработчики
 ├── database/
 │   ├── database.js              # Подключение к базе данных
 │   └── models.js                # Модели данных
@@ -58,10 +62,22 @@ server/
 └── package-lock.json
 ```
 
+## Авторизация
+Многие маршруты и WebSocket соединение защищены от неправомерных подключений при помощи JWT и API токенов.
+
+**Вся авторизация проходит в заголовках HTTP запросов.**
+
+Используются 2 различных сценария авторизации:
+- Защищенные маршруты REST API и рукопожатие WebSocket соединения:
+  - `authentification: 'Bearer JWT_TOKEN'` 
+- Получение данных со сканера:
+  - `authentification: 'SCANNER_API_KEY'`, переменная берется из .env файла 
+
+
 ## Основные скрипты
 
 - `npm run dev` - запуск сервера в режиме разработки
-- пока на этом все
+- `npm i` - загрузка недостающих зависимостей
 
 
 # Фронт

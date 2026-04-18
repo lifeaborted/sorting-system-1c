@@ -10,7 +10,7 @@ const router = require('./routes/router')
 const socket = require('./controllers/service-controller')
 
 // Server settings
-const PORT = process.env.HTTP_PORT || 5000
+const PORT = process.env.PORT || 5000
 
 const app = express()
 app.use(cors())

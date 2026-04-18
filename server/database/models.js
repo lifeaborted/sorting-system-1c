@@ -77,7 +77,8 @@ const Order = sequelize.define('order', {
 const PartType = sequelize.define('partType', {
     part_type_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING(150), allowNull: false, unique: true },
-    type_code: { type: DataTypes.STRING(100), allowNull: false, unique: true }
+    type_code: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+    price: { type: DataTypes.INTEGER, allowNull: false }
 }, {
     tableName: 'Part_Types',
     timestamps: false,

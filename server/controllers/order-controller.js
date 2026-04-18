@@ -37,6 +37,18 @@ class OrderController
         }
     }
 
+    async addItem(req, res)
+    {
+        try
+        {
+            const {order_id, part_type_id, required_quantity } = req.body
+        }
+        catch(e)
+        {
+            return res.json(ApiError.internal('Registration error: ' + e.message))
+        }
+    }
+
 }
 
 module.exports = new OrderController()
