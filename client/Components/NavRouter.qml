@@ -3,6 +3,7 @@ import io.backend 1.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 6.11
 import QtQuick.Window 2.15
+
 Item {
     width: 1280
     height: 720
@@ -12,9 +13,11 @@ Item {
     required property list<Page> pages
     required property Item notFound
     required property string defaultPath
+
     Component.onCompleted: {
         Backend.router.route = defaultPath
     }
+
     Connections {
         target: Backend.router
         function onRouteChanged() {

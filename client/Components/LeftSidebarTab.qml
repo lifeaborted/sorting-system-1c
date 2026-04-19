@@ -9,6 +9,7 @@ Rectangle {
     required property string tabText
     required property bool isSelected
     signal clicked
+
     Component.onCompleted: {
         if (isSelected) {
             select()

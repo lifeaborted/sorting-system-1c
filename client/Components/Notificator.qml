@@ -2,14 +2,15 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import io.backend 1.0
+
 Item {
     id: root
-
     anchors.fill: parent
 
     ColumnLayout {
         anchors.right: parent.right
         spacing: 5
+
         Repeater {
             model: Backend.notificator.notifications
             delegate:
@@ -25,8 +26,8 @@ Item {
                         // == normal
                         return "grey"
                     }
-
                 }
+
                 ColumnLayout {
                     id: layoutChild
                     width: 400
