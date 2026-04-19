@@ -1,11 +1,13 @@
 # This Python file uses the following encoding: utf-8
 import logging
+import os
 import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
+from dotenv import load_dotenv
 
 from controller.backend import Backend
 import rc_resources
@@ -16,6 +18,12 @@ if __name__ == "__main__":
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')
     logging.info("Logger init")
+
+    if not os.path.exists(".env"):
+        logging.error("Failed to read .env .")
+        sys.exit(-1)
+    load_dotenv(".env")
+
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
     qml_file = Path(__file__).resolve().parent / "main.qml"
@@ -38,7 +46,6 @@ if __name__ == "__main__":
     # Default font for entire app
     default_font = QFont("Roboto", 12)
     app.setFont(default_font)
-
 
 
     if not engine.rootObjects():
