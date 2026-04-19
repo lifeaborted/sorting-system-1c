@@ -105,8 +105,7 @@ Item {
                 onClicked: {
                     // Логика авторизации
                     // заглушка для переноса на другую страницу
-                    Backend.login("Гайдулян", "Андрей", "Сергевич")
-                    Backend.router.route = "/details"
+                    Backend.login(loginField.text, passwordField.text)
                 }
             }
         }

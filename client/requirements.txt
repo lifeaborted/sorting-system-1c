@@ -1,3 +1,5 @@
 PySide6
 pyinstaller
 pillow
+aiohttp
+python-dotenv

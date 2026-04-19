@@ -1,12 +1,16 @@
 # This Python file uses the following encoding: utf-8
+import asyncio
 import logging
-from typing import final, Optional
+import os
+from typing import final, Optional, Any
 
-from PySide6 import QtCore
+from dotenv import load_dotenv
+from PySide6 import QtCore, QtAsyncio
 from PySide6.QtCore import Property
 from PySide6.QtQml import QmlElement, QmlSingleton
 from PySide6.QtCore import QObject, Slot, Property, Signal
 
+from controller.api.api import Api
 from controller.notification import Notificator
 from controller.router import Router
 from controller.user import User
@@ -24,6 +28,8 @@ class Backend(QObject):
     _user_changed = Signal()
     def __init__(self, parent=None):
         super().__init__(parent)
+        load_dotenv()
+        self._api = Api(os.getenv("SERVER_URL"), int(os.getenv("PORT")))
         self._router = Router()
         self._notificator = Notificator()
         self._user = None
@@ -40,11 +46,22 @@ class Backend(QObject):
     def user(self):
         return self._user
 
-    @Slot(str, str, str)
-    def login(self, *args):
+    @Slot(str, str)
+    def login(self, login: str, password: str):
         if self._user is None:
-            self._user = User(args[0], args[1], args[2])
-            logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
+            try:
+                data = self._api.run_blocking(self._api.user.login({
+                    "login": login,
+                    "password": password
+                }))
+                self._user = User(data["token"])
+                logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
+                self._router.set_route_detailed("/details", None)
+            except Exception as e:
+                self._notificator.new_err_notification("Error", e.__str__())
+                logging.error(e)
+
+
         else:
             logging.warning("Tried to login while being already, skipping...")
 
