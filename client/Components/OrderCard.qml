@@ -1,244 +1,197 @@
 import QtQuick 2.15
-import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../Components"
 
 Rectangle {
     id: root
-    width: 320
-    height: 250
-    radius: 5
-    color: "#3e3e42"
+    height: 100
+    radius: 8
+    color: "#3E3E42"
 
-    // Настраиваемые свойства
     property string customerName: "Название заказчика"
     property string status: "выполняется"
     property int priority: 5
-    property string note: "Производство цинковых гробов"
-    property real progress: 75.0
-    property real price: 25000
-    property var materials: [
-        {"name": "Доска 200x2000", "quantity": 123},
-        {"name": "Гвоздь 20x2", "quantity": 321},
-        {"name": "Саморез 80x4", "quantity": 228}
-    ]
+    property string note: ""
+    property real progress: 0
+    property real price: 0
+    property var materials: []
     property var onEditClicked: null
 
-    ColumnLayout {
+    RowLayout {
         anchors.fill: parent
-        anchors.margins: 15
-        spacing: 10
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        spacing: 12
 
-        // Заголовок - название заказчика
-        Text {
-            Layout.fillWidth: true
-            text: root.customerName
-            color: "white"
-            font.pixelSize: 18
-            font.weight: 500
-            font.family: "Roboto"
-            wrapMode: Text.Wrap
-        }
-
-        // Статус и приоритет
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 15
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 5
-
-                RowLayout {
-                    spacing: 5
-                    Text {
-                        text: "Статус:"
-                        color: "#B2B4BC"
-                        font.pixelSize: 12
-                        font.family: "Roboto"
-                    }
-                    Text {
-                        text: root.status
-                        color: "#B2B4BC"
-                        font.pixelSize: 12
-                        font.family: "Roboto"
-                    }
-                }
-
-                RowLayout {
-                    spacing: 5
-                    Text {
-                        text: "Приоритет:"
-                        color: "#B2B4BC"
-                        font.pixelSize: 12
-                        font.family: "Roboto"
-                    }
-                    Text {
-                        text: root.priority.toString()
-                        color: "#B2B4BC"
-                        font.pixelSize: 12
-                        font.family: "Roboto"
-                    }
-                }
-            }
-
-            // Progress ring
-            Item {
-                Layout.preferredWidth: 80
-                Layout.preferredHeight: 80
-
-                Canvas {
-                    id: progressCanvas
-                    anchors.centerIn: parent
-                    width: 80
-                    height: 80
-
-                    property real progressValue: root.progress
-
-                    onPaint: {
-                        var ctx = getContext("2d")
-                        ctx.reset()
-
-                        var centerX = width / 2
-                        var centerY = height / 2
-                        var radius = 35
-                        var lineWidth = 6
-
-                        // Фоновый круг
-                        ctx.beginPath()
-                        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
-                        ctx.strokeStyle = "#505050"
-                        ctx.lineWidth = lineWidth
-                        ctx.stroke()
-
-                        // Прогресс
-                        var startAngle = -Math.PI / 2
-                        var endAngle = startAngle + (2 * Math.PI * progressValue / 100)
-
-                        ctx.beginPath()
-                        ctx.arc(centerX, centerY, radius, startAngle, endAngle)
-                        ctx.strokeStyle = "#E6E8E9"
-                        ctx.lineWidth = lineWidth
-                        ctx.lineCap = "round"
-                        ctx.stroke()
-                    }
-                }
-
-                Text {
-                    anchors.centerIn: parent
-                    text: Math.round(root.progress) + "%"
-                    color: "white"
-                    font.pixelSize: 16
-                    font.weight: 500
-                    font.family: "Roboto"
-                }
-            }
-        }
-
-        // Заметка
+        // Название + статус
         ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 2
+            Layout.preferredWidth: 180
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 4
+
+            Text {
+                text: root.customerName
+                color: "#E6E8E9"
+                font.pixelSize: 14
+                font.family: "Roboto"
+                font.weight: Font.Bold
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            Text {
+                text: root.status
+                color: "#B2B4BC"
+                font.pixelSize: 11
+                font.family: "Roboto"
+            }
+        }
+
+        // Приоритет + заметка
+        ColumnLayout {
+            Layout.preferredWidth: 220
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 4
 
             RowLayout {
+                spacing: 4
                 Text {
-                    text: "Заметка:"
-                    color: "#B2B4BC"
+                    text: "Приоритет:"
+                    color: "white"
                     font.pixelSize: 12
                     font.family: "Roboto"
                 }
+                Text {
+                    text: root.priority
+                    color: "#E6E8E9"
+                    font.pixelSize: 10
+                    font.family: "Roboto"
+                    font.weight: Font.Bold
+                }
             }
-
-            Text {
+            RowLayout {
+                spacing: 4
                 Layout.fillWidth: true
-                text: root.note
-                color: "#B2B4BC"
-                font.pixelSize: 12
-                font.family: "Roboto"
-                wrapMode: Text.Wrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
+                Text {
+                    text: "Заметка:"
+                    color: "white"
+                    font.pixelSize: 12
+                    font.family: "Roboto"
+                }
+                Text {
+                    text: root.note
+                    color: "#B2B4BC"
+                    font.pixelSize: 10
+                    font.family: "Roboto"
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
             }
         }
 
-        // Состав материалов
-        ColumnLayout {
-            Layout.fillWidth: true
+        // Разделитель
+        Rectangle {
+            width: 1
             Layout.fillHeight: true
-            spacing: 2
+            Layout.topMargin: 12
+            Layout.bottomMargin: 12
+            color: "#55555A"
+        }
 
-            Text {
-                text: "Состав:"
-                color: "#B2B4BC"
-                font.pixelSize: 12
-                font.family: "Roboto"
-            }
+        Column {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 3
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 2
+            Repeater {
+                model: root.materials
+                delegate: Row {
+                    width: parent.width
+                    spacing: 0
 
-                Repeater {
-                    model: root.materials
-
-                    delegate: RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 5
-
-                        Text {
-                            text: "• " + modelData.name
-                            color: "#B2B4BC"
-                            font.pixelSize: 11
-                            font.family: "Roboto"
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: "x" + modelData.quantity
-                            color: "#808080"
-                            font.pixelSize: 11
-                            font.family: "Roboto"
-                        }
+                    Text {
+                        text: "• " + modelData.name
+                        color: "#B2B4BC"
+                        font.pixelSize: 11
+                        font.family: "Roboto"
+                        width: parent.width - 36
+                    }
+                    Text {
+                        text: "x" + modelData.quantity
+                        color: "#B2B4BC"
+                        font.pixelSize: 11
+                        font.family: "Roboto"
+                        width: 36
+                        horizontalAlignment: Text.AlignRight
                     }
                 }
             }
         }
 
-        // Нижняя часть - кнопка и цена
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignBottom
+        // Стоимость
+        Text {
+            text: root.price + "р"
+            color: "#E6E8E9"
+            font.pixelSize: 18
+            font.family: "Roboto"
+            font.weight: Font.Bold
+            Layout.preferredWidth: 100
+            Layout.alignment: Qt.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+        }
 
-            // Кнопка редактирования
-            IconButton {
-                onClickedHandler: function() {
-                    if (root.onEditClicked)
-                        root.onEditClicked()
+        // Кнопка редактирования
+        IconButton {
+            onClickedHandler: function() {
+                if (root.onEditClicked)
+                    root.onEditClicked()
+            }
+        }
+
+        // Прогресс-круг
+        Item {
+            width: 64; height: 64
+            Layout.alignment: Qt.AlignVCenter
+
+            Canvas {
+                id: progressCanvas
+                anchors.fill: parent
+                onPaint: {
+                    let ctx = getContext("2d")
+                    let cx = width / 2, cy = height / 2, r = 27
+                    ctx.clearRect(0, 0, width, height)
+
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+                    ctx.strokeStyle = "#55555A"
+                    ctx.lineWidth = 5
+                    ctx.stroke()
+
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, -Math.PI / 2,
+                            -Math.PI / 2 + Math.PI * 2 * (root.progress / 100))
+                    ctx.strokeStyle = "#E6E8E9"
+                    ctx.lineWidth = 5
+                    ctx.lineCap = "round"
+                    ctx.stroke()
+                }
+
+                Connections {
+                    target: root
+                    function onProgressChanged() { progressCanvas.requestPaint() }
                 }
             }
 
-            Item { Layout.fillWidth: true }
-
-            // Цена
             Text {
-                text: root.price + "р"
-                color: "white"
-                font.pixelSize: 24
-                font.weight: Font.Bold
+                anchors.centerIn: parent
+                text: Math.round(root.progress) + "%"
+                color: "#E6E8E9"
+                font.pixelSize: 12
                 font.family: "Roboto"
+                font.weight: Font.Medium
             }
         }
-    }
-
-    // Функция для обновления прогресса
-    function setProgress(value) {
-        progress = value
-        progressCanvas.requestPaint()
-    }
-
-    // Функция для обновления материалов
-    function setMaterials(newMaterials) {
-        materials = newMaterials
     }
 }
