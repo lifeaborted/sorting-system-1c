@@ -1,16 +1,17 @@
 const ApiError = require('../error/api-error')
 const {Address} = require('../database/models')
+const e = require("express");
 
 class AddressController
 {
-    async addNew(req, res)
+    async addNew(req, res, next)
     {
         try
         {
             const {country, region, city, street, building, postal_code} = req.body
             if (!country || !region || !city || !street || !building || !postal_code)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
 
             const [address] = await Address.findOrCreate({
@@ -22,11 +23,11 @@ class AddressController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findAll(req, res)
+    async findAll(req, res, next)
     {
         try
         {
@@ -35,35 +36,42 @@ class AddressController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findOne(req, res)
+    async findOne(req, res, next)
     {
         try
         {
             const {id} = req.params
             const address = await Address.findOne({where: {address_id: id}})
-            return res.json(address ? address.dataValues : ApiError.notFound('Address not found'))
+            if(address)
+            {
+                return res.json(address.dataValues)
+            }
+            else
+            {
+                return next(new ApiError.notFound('Address not found'))
+            }
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async remove(req, res)
+    async remove(req, res, next)
     {
         try
         {
             const {id} = req.body
             await Address.destroy({where: {address_id: id.toString()}})
-            return res.json({status: 200, message: 'Ok'})
+            return res.json({message: 'Ok'})
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 }

@@ -8,6 +8,7 @@ const fileUpload = require('express-fileupload')
 const database = require('./database/database')
 const router = require('./routes/router')
 const socket = require('./controllers/service-controller')
+const errorHandler = require('./middleware/error-handling-middleware')
 
 // Server settings
 const PORT = process.env.PORT || 5000
@@ -17,6 +18,7 @@ app.use(cors())
 app.use(express.json())
 app.use(fileUpload({}))
 app.use('/api', router)
+app.use(errorHandler)
 
 const server = http.createServer(app)
 server.on("upgrade", socket.authenticate.bind(socket))

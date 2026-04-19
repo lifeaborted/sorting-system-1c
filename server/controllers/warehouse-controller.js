@@ -1,9 +1,10 @@
 const ApiError = require('../error/api-error')
 const {Warehouse, Address} = require('../database/models')
+const e = require("express");
 
 class WarehouseController
 {
-    async addNew(req, res)
+    async addNew(req, res, next)
     {
         try
         {
@@ -27,7 +28,7 @@ class WarehouseController
         }
     }
 
-    async findAll(req, res)
+    async findAll(req, res, next)
     {
         try
         {
@@ -40,13 +41,20 @@ class WarehouseController
         }
     }
 
-    async findOne(req, res)
+    async findOne(req, res, next)
     {
         try
         {
             const {id} = req.params
             const warehouse = await Warehouse.findOne({where: {warehouse_id: id}, include: [{ model: Address, as: 'address' }]})
-            return res.json(warehouse ? warehouse.dataValues : ApiError.notFound('Warehouse not found'))
+            if(warehouse)
+            {
+                return res.json(warehouse.dataValues)
+            }
+            else
+            {
+                return next(new ApiError.notFound('Warehouse not found'))
+            }
         }
         catch (e)
         {
@@ -54,7 +62,7 @@ class WarehouseController
         }
     }
 
-    async remove(req, res)
+    async remove(req, res, next)
     {
         try
         {

@@ -5,20 +5,20 @@ const jwt = require('jsonwebtoken')
 
 class UserController
 {
-    async registration(req, res)
+    async registration(req, res, next)
     {
         try
         {
             const { first_name, last_name, middle_name, role, login, password } = req.body
             if (!first_name || !last_name || !middle_name || !role || !login || !password)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
 
             let user = await Employee.findOne({where: {login: login}})
             if(user)
             {
-                return res.json(ApiError.conflict('This login is already in use'))
+                return next(new ApiError.conflict('This login is already in use'))
             }
 
             const hashPassword = await bcrypt.hash(password + process.env.ENCRYPTION_SALT, 10)
@@ -40,18 +40,18 @@ class UserController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Registration error: ' + e.message))
+            return next(new ApiError.internal('Registration error: ' + e.message))
         }
     }
 
-    async login(req, res)
+    async login(req, res, next)
     {
         try
         {
             const {login, password} = req.body
             if (!login || !password)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
 
             const user = await Employee.findOne({where: {login}})
@@ -61,13 +61,13 @@ class UserController
             }
             if (!user.dataValues.is_active)
             {
-                return res.json(ApiError.forbidden('Employee has been deactivated'))
+                return next(new ApiError.forbidden('Employee has been deactivated'))
             }
 
             const isPassCorrect = await bcrypt.compare(password + process.env.ENCRYPTION_SALT, user.dataValues.password_hash)
             if (!isPassCorrect)
             {
-                return res.json(ApiError.badRequest('Incorrect authentication data'))
+                return next(new ApiError.badRequest('Incorrect authentication data'))
             }
 
             const token = jwt.sign(
@@ -79,11 +79,11 @@ class UserController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Login error: ' + e.message))
+            return next(new ApiError.internal('Login error: ' + e.message))
         }
     }
 
-    async check(req, res)
+    async check(req, res, next)
     {
         try
         {
@@ -96,11 +96,11 @@ class UserController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Validate error: ' + e.message))
+            return next(new ApiError.internal('Validate error: ' + e.message))
         }
     }
 
-    async getAll(req, res)
+    async getAll(req, res, next)
     {
         try
         {
@@ -119,18 +119,40 @@ class UserController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async getOne(req, res)
+    async aboutMe(req, res, next)
+    {
+        try
+        {
+            const user = await Employee.findOne({where: {employee_id: req.user.id}, attributes: [
+                    "employee_id",
+                    "first_name",
+                    "last_name",
+                    "middle_name",
+                    "role",
+                    "is_active",
+                    "login",
+                    "created_at"
+                ]})
+            return res.json(user)
+        }
+        catch (e)
+        {
+            return next(new ApiError.internal('Request error: ' + e.message))
+        }
+    }
+
+    async getOne(req, res, next)
     {
         try
         {
             const {id} = req.params
             if (isNaN(id))
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
             const user = await Employee.findOne({where: {employee_id: id}, attributes: [
                     "employee_id",
@@ -149,12 +171,12 @@ class UserController
             }
             else
             {
-                return res.json(ApiError.notFound('Employee not found'))
+                return next(new ApiError.notFound('Employee not found'))
             }
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 }

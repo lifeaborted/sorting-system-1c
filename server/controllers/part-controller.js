@@ -6,7 +6,7 @@ const sequelize = require("../database/database");
 
 class PartController
 {
-    async addNew(req, res)
+    async addNew(req, res, next)
     {
         try
         {
@@ -18,13 +18,13 @@ class PartController
             const {batch_number, warehouse_id, part_type_id} = req.body
             if (!batch_number || !warehouse_id || !part_type_id)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
 
             const type = await PartType.findOne({where: {part_type_id}})
             if (!type)
             {
-                return res.json(ApiError.badRequest("Part type not found"))
+                return next(new ApiError.badRequest("Part type not found"))
             }
 
             const [[{queue}]] = await sequelize.query("SELECT nextval('\"Parts_part_id_seq\"') as queue;")
@@ -39,11 +39,11 @@ class PartController
         }
         catch(e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findAll(req, res)
+    async findAll(req, res, next)
     {
         try
         {
@@ -52,17 +52,24 @@ class PartController
         }
         catch(e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findOne(req, res)
+    async findOne(req, res, next)
     {
         try
         {
             const {id} = req.params
             const part = await Part.findOne({where: {part_id: id}})
-            return res.json(part ? part.dataValues : ApiError.notFound('Part not found'))
+            if(part)
+            {
+                return next(part.dataValues)
+            }
+            else
+            {
+                return next(new ApiError.notFound('Part not found'))
+            }
         }
         catch(e)
         {
@@ -70,21 +77,21 @@ class PartController
         }
     }
 
-    async remove(req, res)
+    async remove(req, res, next)
     {
         try
         {
             const {id} = req.body
             if(isNaN(id))
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
             await Part.destroy({where: {part_id: id.toString()}})
-            return res.json({status: 200, message: 'Ok'})
+            return res.json({message: 'Ok'})
         }
         catch(e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 }

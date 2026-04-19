@@ -3,14 +3,14 @@ const {Customer, Address} = require('../database/models')
 
 class CustomerController
 {
-    async addNew(req, res)
+    async addNew(req, res, next)
     {
         try
         {
             const {company_name, inn, ogrn, address_id} = req.body
             if (!company_name || !inn || !ogrn || !address_id)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(new ApiError.badRequest("Incorrect request data"))
             }
 
             const [customer] = await Customer.findOrCreate({
@@ -23,11 +23,11 @@ class CustomerController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findAll(req, res)
+    async findAll(req, res, next)
     {
         try
         {
@@ -36,35 +36,42 @@ class CustomerController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async findOne(req, res)
+    async findOne(req, res, next)
     {
         try
         {
             const {id} = req.params
             const customer = await Customer.findOne({where: {customer_id: id}, include: [{ model: Address, as: 'address' }]})
-            return res.json(customer ? customer.dataValues : ApiError.notFound('Customer not found'))
+            if(customer)
+            {
+                return res.json(customer.dataValues)
+            }
+            else
+            {
+                return next(new ApiError.notFound('Customer not found'))
+            }
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 
-    async remove(req, res)
+    async remove(req, res, next)
     {
         try
         {
             const {id} = req.body
             await Customer.destroy({where: {customer_id: id.toString()}})
-            return res.json({status: 200, message: 'Ok'})
+            return res.json({message: 'Ok'})
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(new ApiError.internal('Request error: ' + e.message))
         }
     }
 }
