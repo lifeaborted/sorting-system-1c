@@ -409,7 +409,7 @@ Rectangle {
                                         }
 
                                         background: Rectangle {
-                                            color: "#3e3e3e"
+                                            color: "#3e3e42"
                                             radius: 4
                                         }
                                     }
