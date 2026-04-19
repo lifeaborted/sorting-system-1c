@@ -15,47 +15,121 @@ Rectangle {
 
     // property list<var> details: []
     // property var detailsFilter
+    // property QtObject sortingParams: ...
+    // function loadDetails() { ... }
+    // Component.onCompleted: { loadDetails() }
 
-    // property QtObject sortingParams: QtObject {
-    //     property string search: ""
-    //     property string type: "Все"
-    //     property string batch: "Все"
-    //     property string status: "Все"
-    //     property string order: "Все"
-    //     property string warehouse: "Все"
-    //     property var date: undefined
-    //     //       ^^^^^^ <-- ???
-    // }
-
-    // function loadDetails() {
-    //     detailsFilter = Backend.user.load_sorting_options()
-    //     // Биндинг из  controller.detail.py Детали
-    //     // Можно считать, что значения закешированы, и никакой дополнительной нагрузке вызов функции не несёт
-    //     // Детали не надо напрямую редачить
-    //     // и массив тоже не имеет смысла :p
-    //     details = Backend.user.load_details_filter(sortingParams)
-    // }
-
-    // Component.onCompleted: {
-    //     loadDetails()
-    // }
-
-    // onSortingParamsChanged: {
-    //     loadDetails()
-    // }
+    property var mockDetails: [
+        {
+            customerName: "ООО «Рога и Копыта»",
+            status: "выполняется",
+            priority: 5,
+            note: "Производство скворечников",
+            progress: 75,
+            price: 25000,
+            materials: [
+                {"name": "Доска 200×2000", "quantity": 123},
+                {"name": "Гвоздь 20×2",   "quantity": 321},
+                {"name": "Саморез 80×4",  "quantity": 228}
+            ]
+        },
+        {
+            customerName: "ИП Петров",
+            status: "ожидает",
+            priority: 3,
+            note: "Срочный заказ, доставка до пятницы",
+            progress: 30,
+            price: 15000,
+            materials: [
+                {"name": "Лист сталь 2мм", "quantity": 50},
+                {"name": "Болт М8",        "quantity": 200}
+            ]
+        },
+        {
+            customerName: "ЗАО «СтройМонтаж»",
+            status: "завершён",
+            priority: 1,
+            note: "Повторный заказ, постоянный клиент",
+            progress: 100,
+            price: 42000,
+            materials: [
+                {"name": "Труба профильная", "quantity": 80},
+                {"name": "Уголок 50×50",     "quantity": 40},
+                {"name": "Краска антикор",   "quantity": 15}
+            ]
+        },
+        {
+            customerName: "ООО «МеталлСервис»",
+            status: "на паузе",
+            priority: 2,
+            note: "Ждём подтверждения спецификации",
+            progress: 10,
+            price: 8500,
+            materials: [
+                {"name": "Проволока стальная", "quantity": 500},
+                {"name": "Шайба М10",          "quantity": 100}
+            ]
+        },
+        {
+            customerName: "ИП Сидоров",
+            status: "выполняется",
+            priority: 4,
+            note: "Производство металлоконструкций",
+            progress: 55,
+            price: 31000,
+            materials: [
+                {"name": "Уголок 40×40", "quantity": 60},
+                {"name": "Болт М12",     "quantity": 150}
+            ]
+        },
+        {
+            customerName: "ООО «ПромДеталь»",
+            status: "ожидает",
+            priority: 2,
+            note: "Согласование чертежей",
+            progress: 5,
+            price: 12000,
+            materials: [
+                {"name": "Пруток Ø20", "quantity": 30}
+            ]
+        },
+        {
+            customerName: "АО «ТехноСтрой»",
+            status: "выполняется",
+            priority: 5,
+            note: "Изготовление несущих конструкций",
+            progress: 62,
+            price: 87000,
+            materials: [
+                {"name": "Балка двутавровая", "quantity": 12},
+                {"name": "Анкер М16",         "quantity": 80},
+                {"name": "Грунтовка ГФ-021",  "quantity": 20}
+            ]
+        },
+        {
+            customerName: "ИП Кузнецова А.В.",
+            status: "ожидает",
+            priority: 1,
+            note: "Декоративные кованые изделия",
+            progress: 0,
+            price: 6400,
+            materials: [
+                {"name": "Полоса стальная 40×4", "quantity": 18},
+                {"name": "Прут квадратный 12×12", "quantity": 25}
+            ]
+        }
+    ]
 
     RowLayout {
         anchors.fill: parent
         spacing: 0
 
-        LeftSidebar{}
+        LeftSidebar {}
 
-        // Основная часть
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: "#2e2e2e"
-
 
             ColumnLayout {
                 anchors.fill: parent
@@ -63,49 +137,33 @@ Rectangle {
                 anchors.topMargin: 60
                 spacing: 15
 
-                ProfileAndSearch{}
+                ProfileAndSearch {}
 
-                // Фильтры
+                // ── Фильтры ─────────────────────────────────────────
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 15
 
-                    // Статус
                     Filter {
                         filterLabel: qsTr("Статус")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.detail_type))
-                        selectedValue: sortingParams.type
-                        onValueSelected: function(value) {
-                            sortingParams.type = value
-                            loadDetails()
-                        }
+                        filterModel: ["Все", "Только активные"]
+                        selectedValue: "Только активные"
                     }
 
-                    // Приоритет
                     Filter {
                         filterLabel: qsTr("Приоритет")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.batch))
-                        selectedValue: sortingParams.batch
-                        onValueSelected: function(value) {
-                            sortingParams.batch = value
-                            loadDetails()
-                        }
+                        filterModel: ["Все", "1", "2", "3", "4", "5"]
+                        selectedValue: "Все"
                     }
 
-                    // Заказчик
                     Filter {
                         filterLabel: qsTr("Заказчик")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.status))
-                        selectedValue: sortingParams.status
-                        onValueSelected: function(value) {
-                            sortingParams.status = value
-                            loadDetails()
-                        }
+                        filterModel: ["Все"]
+                        selectedValue: "Все"
                     }
 
-                    // Сроки выполнения
                     ColumnLayout {
-                        Layout.preferredWidth: 120
+                        Layout.preferredWidth: 160
                         Layout.preferredHeight: 50
                         spacing: 5
 
@@ -119,144 +177,52 @@ Rectangle {
                             bottomPadding: -5
                         }
 
-                        Rectangle {
+                        FilterCalendar {
                             Layout.preferredWidth: 160
                             Layout.preferredHeight: 30
-                            color: "#3E3E42"
-                            radius: 5
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-
-                                Text {
-                                    text: qsTr("01.01.26 - 01.01.27")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 12
-                                    font.family: "Roboto"
-                                    font.weight: 400
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Image {
-                                    source: "qrc:/resources/icons/calendar.svg"
-                                    width: 16
-                                    height: 16
-                                    fillMode: Image.PreserveAspectFit
-                                }
-                            }
+                            from: "01.01.2026"
+                            to:   "01.01.2027"
                         }
                     }
 
                     ColumnLayout {
-                        Layout.preferredWidth: 120
+                        spacing: 5
                         Layout.preferredHeight: 50
-                        spacing: -3
 
-                        Text {
-                            text: ""
-                            font.pixelSize: 12
-                        }
+                        Text { text: ""; font.pixelSize: 12 }
 
-                        // Кнопка сброса фильтров
                         TextButton {
                             buttonText: "Сбросить"
-                            onClickedHandler: function() {
-                                // Сброс всех фильтров
-                            }
+                            onClickedHandler: function() {}
                         }
                     }
+
+                    Item { Layout.fillWidth: true }
                 }
-                Rectangle { // заменить на ScrollView
+
+                // Список заказов
+                ScrollView {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 717
-                    color: "transparent"
+                    Layout.fillHeight: true
+                    clip: true
 
-                    GridLayout {
-                        anchors.fill: parent
-                        rows: 3
-                        columns: 3
-                        rowSpacing: 10
-                        columnSpacing: 10
+                    ListView {
+                        id: orderList
+                        width: parent.width
+                        spacing: 8
+                        model: mockDetails
 
-                        // Карточка 1
-                        OrderCard {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            customerName: "ООО «Рога и Копыта»"
-                            status: "выполняется"
-                            priority: 5
-                            note: "Производство деревянных домов"
-                            progress: 75.0
-                            price: 25000
-                            materials: [
-                                {"name": "Доска 200×2000", "quantity": 123},
-                                {"name": "Гвоздь 20×2", "quantity": 321},
-                                {"name": "Саморез 80×4", "quantity": 228}
-                            ]
+                        delegate: OrderCard {
+                            width: orderList.width
+                            customerName: modelData.customerName
+                            status:       modelData.status
+                            priority:     modelData.priority
+                            note:         modelData.note
+                            progress:     modelData.progress
+                            price:        modelData.price
+                            materials:    modelData.materials
                             onEditClicked: function() {
-                                console.log("Редактировать заказ 1")
-                            }
-                        }
-
-                        // Карточка 2
-                        OrderCard {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            customerName: "ИП Петров"
-                            status: "ожидает"
-                            priority: 3
-                            note: "Срочный заказ, доставка до пятницы"
-                            progress: 30.0
-                            price: 15000
-                            materials: [
-                                {"name": "Лист сталь 2мм", "quantity": 50},
-                                {"name": "Болт М8", "quantity": 200}
-                            ]
-                            onEditClicked: function() {
-                                console.log("Редактировать заказ 2")
-                            }
-                        }
-
-                        // Карточка 3
-                        OrderCard {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            customerName: "ЗАО «СтройМонтаж»"
-                            status: "завершён"
-                            priority: 1
-                            note: "Повторный заказ, постоянный клиент"
-                            progress: 100.0
-                            price: 42000
-                            materials: [
-                                {"name": "Труба профильная", "quantity": 80},
-                                {"name": "Уголок 50×50", "quantity": 40},
-                                {"name": "Краска антикор", "quantity": 15}
-                            ]
-                            onEditClicked: function() {
-                                console.log("Редактировать заказ 3")
-                            }
-                        }
-
-                        // Карточка 4
-                        OrderCard {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            customerName: "ООО «МеталлСервис»"
-                            status: "на паузе"
-                            priority: 2
-                            note: "Ждём подтверждения спецификации"
-                            progress: 10.0
-                            price: 8500
-                            materials: [
-                                {"name": "Проволока стальная", "quantity": 500},
-                                {"name": "Шайба М10", "quantity": 100}
-                            ]
-                            onEditClicked: function() {
-                                console.log("Редактировать заказ 4")
+                                console.log("edit", modelData.customerName)
                             }
                         }
                     }
