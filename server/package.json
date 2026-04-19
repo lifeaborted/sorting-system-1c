@@ -10,6 +10,7 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@sequelize/postgres": "^7.0.0-alpha.48",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

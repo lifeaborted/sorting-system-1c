@@ -11,7 +11,7 @@ class WarehouseController
             const {name, address_id} = req.body
             if (!name || !address_id)
             {
-                return res.json(ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const [warehouse] = await Warehouse.findOrCreate({
@@ -24,7 +24,7 @@ class WarehouseController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -37,7 +37,7 @@ class WarehouseController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -58,7 +58,7 @@ class WarehouseController
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -68,11 +68,11 @@ class WarehouseController
         {
             const {id} = req.body
             await Warehouse.destroy({where: {warehouse_id: id.toString()}})
-            return res.json({status: 200, message: 'Ok'})
+            return res.json({message: 'Ok'})
         }
         catch (e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 }
