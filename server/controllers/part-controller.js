@@ -18,13 +18,13 @@ class PartController
             const {batch_number, warehouse_id, part_type_id} = req.body
             if (!batch_number || !warehouse_id || !part_type_id)
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const type = await PartType.findOne({where: {part_type_id}})
             if (!type)
             {
-                return next(new ApiError.badRequest("Part type not found"))
+                return next(ApiError.badRequest("Part type not found"))
             }
 
             const [[{queue}]] = await sequelize.query("SELECT nextval('\"Parts_part_id_seq\"') as queue;")
@@ -39,7 +39,7 @@ class PartController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -52,7 +52,7 @@ class PartController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -68,7 +68,7 @@ class PartController
             }
             else
             {
-                return next(new ApiError.notFound('Part not found'))
+                return next(ApiError.notFound('Part not found'))
             }
         }
         catch(e)
@@ -84,14 +84,14 @@ class PartController
             const {id} = req.body
             if(isNaN(id))
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
             await Part.destroy({where: {part_id: id.toString()}})
             return res.json({message: 'Ok'})
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 }

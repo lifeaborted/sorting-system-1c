@@ -13,7 +13,7 @@ class PartTypeController
             const {name, type_code} = req.body
             if(!name || !type_code)
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const [partType] = await PartType.findOrCreate({
@@ -25,7 +25,7 @@ class PartTypeController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -38,7 +38,7 @@ class PartTypeController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -54,13 +54,13 @@ class PartTypeController
             }
             else
             {
-                return next(new ApiError.notFound('PartType not found'))
+                return next(ApiError.notFound('PartType not found'))
             }
 
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -71,14 +71,14 @@ class PartTypeController
             const {id} = req.body
             if(isNaN(id))
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
             await PartType.destroy({where: {part_type_id: id.toString()}})
             return res.json({status: 200, message: 'Ok'})
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 }

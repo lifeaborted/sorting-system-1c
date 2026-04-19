@@ -25,14 +25,14 @@ class ScanController
             if (!serial_number || !batch_number)
             {
                 await socket.broadcast(JSON.stringify({status: 400, message: 'Incorrect request data'}))
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
             
             const part = await Part.findOne({where: {serial_number, batch_number}})
             if(!part)
             {
                 await socket.broadcast(JSON.stringify({status: 400, message: 'Bad Request'}))
-                return next(new ApiError.badRequest("Part not found"))
+                return next(ApiError.badRequest("Part not found"))
             }
 
             let inOrder = await OrderItemPart.findOne({where: {part_id: part.dataValues.part_id}})
@@ -42,7 +42,7 @@ class ScanController
                 if(!inOrder)
                 {
                     await socket.broadcast(JSON.stringify({status: 404, message: 'No available orders found'}))
-                    return next(new ApiError.notFound("No available orders found"))
+                    return next(ApiError.notFound("No available orders found"))
                 }
                 isSorted = true
             }
@@ -88,7 +88,7 @@ class ScanController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 

@@ -10,7 +10,7 @@ class CustomerController
             const {company_name, inn, ogrn, address_id} = req.body
             if (!company_name || !inn || !ogrn || !address_id)
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const [customer] = await Customer.findOrCreate({
@@ -23,7 +23,7 @@ class CustomerController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -36,7 +36,7 @@ class CustomerController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -52,12 +52,12 @@ class CustomerController
             }
             else
             {
-                return next(new ApiError.notFound('Customer not found'))
+                return next(ApiError.notFound('Customer not found'))
             }
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -71,7 +71,7 @@ class CustomerController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 }

@@ -16,7 +16,7 @@ class OrderController
             const {customer_id, notes, priority} = req.body
             if (!customer_id || !notes)
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const [[{queue}]] = await sequelize.query("SELECT nextval('\"Orders_order_id_seq\"') as queue;")
@@ -33,7 +33,7 @@ class OrderController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Registration error: ' + e.message))
+            return next(ApiError.internal('Registration error: ' + e.message))
         }
     }
 
@@ -45,7 +45,7 @@ class OrderController
         }
         catch(e)
         {
-            return next(new ApiError.internal('Registration error: ' + e.message))
+            return next(ApiError.internal('Registration error: ' + e.message))
         }
     }
 

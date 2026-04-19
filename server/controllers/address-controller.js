@@ -11,7 +11,7 @@ class AddressController
             const {country, region, city, street, building, postal_code} = req.body
             if (!country || !region || !city || !street || !building || !postal_code)
             {
-                return next(new ApiError.badRequest("Incorrect request data"))
+                return next(ApiError.badRequest("Incorrect request data"))
             }
 
             const [address] = await Address.findOrCreate({
@@ -23,7 +23,7 @@ class AddressController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -36,7 +36,7 @@ class AddressController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -52,12 +52,12 @@ class AddressController
             }
             else
             {
-                return next(new ApiError.notFound('Address not found'))
+                return next(ApiError.notFound('Address not found'))
             }
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -71,7 +71,7 @@ class AddressController
         }
         catch (e)
         {
-            return next(new ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 }

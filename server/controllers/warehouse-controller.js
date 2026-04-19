@@ -53,7 +53,7 @@ class WarehouseController
             }
             else
             {
-                return next(new ApiError.notFound('Warehouse not found'))
+                return next(ApiError.notFound('Warehouse not found'))
             }
         }
         catch (e)
