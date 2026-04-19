@@ -17,7 +17,7 @@ class HttpWrapper:
         self._log_route(path, "get")
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{self.host}{path}") as response:
-                if (await response.json()).get("status", 200) != 200: # fix when саня
+                if response.status != 200:
                     await self._raise_response(response)
                 return await response.json()
 
@@ -29,7 +29,7 @@ class HttpWrapper:
                     f"{self.host}{path}",
                     json=data
             ) as response:
-                if (await response.json()).get("status", 200) != 200: # fix when саня
+                if response.status != 200:
                     await self._raise_response(response)
                 return await response.json()
 
