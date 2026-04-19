@@ -28,7 +28,6 @@ class Backend(QObject):
     _user_changed = Signal()
     def __init__(self, parent=None):
         super().__init__(parent)
-        load_dotenv()
         self._api = Api(os.getenv("SERVER_URL"), int(os.getenv("PORT")))
         self._router = Router()
         self._notificator = Notificator()
