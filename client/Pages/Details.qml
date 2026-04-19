@@ -177,9 +177,8 @@ Rectangle {
                     }
 
                     // Дата производства
-
                     ColumnLayout {
-                        Layout.preferredWidth: 120
+                        Layout.preferredWidth: 160
                         Layout.preferredHeight: 50
                         spacing: 5
 

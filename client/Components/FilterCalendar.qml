@@ -34,18 +34,53 @@ Item {
     }
 
 
-    Button {
-        font.pixelSize: 12
-        font.family: "Roboto"
-        text: from + "-" + to
-        onClicked: popup.open()
+    Rectangle {
+        id: triggerButton
+        width: root.width
+        height: root.height
+        color: "#3E3E42"
+        radius: 5
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            spacing: 0
+
+            Text {
+                text: root.from.replace(/\.(\d{4})$/, (_, y) => "." + y.slice(2))
+                      + " - " +
+                      root.to.replace(/\.(\d{4})$/, (_, y) => "." + y.slice(2))
+                color: "#B2B4BC"
+                font.pixelSize: 12
+                font.family: "Roboto"
+                font.weight: 400
+                verticalAlignment: Text.AlignVCenter
+                Layout.fillWidth: true
+            }
+
+            Image {
+                source: "qrc:/resources/icons/calendar.svg"
+                width: 16
+                height: 16
+                fillMode: Image.PreserveAspectFit
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: popup.opened ? popup.close() : popup.open()
+        }
     }
 
     Popup {
         // center popup related to root position
         // was clipped before
-        x: root.x - popup.width / 2
         id: popup
+        x: root.x - popup.width / 2
+        y: root.height + 4
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
         background: Rectangle {
             color: "#3E3E42"
             radius: 5
