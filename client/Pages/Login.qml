@@ -4,19 +4,20 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import io.backend 1.0
 import "../Components"
+
 Item {
     id: window
     width: 1280
     visible: true
     property string password: passwordField.text
     property string login: loginField.text
+
     // Фон
     Image {
         anchors.fill: parent
         source: "qrc:/resources/backgrounds/background1.png"
         fillMode: Image.PreserveAspectCrop
     }
-
 
     // Центральная карточка
     Rectangle {

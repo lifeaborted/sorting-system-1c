@@ -23,7 +23,7 @@ ColumnLayout {
         id: textField
         placeholderText: placeholder
         placeholderTextColor: "#B2B4BC"
-        color: "#B2B4BC"
+        color: "#28282A"
         Layout.fillWidth: true
         font.pixelSize: 14
         font.weight: 700
@@ -41,7 +41,7 @@ ColumnLayout {
     // Нижняя линия
     Rectangle {
         Layout.fillWidth: true
-        height: 1.5 // 2 - шире нижней, 1 - уже нижней. 1.5 - оптимальное значение
+        height: 1.5
         color: textField.activeFocus ? "#6e707b" : "#B2B4BC"
     }
 }
