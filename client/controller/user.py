@@ -21,15 +21,11 @@ class User(QObject):
     _details_filter: DetailsFilter
     def __init__(
             self,
-            first_name: str,
-            last_name: str,
-            middle_name: str,
+            token: str,
             parent = None
     ):
         super().__init__(parent)
-        self._first_name = first_name
-        self._last_name = last_name
-        self._middle_name = middle_name
+        self._token = token
         self._details_filter = {
             "search": "",
             "detail_type": {},
@@ -45,6 +41,10 @@ class User(QObject):
             "warehouse": {}
         }
         self.create_details()
+
+        self._first_name = "Андрей"
+        self._last_name = "Гайдулян"
+        self._middle_name = "Сергеевич"
 
     @Slot(str, result = str)
     def format_username(self, form: str):
@@ -240,3 +240,4 @@ class User(QObject):
                 return i
 
         return None
+

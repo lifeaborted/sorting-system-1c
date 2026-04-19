@@ -177,9 +177,8 @@ Rectangle {
                     }
 
                     // Дата производства
-
                     ColumnLayout {
-                        Layout.preferredWidth: 120
+                        Layout.preferredWidth: 160
                         Layout.preferredHeight: 50
                         spacing: 5
 
@@ -410,7 +409,7 @@ Rectangle {
                                         }
 
                                         background: Rectangle {
-                                            color: "#3e3e3e"
+                                            color: "#3e3e42"
                                             radius: 4
                                         }
                                     }

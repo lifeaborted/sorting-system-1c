@@ -12,7 +12,9 @@ Item {
         spacing: 5
         Repeater {
             model: Backend.notificator.notifications
-            delegate: Rectangle {
+            delegate:
+                Rectangle {
+                implicitHeight: layoutChild.implicitHeight
                 required property var modelData
                 color: {
                     if (modelData.importance == "error") {
@@ -26,18 +28,21 @@ Item {
 
                 }
                 ColumnLayout {
+                    id: layoutChild
+                    width: 400
                     Text {
                         text: modelData.title
                     }
-                    RowLayout {
-                        Text {
-                            text: modelData.message
-                        }
-                        Button {
-                            text: "x"
-                            onClicked: {
-                                Backend.notificator.remove_notification(modelData.uuid)
-                            }
+                    Text {
+                        Layout.fillWidth: true
+                        font.pointSize:12
+                        wrapMode: Text.Wrap
+                        text: modelData.message
+                    }
+                    Button {
+                        text: "x"
+                        onClicked: {
+                            Backend.notificator.remove_notification(modelData.uuid)
                         }
                     }
                 }
