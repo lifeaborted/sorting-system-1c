@@ -19,57 +19,51 @@
 
 ### 2. Создание виртуального окружения
 
-bash
-
+```bash
 python -m venv venv
 
 # Windows
-
 .\venv\Scripts\activate
 
 # Linux/Mac
-
 source venv/bin/activate
+```
 
 ### 3. Установка зависимостей
 
-Последовательная установка важна для избежания конфликтов версий (особенно Numpy и OpenCV).
+Последовательная установка важна для предотвращения конфликтов версий.
 
-bash
 
-# 1. Установка PyTorch (для GPU версии, иначе CPU)
-
+#### 1. Установка PyTorch (для GPU версии, иначе CPU)
+```bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
 
-  
-
-# 2. Установка основных библиотек
-
+#### 2. Установка основных библиотек
+```bash
 pip install ultralytics requests python-dotenv
+```
 
-  
-
-# 3. Установка PaddlePaddle и PaddleOCR (стабильные версии)
-
+#### 3. Установка PaddlePaddle и PaddleOCR (стабильные версии)
+```bash
 pip install paddlepaddle==2.6.1 -i https://mirror.baidu.com/pypi/simple
-
 pip install paddleocr==2.7.3
+```
 
-  
-
-# 4. Фиксация совместимых версий OpenCV и Numpy
-
+#### 4. Фиксация совместимых версий OpenCV и Numpy
+```bash
 pip install numpy==1.24.3 opencv-python==4.6.0.66 --force-reinstall
+```
 
 ### 4. Конфигурация
 
-Создайте файл `.env` в корне проекта:
+Создайте файл `.env` в корне проекта и внесите следующие переменные:
 
-env
-
+```env
 PORT=5000
 
 SCANNER_API_KEY=your_secure_api_key_here
+```
 
 Проверьте файл `config.json`. Убедитесь, что путь к модели YOLO указан корректно:
 
@@ -77,21 +71,9 @@ SCANNER_API_KEY=your_secure_api_key_here
 
 "yolo": {
 
-"model_path": "runs/detect/train3/weights/best.pt",
-
-"conf_threshold": 0.25,
-
-...
-
+    "model_path": "runs/detect/train3/weights/best.pt",
+    ...
 },
-
-"ocr": {
-
-"lang": "en",
-
-...
-
-}
 ```
 ---
 
@@ -112,11 +94,10 @@ SCANNER_API_KEY=your_secure_api_key_here
 ### Шаг 3. Запуск скрипта
 
 ```bash
-
 python stream_mode.py
+```
 
 В консоли появится сообщение: `Модели загружены! Начинаю слежение за папкой 'input'...`
-```
 
 ### Шаг 4. Тестирование передачи Form-Data
 
@@ -126,17 +107,6 @@ python stream_mode.py
     - Распознает текст.
     - Сохранит результаты в папку `output/`.
     - Отправит `POST` запрос на сервер.
-
-**Ожидаемый формат запроса на сервер:**
-
-- **URL:** `http://localhost:5000/service/scan`
-- **Headers:** `Authorization: Bearer your_secure_api_key_here`
-- **Body (form-data):**
-    - `image`: Файл изображения (JPEG) с нарисованными рамками.
-    - `serial_number`: Строка (распознанный текст).
-    - `batch_number`: Строка (по умолчанию "N/A").
-    - `manufacture_date`: Строка (дата и время отправки, формат `YYYY-MM-DD HH:MM:SS`).
-
 ### Проверка результата
 
 В папке `output` появятся файлы:
@@ -153,4 +123,4 @@ python stream_mode.py
 - `pipeline.py` — Ядро логики (YOLO + OCR).
 - `run.py` — Утилита для ручной проверки одиночных файлов (без отправки на сервер).
 - `config.json` — Настройки моделей.
-- `.env` — Переменные окружения (ключи, порт).
+- `.env` — Переменные окружения.

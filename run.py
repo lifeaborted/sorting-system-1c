@@ -3,10 +3,8 @@ import json
 import logging
 import sys
 from pathlib import Path
-
 from pipeline import MarkingPipeline, PipelineResult
 
-import cffi
 
 def load_config(path: str) -> dict:
     with open(path, encoding="utf-8") as f:
