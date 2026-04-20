@@ -11,7 +11,8 @@ const {
     PartType,
     Part,
     OrderItemPart
-} = require("../database/models");
+} = require("../database/models")
+const sequelize = require("../database/database")
 
 class TestingController
 {
@@ -19,8 +20,22 @@ class TestingController
     {
         try
         {
-            const adminPasswordHash = await bcrypt.hash('1234', 10)
-            const qcPasswordHash = await bcrypt.hash('1234', 10)
+            let {override_DB, ratio} = req.body
+
+            ratio = parseFloat(ratio)
+
+            const getCount = (count) => {
+                return parseInt(count * ratio)
+            }
+
+            if(override_DB === "true")
+            {
+                await sequelize.query("DROP SCHEMA IF EXISTS public CASCADE;\nCREATE SCHEMA public;")
+                await sequelize.sync()
+            }
+
+            const adminPasswordHash = await bcrypt.hash('1234' + process.env.ENCRYPTION_SALT, 10)
+            const qcPasswordHash = await bcrypt.hash('1234' + process.env.ENCRYPTION_SALT, 10)
 
             await Employee.findOrCreate({
                 where: {login: 'admin'},
@@ -47,7 +62,7 @@ class TestingController
                 }
             })
 
-            const warehouseCount = faker.number.int({ min: 3, max: 5 });
+            const warehouseCount = faker.number.int({ min: getCount(3), max: getCount(5) });
             const warehouseAddresses = []
 
             for (let i = 0; i < warehouseCount; i++)
@@ -74,7 +89,7 @@ class TestingController
                 warehouses.push(warehouse)
             }
 
-            const customerCount = faker.number.int({ min: 5, max: 10 })
+            const customerCount = faker.number.int({ min: getCount(5), max: getCount(10) })
             const customerAddresses = []
 
             for (let i = 0; i < customerCount; i++)
@@ -103,7 +118,7 @@ class TestingController
                 customers.push(customer.dataValues)
             }
 
-            const partTypeCount = faker.number.int({ min: 10, max: 20 })
+            const partTypeCount = faker.number.int({ min: getCount(10), max: getCount(20) })
             const partTypes = []
 
             for (let i = 0; i < partTypeCount; i++)
@@ -116,7 +131,7 @@ class TestingController
                 partTypes.push(partType.dataValues)
             }
 
-            const partCount = faker.number.int({ min: 20, max: 100 })
+            const partCount = faker.number.int({ min: getCount(50), max: getCount(100) })
             const parts = []
 
             for (let i = 0; i < partCount; i++)
@@ -135,7 +150,7 @@ class TestingController
                 parts.push(part.dataValues)
             }
 
-            const orderCount = faker.number.int({ min: 10, max: 15 })
+            const orderCount = faker.number.int({ min: getCount(10), max: getCount(15) })
             const orders = []
             for (let i = 0; i < orderCount; i++)
             {
@@ -153,7 +168,7 @@ class TestingController
 
             for (const order of orders)
             {
-                const itemCount = faker.number.int({ min: 2, max: 5 })
+                const itemCount = faker.number.int({ min: getCount(2), max: getCount(5) })
 
                 for (let i = 0; i < itemCount; i++)
                 {
