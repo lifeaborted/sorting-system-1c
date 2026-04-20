@@ -108,22 +108,45 @@ RowLayout {
                     fillMode: Image.PreserveAspectFit
                 }
                 Popup {
-                    x: -userProfile.width
-                    y: userProfile.y + userProfile.height / 2
                     id: popup
+                    x: -(userProfile.width - 50)
+                    y: 28
+                    padding: 0
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+
+                    background: Rectangle {
+                        color: "#2E2E2E"
+                        radius: 8
+                        border.color: "#4A4A4E"
+                        border.width: 1
+                    }
+
                     Rectangle {
-                        width: userProfile.width + 16/2
-                        height: userProfile.height
-                        color: "#B2B4BC"
-                        RowLayout {
-                            width: parent.width
-                            Button {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                text: "ВЫХОД"
-                                onClicked: {
-                                    logout()
-                                }
+                        id: logoutItem
+                        width: userProfile.width - 20
+                        height: 40
+                        color: logoutMouse.containsMouse ? "#46464A" : "#3E3E42"
+                        radius: 8
+
+                        Text {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: 14
+                            text: "Выход"
+                            color: "#B2B4BC"
+                            font.pixelSize: 13
+                            font.family: "Roboto"
+                            font.weight: 400
+                        }
+
+                        MouseArea {
+                            id: logoutMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                popup.close()
+                                logout()
                             }
                         }
                     }
