@@ -7,26 +7,22 @@ import json
 import cv2
 import requests
 import numpy as np
-import re
 from dotenv import load_dotenv
 import os
 import datetime
+import sys
 
-# --- НАСТРОЙКИ ---
+load_dotenv()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
 CONFIG_PATH = "config.json"
 INPUT_FOLDER = "input"
 OUTPUT_FOLDER = "output"
 PROCESSED_FOLDER = "done"
 
-load_dotenv()
-
-# Настройки сервера Node.js
 PORT = os.getenv('PORT', 5000)
 API_URL = f"http://localhost:{os.getenv('PORT')}/service/scan"
 API_KEY = os.getenv("SCANNER_API_KEY")
-# -----------------
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
 def load_config(path):
@@ -46,10 +42,9 @@ def parse_text_to_fields(raw_text: str) -> dict:
 
 def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
     """
-    Отправка на Node.js через form-data.
+    Отправка на Node.js через form-data
     """
     try:
-        # Кодируем картинку
         success, img_encoded = cv2.imencode('.jpg', image_np)
         if not success:
             logging.error("Ошибка кодирования изображения")
@@ -80,15 +75,13 @@ def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
 
 
 def main():
-    print("Инициализация моделей (это займет несколько секунд)...")
-    # Создание папок
+    print("Инициализация моделей, пожалуйста, подождите...")
     Path(INPUT_FOLDER).mkdir(exist_ok=True)
     Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
     Path(PROCESSED_FOLDER).mkdir(exist_ok=True)
 
     cfg = load_config(CONFIG_PATH)
 
-    # Инициализация пайплайна
     init_args = {
         "yolo_model_path": cfg["yolo"].get("model_path"),
         "yolo_conf": cfg["yolo"]["conf_threshold"],
@@ -106,7 +99,11 @@ def main():
 
     while True:
         try:
-            # Поиск картинок
+            user_input = input("""Для завершения работы введите "exit":""")
+            if user_input.lower() == 'exit':
+                print("Выход из программы.")
+                sys.exit()
+
             files = list(Path(INPUT_FOLDER).glob("*.[jJ][pP][gG]")) + \
                     list(Path(INPUT_FOLDER).glob("*.[pP][nN][gG]"))
 
@@ -122,19 +119,12 @@ def main():
                     shutil.move(str(img_path), Path(PROCESSED_FOLDER) / img_path.name)
                     continue
 
-                # 1. Распознавание
                 result = pipeline.process_image(img, source=img_path.name)
 
-                # 2. Парсинг текста
                 full_text = " ".join([d.text for d in result.detections])
                 payload = parse_text_to_fields(full_text)
 
-                # 3. Рисуем рамки
                 annotated_img = MarkingPipeline._draw_detections(img, result)
-
-                # --- 4. СОХРАНЕНИЕ РЕЗУЛЬТАТОВ (ДО отправки) ---
-
-                # --- 4. СОХРАНЕНИЕ РЕЗУЛЬТАТОВ ЛОКАЛЬНО ---
 
                 # А) Технический JSON (полный ответ пайплайна)
                 result_json_path = Path(OUTPUT_FOLDER) / f"{img_path.stem}_result.json"
@@ -146,17 +136,13 @@ def main():
                 with open(payload_json_path, "w", encoding="utf-8") as f:
                     json.dump(payload, f, indent=2, ensure_ascii=False)
 
-                # В) Сохраняем изображение с выделенной областью
                 annotated_img_path = Path(OUTPUT_FOLDER) / f"{img_path.stem}_annotated.jpg"
                 cv2.imwrite(str(annotated_img_path), annotated_img)
 
                 logging.info(f"Результаты сохранены в папку 'output' (json + jpg)")
-                # -----------------------------------------
 
-                # 5. Попытка отправки (если сервера нет — просто выдаст ошибку и продолжит)
                 send_to_server(payload, annotated_img, img_path.name)
 
-                # 6. Перемещение исходника
                 shutil.move(str(img_path), Path(PROCESSED_FOLDER) / img_path.name)
 
         except KeyboardInterrupt:
