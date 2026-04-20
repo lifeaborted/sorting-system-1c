@@ -44,7 +44,6 @@ class User(QObject):
             "order": {},
             "warehouse": {}
         }
-        self.create_details()
 
     @staticmethod
     async def new(api: Api) -> 'User':
@@ -54,6 +53,9 @@ class User(QObject):
         user._first_name = data["first_name"]
         user._last_name = data["last_name"]
         user._middle_name = data["middle_name"]
+
+        await user._load_details_from_api()
+
         return user
 
 
@@ -62,82 +64,78 @@ class User(QObject):
         return form.format(first=self._first_name, second=self._last_name, middle=self._middle_name)
 
 
-    def create_details(self):
-        # mock template for data
+    async def _load_details_from_api(self):
         self._details.clear()
-        i = 0
-        detailTypes: List[DetailType] = [
-            DetailType(id=(i := i + 1) - 1, name="Шкив", code="SHK"),
-            DetailType(id=(i := i + 1) - 1, name="Подшипник", code="PODIK"),
-            DetailType(id=(i := i + 1) - 1, name="Вал", code="VAL"),
-            DetailType(id=(i := i + 1) - 1, name="Гвоздь", code="GDE"),
-        ]
-        i = 0
-        warehouses: List[Optional[Warehouse]] = [
-            Warehouse(id=(i := i + 1) - 1, address=Address(
-                id=0,
-                country="Россия",
-                region="Челябинская обл.",
-                city="г. Челябинск",
-                street="пр. Ленина",
-                building="д. 228",
-                postal_code="56789"
-            )),
-            Warehouse(id=(i := i + 1) - 1, address=Address(
-                id=1,
-                country="Россия",
-                region="Московская обл.",
-                city="г. Москва",
-                street="пр. Москвы",
-                building="д. 1",
-                postal_code="1111"
-            )),
-            Warehouse(id=(i := i + 1) - 1, address=Address(
-                id=2,
-                country="Казахстан",
-                region="Казахская обл.",
-                city="г. Алмата",
-                street="пр. Алматинский",
-                building="д. 0000",
-                postal_code="56788"
-            )),
-        ]
-        i = 0
-        statuses = ["pending", "in_production", "sorting", "completed", "canceled"]
 
-        for i in range(100):
-            # --- serial number ---
-            serial_number = f"Ш-{random.randint(100, 999)}-{random.randint(1000000, 9999999)}"
+        raw_details = await self._api.parts.get_all()
+        raw_part_types = await self._api.part_types.get_all()
+        raw_warehouses = await self._api.warehouses.get_all()
 
-            # --- batch number ---
-            batch_number = f"П-{random.randint(10000, 99999)}"
+        part_types: dict[int, DetailType] = {}
+        warehouses: dict[int, Warehouse] = {}
 
-            # --- random date ---
-            start = datetime(2023, 1, 1)
-            end = datetime(2026, 12, 31)
-            delta = end - start
-            random_days = random.randint(0, delta.days)
-            manufacture_date = (start + timedelta(days=random_days)).strftime("%d.%m.%y %H:%M:%S")
-            detail: Detail = {
-                "id": i,
-                "serial_number": serial_number,
-                "batch_number": batch_number,
-                "manufacture_date": manufacture_date,
-                "order": None if random.random() < 0.3 else {
-                    "id": random.randint(1, 20),
-                    "name": f"№{random.randint(100, 999)}-ЧКПЗ-{random.randint(10, 99)}"
-                },
-                "warehouse": random.choice(warehouses),
-                "type": random.choice(detailTypes),
-                "status": random.choice(statuses)
-            }
+        for r_type in raw_part_types["rows"]:
+            part_types[r_type["part_type_id"]] = DetailType(
+                id=r_type["part_type_id"],
+                name=r_type["name"],
+                code=r_type["type_code"],
+                price=r_type["price"],
+                order_item_type_id=r_type["order_item_type_id"]
+            )
+
+        for r_warehouse in raw_warehouses["rows"]:
+            r_addr = r_warehouse["address"]
+            warehouses[r_warehouse["warehouse_id"]] = Warehouse(
+                id=r_warehouse["warehouse_id"],
+                name=r_warehouse["name"],
+                created_at=r_warehouse["created_at"],
+                address=Address(
+                    id=r_addr["address_id"],
+                    country=r_addr["country"],
+                    postal_code=r_addr["postal_code"],
+                    building=r_addr["building"],
+                    street=r_addr["street"],
+                    region=r_addr["region"],
+                    city=r_addr["city"]
+                )
+            )
+
+
+        for r_detail in raw_details["rows"]:
+
+            status = r_detail["status"]
+            match status:
+                case "manufactured":
+                    status = "pending"
+                case "sorted":
+                    status = "completed"
+                case _:
+                    logging.error(f"Unknown detail status type={status}")
+                    status = ""
+            detail = Detail(
+                id=r_detail["part_id"],
+                batch_number=r_detail["batch_number"],
+                manufacture_date=datetime.strptime(r_detail["manufacture_date"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d.%m.%y %H:%M:%S"),
+                type=part_types[r_detail["part_type_id"]],
+                serial_number=r_detail["serial_number"],
+                sorted_at=r_detail["sorted_at"],
+                warehouse=warehouses[r_detail["warehouse_id"]] if r_detail["warehouse_id"] is not None else None,
+                qc_inspector_id=r_detail["qc_inspector_id"],
+                order=None, # TODO
+                status=status,
+            )
+
+
             self._details.append(detail)
             self._details_filter["detail_type"][detail["type"]["name"]] = detail["type"]["id"]
 
+            batch_number = detail["batch_number"]
             self._details_filter["batch"][batch_number] = batch_number
 
-            wh_name = detail["warehouse"]["address"]["city"]
-            self._details_filter["warehouse"][wh_name] = detail["warehouse"]["id"]
+
+            if detail["warehouse"] is not None:
+                wh_name = detail["warehouse"]["address"]["city"]
+                self._details_filter["warehouse"][wh_name] = detail["warehouse"]["id"]
 
             if detail["order"]:
                 self._details_filter["order"][detail["order"]["name"]] = detail["order"]["id"]
@@ -193,6 +191,8 @@ class User(QObject):
 
             warehouse_f = f.property("warehouse")
             if warehouse_f is not None and warehouse_f != "Все":
+                if d["warehouse"] is None:
+                    return False
                 if d["warehouse"]["id"] != self._details_filter["warehouse"][warehouse_f]:
                     return False
 
@@ -233,7 +233,7 @@ class User(QObject):
             case "order":
                 attr_getter = lambda x: (x.get("order") or {}).get("name", "")
             case "warehouse":
-                attr_getter = lambda x: (itemgetter("country", "region", "city", "street", "building"))(x["warehouse"]["address"])
+                attr_getter = lambda x: (itemgetter("country", "region", "city", "street", "building"))(x["warehouse"]["address"]) if x["warehouse"] is not None else ("", "", "", "", "")
             case "date":
                 attr_getter = lambda x: datetime.strptime(x["manufacture_date"], "%d.%m.%y %H:%M:%S")
             case _:

@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import traceback
 from typing import final, Optional, Any
 
 from dotenv import load_dotenv
@@ -39,7 +40,7 @@ class Backend(QObject):
             try:
                 self.login_token(self._conf.get("token"))
             except Exception as e:
-                logging.info("Auth failed err=", e)
+                logging.info(f"Auth failed err={e.__str__()}")
 
     @Property(Router, constant=True, final = True)
     def router(self):

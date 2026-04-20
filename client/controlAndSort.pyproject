@@ -1,21 +1,34 @@
 {
     "files": [
-        "Components/NavRouter.qml",
-        "Components/qmldir",
         "Pages/Login.qml",
         "Pages/Details.qml",
         "Pages/Orders.qml",
         "Pages/DetailWindow.qml",
+
         "main.py",
         "main.qml",
         "qmldir",
-        "rc_resources.py",
+        "ProgramWindow.qml",
         "resources.qrc",
+
+        "rc_resources.py",
         "controller/backend.py",
         "controller/notification.py",
         "controller/user.py",
         "controller/router.py",
+        "controller/config.py",
+        "controller/utils.py",
+
         "controller/types/detail.py",
+        "controller/types/order.py",
+
+        "controller/api/api.py",
+        "controller/api/http.py",
+        "controller/api/part_types.py",
+        "controller/api/parts.py",
+        "controller/api/user.py",
+        "controller/api/warehouses.py",
+
         "Components/CTextField.qml",
         "Components/Filter.qml",
         "Components/LeftSidebar.qml",
@@ -28,7 +41,8 @@
         "Components/FilterCalendar.qml",
         "Components/LeftSidebarTab.qml",
         "Components/InfoRow.qml",
-        "ProgramWindow.qml",
-        "Components/Notificator.qml"
+        "Components/Notificator.qml",
+        "Components/NavRouter.qml",
+        "Components/qmldir"
     ]
 }

@@ -18,7 +18,9 @@ class Address(TypedDict):
 
 class Warehouse(TypedDict):
     id: int
+    name: str
     address: Address
+    created_at: str
 
 class OrderShort(TypedDict):
     id: int
@@ -28,6 +30,8 @@ class DetailType(TypedDict):
     id: int
     name: str
     code: str
+    price: int
+    order_item_type_id: Optional[int]
 
 class Detail(TypedDict):
     id: int
@@ -35,9 +39,12 @@ class Detail(TypedDict):
     batch_number: str
     manufacture_date: str
     order: Optional[OrderShort]
-    warehouse: Warehouse
+    warehouse: Optional[Warehouse]
+    sorted_at: Optional[str]
+    qc_inspector_id: Optional[int]
     type: DetailType
     status: Literal["pending", "in_production", "sorting", "completed", "canceled"]
+
 
 class DetailsFilter(TypedDict):
     search: str

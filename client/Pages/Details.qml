@@ -24,8 +24,8 @@ Rectangle {
         property string order: "Все"
         property string warehouse: "Все"
         property QtObject date: QtObject {
-            property string from: "01.04.2026"
-            property string to: "20.04.2026"
+            property string from: "01.04.2020"
+            property string to: "20.04.2027"
         }
     }
 
@@ -65,8 +65,8 @@ Rectangle {
                     property string order: "Все"
                     property string warehouse: "Все"
                     property QtObject date: QtObject {
-                        property string from: "01.04.2026"
-                        property string to: "20.04.2026"
+                        property string from: "01.04.2020"
+                        property string to: "20.04.2027"
                     }
                 }
         `, detailsPage, "sortingParams")
