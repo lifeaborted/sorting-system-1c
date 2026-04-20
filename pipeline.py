@@ -90,7 +90,7 @@ class MarkingPipeline:
         # --- PaddleOCR ---
         logger.info(f"Инициализация PaddleOCR (lang={ocr_lang}, gpu={ocr_use_gpu})")
         self.ocr = PaddleOCR(
-            use_angle_cls=True,
+            use_angle_cls=False, #True для не горизонтального текста
             lang=ocr_lang,
             use_gpu=ocr_use_gpu,  # Верните этот параметр!
             show_log=False

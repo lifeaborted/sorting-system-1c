@@ -6,7 +6,7 @@
     "comment_model": "Укажите путь к вашей дообученной модели. При отсутствии — используется yolov8n.pt (общая детекция)."
   },
   "ocr": {
-    "lang": "ru",
+    "lang": "en",
     "use_gpu": false,
     "min_confidence": 0.60,
     "crop_padding_px": 8,

@@ -1,98 +1,156 @@
-# Пайплайн распознавания маркировки
+# Система распознавания маркировки (Python + Node.js)
 
-Реализует схему: **Камера/Файл → YOLOv8 → PaddleOCR → JSON**
+Проект представляет собой локальный сервис для автоматического распознавания текста маркировки с изображений металлических изделий и отправки данных на удаленный сервер (Node.js) для дальнейшей обработки в 1С.
+
+## Архитектура
+
+1. **YOLOv8**: Нейросеть для поиска области с маркировкой на изображении.
+2. **PaddleOCR**: Распознавание текста в найденной области.
+3. **Stream Mode**: Сервис, работающий в фоне. Следит за папкой `input`, обрабатывает новые файлы и отправляет результаты.
+
+---
 
 ## Установка
 
-```bash
-pip install -r requirements.txt
-```
+### 1. Требования
 
-Для GPU (PaddlePaddle):
-```bash
-pip install paddlepaddle-gpu>=2.6.0
-# и установите в config.json: "use_gpu": true
-```
+- Python 3.10 (рекомендуется)
+- Видеокарта NVIDIA (опционально, для ускорения YOLO)
 
-## Запуск
+### 2. Создание виртуального окружения
 
-```bash
-# Одно изображение
-python run.py --image part_001.jpg
+bash
 
-# Папка с изображениями
-python run.py --folder ./test_images/
+python -m venv venv
 
-# Захват с камеры (S — обработать кадр, Q — выйти)
-python run.py --camera
-```
+# Windows
 
-## Пример выходного JSON
+.\venv\Scripts\activate
+
+# Linux/Mac
+
+source venv/bin/activate
+
+### 3. Установка зависимостей
+
+Последовательная установка важна для избежания конфликтов версий (особенно Numpy и OpenCV).
+
+bash
+
+# 1. Установка PyTorch (для GPU версии, иначе CPU)
+
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+  
+
+# 2. Установка основных библиотек
+
+pip install ultralytics requests python-dotenv
+
+  
+
+# 3. Установка PaddlePaddle и PaddleOCR (стабильные версии)
+
+pip install paddlepaddle==2.6.1 -i https://mirror.baidu.com/pypi/simple
+
+pip install paddleocr==2.7.3
+
+  
+
+# 4. Фиксация совместимых версий OpenCV и Numpy
+
+pip install numpy==1.24.3 opencv-python==4.6.0.66 --force-reinstall
+
+### 4. Конфигурация
+
+Создайте файл `.env` в корне проекта:
+
+env
+
+PORT=5000
+
+SCANNER_API_KEY=your_secure_api_key_here
+
+Проверьте файл `config.json`. Убедитесь, что путь к модели YOLO указан корректно:
 
 ```json
-{
-  "timestamp": "2026-04-14T10:33:21",
-  "source": "part_001.jpg",
-  "processing_time_ms": 87.4,
-  "status": "ok",
-  "error": null,
-  "detections": [
-    {
-      "bbox": [142, 88, 310, 144],
-      "confidence": 0.891,
-      "text": "АТ-7834-Б",
-      "ocr_confidence": 0.943
-    }
-  ]
+
+"yolo": {
+
+"model_path": "runs/detect/train3/weights/best.pt",
+
+"conf_threshold": 0.25,
+
+...
+
+},
+
+"ocr": {
+
+"lang": "en",
+
+...
+
 }
 ```
+---
 
-## Подключение собственной модели YOLO
+## Запуск и проверка
 
-Если у вас ещё нет дообученной модели (детекция именно области гравировки),
-пайплайн работает с предобученным `yolov8n.pt` — он детектирует общие объекты,
-что полезно для проверки OCR-части.
+### Шаг 1. Подготовка папок
 
-Для дообучения:
+При первом запуске скрипт создаст папки:
 
-1. Собрать датасет: сфотографировать изделия, разметить bbox вокруг гравировки
-   (например, в LabelImg или CVAT).
-2. Структура датасета:
-   ```
-   dataset/
-     images/train/  images/val/
-     labels/train/  labels/val/
-   data.yaml
-   ```
-3. Запустить дообучение:
-   ```bash
-   yolo detect train model=yolov8n.pt data=data.yaml epochs=50 imgsz=640
-   ```
-4. Указать путь к `best.pt` в `config.json` → `yolo.model_path`.
+- `input/` — сюда помещаются исходные изображения.
+- `output/` — сюда сохраняются результаты (JSON + фото с разметкой).
+- `done/` — сюда перемещаются обработанные файлы.
 
-## Интеграция с 1С
+### Шаг 2. Запуск сервера (Node.js)
 
-Результат `PipelineResult.to_json()` — готовый JSON для отправки через REST API.
-Структура полностью совместима с описанием в FR-05 технического задания.
+Убедитесь, что ваш Node.js сервер запущен и слушает порт, указанный в `.env` 
 
-Пример отправки (добавить в `run.py` или отдельный модуль):
+### Шаг 3. Запуск скрипта
 
-```python
-import requests
+```bash
 
-result_json = pipeline.process_file("part.jpg").to_json()
-resp = requests.post(
-    "http://1c-server/marking/api/v1/recognition",
-    data=result_json,
-    headers={"Content-Type": "application/json", "Authorization": "Bearer <token>"},
-)
+python stream_mode.py
+
+В консоли появится сообщение: `Модели загружены! Начинаю слежение за папкой 'input'...`
 ```
 
-## Файлы
+### Шаг 4. Тестирование передачи Form-Data
 
-| Файл | Назначение |
-|---|---|
-| `pipeline.py` | Класс `MarkingPipeline` — ядро пайплайна |
-| `run.py` | CLI-точка входа |
-| `config.json` | Конфигурация (пороги, пути, язык OCR) |
-| `requirements.txt` | Зависимости |
+1. Возьмите любое изображение изделия.
+2. Перетащите его в папку `input/`.
+3. Скрипт автоматически:
+    - Распознает текст.
+    - Сохранит результаты в папку `output/`.
+    - Отправит `POST` запрос на сервер.
+
+**Ожидаемый формат запроса на сервер:**
+
+- **URL:** `http://localhost:5000/service/scan`
+- **Headers:** `Authorization: Bearer your_secure_api_key_here`
+- **Body (form-data):**
+    - `image`: Файл изображения (JPEG) с нарисованными рамками.
+    - `serial_number`: Строка (распознанный текст).
+    - `batch_number`: Строка (по умолчанию "N/A").
+    - `manufacture_date`: Строка (дата и время отправки, формат `YYYY-MM-DD HH:MM:SS`).
+
+### Проверка результата
+
+В папке `output` появятся файлы:
+
+- `test_result.json` (полный технический ответ).
+- `test_payload.json` (данные, отправленные на сервер).
+- `test_annotated.jpg` (фото с выделенной зоной маркировки).
+
+---
+
+## Структура проекта
+
+- `stream_mode.py` — Основной исполняемый файл для работы с сервером.
+- `pipeline.py` — Ядро логики (YOLO + OCR).
+- `run.py` — Утилита для ручной проверки одиночных файлов (без отправки на сервер).
+- `config.json` — Настройки моделей.
+- `.env` — Переменные окружения (ключи, порт).
