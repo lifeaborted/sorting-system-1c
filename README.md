@@ -85,6 +85,10 @@ server/
 - python. В теории версии с 3.11.x и выше. Работоспособность проверена на 3.14.3. Также необходимы следующие пакеты для работы и сборки
     - PySide6
     - pyinstaller
+    - pillow
+    - aiohttp
+    - python-dotenv
+    - platformdirs
 - Qt6
 ## Запуск
 Создайте файл `.env` в папке client/
