@@ -260,6 +260,7 @@ Rectangle {
                             columnHeader: "Номер"
                             columnKey: "serial"
                             columnWidth: 120
+                            textLeftPadding: -5
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -272,6 +273,7 @@ Rectangle {
                             columnHeader: "Партия"
                             columnKey: "batch"
                             columnWidth: 100
+                            textLeftPadding: 10
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -283,7 +285,8 @@ Rectangle {
                         TableHeaderColumn {
                             columnHeader: "Статус"
                             columnKey: "status"
-                            columnWidth: 110
+                            columnWidth: 100
+                            textLeftPadding: 28
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -295,7 +298,8 @@ Rectangle {
                         TableHeaderColumn {
                             columnHeader: "Заказ"
                             columnKey: "order"
-                            columnWidth: 125
+                            columnWidth: 120
+                            textLeftPadding: 40
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -307,7 +311,8 @@ Rectangle {
                         TableHeaderColumn {
                             columnHeader: "Склад"
                             columnKey: "warehouse"
-                            columnWidth: 160
+                            columnWidth: 145
+                            textLeftPadding: 33
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -319,7 +324,8 @@ Rectangle {
                         TableHeaderColumn {
                             columnHeader: "Дата"
                             columnKey: "date"
-                            columnWidth: 100
+                            columnWidth: 80
+                            textLeftPadding: 9
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -376,21 +382,18 @@ Rectangle {
                                     TableCell {
                                         cellText: modelData.type?.name || "-"
                                         cellWidth: 80
-                                        textLeftPadding: 5
                                     }
 
                                     // Номер
                                     TableCell {
                                         cellText: modelData.serial_number || "-"
                                         cellWidth: 120
-                                        textLeftPadding: 5
                                     }
 
                                     // Партия
                                     TableCell {
                                         cellText: modelData.batch_number || "-"
                                         cellWidth: 100
-                                        textLeftPadding: -5
                                     }
 
                                     // Статус
@@ -406,14 +409,12 @@ Rectangle {
                                             }
                                         }
                                         cellWidth: 100
-                                        textLeftPadding: -1
                                     }
 
                                     // Заказ
                                     TableCell {
                                         cellText: modelData.order?.name || "-"
-                                        cellWidth: 120
-                                        textLeftPadding: -1
+                                        cellWidth: 100
                                     }
 
                                     // Склад
@@ -422,8 +423,7 @@ Rectangle {
                                                  ? qsTr("%1,%2...").arg(modelData.warehouse.address.street)
                                                                    .arg(modelData.warehouse.address.building)
                                                  : "-"
-                                        cellWidth: 145
-                                        textLeftPadding: -5
+                                        cellWidth: 130
                                     }
 
                                     // Дата
@@ -431,7 +431,7 @@ Rectangle {
                                         cellText: modelData.manufacture_date || "-"
                                         cellWidth: 50
                                         wrapMode: Text.WordWrap
-                                        textLeftPadding: -2
+                                        textLeftPadding: -20
                                     }
                                 }
                             }
