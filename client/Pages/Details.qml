@@ -242,35 +242,12 @@ Rectangle {
                         anchors.rightMargin: 10
                         spacing: 0
 
-                        // Действие
-                        Rectangle {
-                            Layout.preferredWidth: 180
-                            Layout.fillHeight: true
-                            color: "transparent"
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 4
-
-                                Text {
-                                    text: qsTr("Действие")
-                                    color: "#B2B4BC"
-                                    font.pixelSize: 14
-                                    font.weight: 400
-                                    font.family: "Roboto"
-                                }
-                                Item { Layout.fillWidth: true }
-                            }
-                        }
-
                         // Тип
                         TableHeaderColumn {
                             columnHeader: "Тип"
                             columnKey: "type"
-                            columnWidth: 80
-                            textLeftPadding: -10
+                            columnWidth: 135
+                            textLeftPadding: 45
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -294,7 +271,7 @@ Rectangle {
                         TableHeaderColumn {
                             columnHeader: "Партия"
                             columnKey: "batch"
-                            columnWidth: 115
+                            columnWidth: 100
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -377,26 +354,6 @@ Rectangle {
                                     anchors.rightMargin: 15
                                     spacing: 10
 
-                                    TextButton {
-                                        buttonText: {
-                                            switch (modelData.status) {
-                                                case "pending": return "Распределить"
-                                                case "in_production": return "Распределить"
-                                                case "sorting": return "Распределить"
-                                                case "completed": return "Отменить"
-                                                case "canceled": return "-"
-                                                default: {
-                                                    console.error("Unknown type of modelData.status=", modelData.status)
-                                                    return "undefined"
-                                                }
-                                            }
-                                        }
-                                        isDisabled: modelData.status === "canceled"
-                                        onClickedHandler: function() {
-                                            // Действие с деталью
-                                        }
-                                    }
-
                                     // Иконка информации
                                     IconButton {
                                         iconSource: "qrc:/resources/icons/info-circle.svg"
@@ -410,7 +367,7 @@ Rectangle {
                                         }
 
                                         background: Rectangle {
-                                            color: "#3e3e42"
+                                            color: "#E6E8E9"
                                             radius: 4
                                         }
                                     }
@@ -472,7 +429,8 @@ Rectangle {
                                     // Дата
                                     TableCell {
                                         cellText: modelData.manufacture_date || "-"
-                                        cellWidth: 100
+                                        cellWidth: 50
+                                        wrapMode: Text.WordWrap
                                         textLeftPadding: -2
                                     }
                                 }
