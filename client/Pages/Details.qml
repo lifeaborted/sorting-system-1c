@@ -236,6 +236,17 @@ Rectangle {
                     Layout.preferredHeight: 60
                     color: "#3E3E42"
                     radius: 5
+
+                    Image {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 20
+                        source: "qrc:/resources/icons/info-circle-old.svg"
+                        width: 20
+                        height: 20
+                        fillMode: Image.PreserveAspectFit
+                    }
+
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 10
