@@ -109,23 +109,23 @@ RowLayout {
                 }
                 Popup {
                     id: popup
-                    x: -(userProfile.width - 50)
-                    y: 28
+                    x: -(userProfile.width - 25)
+                    y: 38
                     padding: 0
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
                     background: Rectangle {
                         color: "#2E2E2E"
                         radius: 8
-                        border.color: "#4A4A4E"
-                        border.width: 1
                     }
 
                     Rectangle {
                         id: logoutItem
-                        width: userProfile.width - 20
+                        width: userProfile.width
                         height: 40
-                        color: logoutMouse.containsMouse ? "#46464A" : "#3E3E42"
+                        color: logoutMouse.containsMouse ? "#46464A" : "#47494E"
+                        border.color: "#4A4A4E"
+                        border.width: 1
                         radius: 8
 
                         Text {
