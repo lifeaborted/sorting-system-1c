@@ -1,5 +1,5 @@
 const ApiError = require('../error/api-error')
-const {Order, Customer} = require('../database/models')
+const {Order, Customer, OrderItem, PartType, Part, OrderItemPart} = require('../database/models')
 const sequelize = require('../database/database')
 
 class OrderController
@@ -42,10 +42,172 @@ class OrderController
         try
         {
             const {order_id, part_type_id, required_quantity } = req.body
+            if (!order_id || !part_type_id || !required_quantity)
+            {
+                return next(ApiError.badRequest("Incorrect request data"))
+            }
+
+            const order = await Order.findByPk(order_id)
+            if (!order)
+            {
+                return next(ApiError.notFound("Order not found"))
+            }
+
+            const item = await OrderItem.create({
+                order_id,
+                part_type_id,
+                required_quantity
+            })
+
+            return res.json(item)
         }
         catch(e)
         {
             return next(ApiError.internal('Registration error: ' + e.message))
+        }
+    }
+
+    async findAll(req, res, next)
+    {
+        try
+        {
+            let {limit, offset} = req.query
+            console.log("limit", limit)
+            console.log("offset", offset)
+            limit = parseInt(limit) || 20
+            offset = parseInt(offset) || 0
+
+            const {count, rows} = await Order.findAndCountAll({
+                limit,
+                offset,
+                distinct: true,
+                include: [
+                    {
+                        model: Customer,
+                        as: 'customer',
+                        attributes: ['customer_id', 'company_name']
+                    },
+                    {
+                        model: OrderItem,
+                        as: 'orderItems',
+                        include: [
+                            {
+                                model: PartType,
+                                as: 'partType',
+                                attributes: ['part_type_id', 'name', 'price']
+                            },
+                            {
+                                model: OrderItemPart,
+                                as: 'orderItemParts',
+                                include: [
+                                    {
+                                        model: Part,
+                                        as: 'part',
+                                        attributes: ['part_id', 'serial_number', 'batch_number']
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            })
+
+            return res.json({count, rows})
+        }
+        catch(e)
+        {
+            return next(ApiError.internal('Fetch error: ' + e.message))
+        }
+    }
+
+    async findOne(req, res, next)
+    {
+        try
+        {
+            const {id} = req.params
+            const order = await Order.findByPk(id, {
+                include: [
+                    {
+                        model: Customer,
+                        as: 'customer',
+                        attributes: ['customer_id', 'company_name']
+                    },
+                    {
+                        model: OrderItem,
+                        as: 'orderItems',
+                        include: [
+                            {
+                                model: PartType,
+                                as: 'partType',
+                                attributes: ['part_type_id', 'name', 'price']
+                            },
+                            {
+                                model: OrderItemPart,
+                                as: 'orderItemParts',
+                                include: [
+                                    {
+                                        model: Part,
+                                        as: 'part',
+                                        attributes: ['part_id', 'serial_number', 'batch_number']
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            })
+
+            if (!order)
+            {
+                return next(ApiError.notFound("Order not found"))
+            }
+
+            return res.json(order)
+        }
+        catch(e)
+        {
+            return next(ApiError.internal('Fetch error: ' + e.message))
+        }
+    }
+
+    async remove(req, res, next)
+    {
+        try
+        {
+            const {id} = req.params
+            const order = await Order.findByPk(id)
+            if (!order)
+            {
+                return next(ApiError.notFound("Order not found"))
+            }
+
+            await order.destroy()
+            return res.json({message: "Ok"})
+        }
+        catch(e)
+        {
+            return next(ApiError.internal('Delete error: ' + e.message))
+        }
+    }
+
+    async deleteItem(req, res, next)
+    {
+        try
+        {
+            const {id} = req.params
+            const item = await OrderItem.findByPk(id)
+            if (!item)
+            {
+                return next(ApiError.notFound("Item not found"))
+            }
+
+            await item.destroy()
+            return res.json({message: "Ok"})
+        }
+        catch(e)
+        {
+            return next(ApiError.internal('Delete error: ' + e.message))
         }
     }
 
