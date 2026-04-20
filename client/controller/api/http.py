@@ -1,7 +1,7 @@
 import json
 import logging
 import asyncio
-from typing import Awaitable, Any, TypeVar, Generic, Callable
+from typing import Awaitable, Any, TypeVar, Generic, Callable, Optional
 
 import aiohttp
 from aiohttp import ClientResponse
@@ -10,24 +10,24 @@ T = TypeVar('T')
 
 class HttpWrapper:
     def __init__(self, server_url: str, log: bool = True):
+        self._token_auth: Optional[str] = None
         self.host = server_url
         self.log = log
 
-    async def get(self, path: str) -> ClientResponse:
+    async def get(self, path: str) -> dict:
         self._log_route(path, "get")
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=self._headers()) as session:
             async with session.get(f"{self.host}{path}") as response:
                 if response.status != 200:
                     await self._raise_response(response)
                 return await response.json()
 
-    async def post(self, path: str, data: dict):
+    async def post(self, path: str, data: dict) -> dict:
         self._log_route(path, "post")
-
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=self._headers()) as session:
             async with session.post(
                     f"{self.host}{path}",
-                    json=data
+                    json=data,
             ) as response:
                 if response.status != 200:
                     await self._raise_response(response)
@@ -41,6 +41,13 @@ class HttpWrapper:
             f"Error calling {resp.url}. status={resp.status}. text={await resp.text()}"
         )
 
+
+    def _headers(self) -> dict:
+        return {
+            "Authorization": f"Bearer {self._token_auth}"
+        }
+    def use_auth(self, token: str):
+        self._token_auth = token
 
     @staticmethod
     def run_blocking(f:Awaitable[T]) -> T:

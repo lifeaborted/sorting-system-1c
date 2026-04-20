@@ -15,7 +15,12 @@ Item {
     required property string defaultPath
 
     Component.onCompleted: {
-        Backend.router.route = defaultPath
+        if (Backend.router.route == "") {
+            Backend.router.route = defaultPath
+        } else {
+            // ?
+            Backend.router.route = Backend.router.route
+        }
     }
 
     Connections {

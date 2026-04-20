@@ -11,6 +11,7 @@ from PySide6.QtQml import QmlElement, QmlSingleton
 from PySide6.QtCore import QObject, Slot, Property, Signal
 
 from controller.api.api import Api
+from controller.config import load_config, save_config
 from controller.notification import Notificator
 from controller.router import Router
 from controller.user import User
@@ -32,6 +33,13 @@ class Backend(QObject):
         self._router = Router()
         self._notificator = Notificator()
         self._user = None
+        self._conf = load_config()
+        if self._conf.get("token"):
+            logging.info("Found token in conf file")
+            try:
+                self.login_token(self._conf.get("token"))
+            except Exception as e:
+                logging.info("Auth failed err=", e)
 
     @Property(Router, constant=True, final = True)
     def router(self):
@@ -53,17 +61,24 @@ class Backend(QObject):
                     "login": login,
                     "password": password
                 }))
-                self._user = User(data["token"])
-                logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
-                self._router.set_route_detailed("/details", None)
+                token = data["token"]
+                self.login_token(token)
             except Exception as e:
                 self._notificator.new_err_notification("Error", e.__str__())
                 logging.error(e)
-
-
         else:
             logging.warning("Tried to login while being already, skipping...")
+
+    def login_token(self, token: str):
+        self._api.client.use_auth(token)
+        self._user = self._api.run_blocking(User.new(self._api))
+        logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
+        self._conf["token"] = token
+        save_config(self._conf)
+        self._router.set_route_detailed("/details", None)
 
     @Slot()
     def logout(self):
         self._user = None
+        self._conf["token"] = None
+        save_config(self._conf)

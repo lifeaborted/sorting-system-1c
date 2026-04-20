@@ -26,3 +26,15 @@ class UserApi:
     async def login(self, data: LoginRequest) -> LoginResponse:
         return await self.c.post("/api/user/login", data)
 
+
+    class MeResponse(TypedDict):
+        employee_id: int
+        first_name: str
+        last_name: str
+        middle_name: str
+        role: str
+        is_active: bool
+        login: str
+        created_at: str
+    async def me(self) -> MeResponse:
+        return await self.c.get("/api/user/me")

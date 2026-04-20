@@ -3,6 +3,7 @@ import logging
 from operator import itemgetter
 from typing import List
 
+from controller.api.api import Api
 from controller.types.detail import *
 import random
 from datetime import datetime, timedelta
@@ -17,15 +18,18 @@ QML_IMPORT_MINOR_VERSION = 0
 
 @QmlElement
 class User(QObject):
+    _api: Api
+    _first_name: str
+    _last_name: str
+    _middle_name: str
+
     _details: list[Detail] = []
     _details_filter: DetailsFilter
     def __init__(
             self,
-            token: str,
             parent = None
     ):
         super().__init__(parent)
-        self._token = token
         self._details_filter = {
             "search": "",
             "detail_type": {},
@@ -42,9 +46,16 @@ class User(QObject):
         }
         self.create_details()
 
-        self._first_name = "Андрей"
-        self._last_name = "Гайдулян"
-        self._middle_name = "Сергеевич"
+    @staticmethod
+    async def new(api: Api) -> 'User':
+        user = User()
+        user._api = api
+        data = await api.user.me()
+        user._first_name = data["first_name"]
+        user._last_name = data["last_name"]
+        user._middle_name = data["middle_name"]
+        return user
+
 
     @Slot(str, result = str)
     def format_username(self, form: str):

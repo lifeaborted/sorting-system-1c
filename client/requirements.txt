@@ -3,3 +3,4 @@ pyinstaller
 pillow
 aiohttp
 python-dotenv
+platformdirs
