@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject
-from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase
+from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase, QIcon
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
 from dotenv import load_dotenv
 
@@ -20,18 +20,20 @@ if __name__ == "__main__":
     logging.info("Logger init")
 
 
+    app = QGuiApplication(sys.argv)
 
     if getattr(sys, 'frozen', False):
         bundle_dir = sys._MEIPASS
         dotenv_path = os.path.join(bundle_dir, '.env')
+        app.setWindowIcon(QIcon(os.path.join(bundle_dir, 'icon.png')))
         load_dotenv(dotenv_path=dotenv_path)
     else:
+        app.setWindowIcon(QIcon('icon.png'))
         if not os.path.exists(".env"):
             logging.error("Failed to read .env .")
             sys.exit(-1)
         load_dotenv(".env")
 
-    app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
     qml_file = Path(__file__).resolve().parent / "main.qml"
     # dunno if needed

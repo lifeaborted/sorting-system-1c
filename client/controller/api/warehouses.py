@@ -21,11 +21,11 @@ class WarehousesApi:
         name: str
         address_id: int
         created_at: str
-        address: WarehousesApi.Address
+        address: 'WarehousesApi.Address'
 
     class AllDetailsResponse(TypedDict):
         count: int
-        rows: list[WarehousesApi.Warehouse]
+        rows: list['WarehousesApi.Warehouse']
 
 
     async def get_all(self) -> AllDetailsResponse:

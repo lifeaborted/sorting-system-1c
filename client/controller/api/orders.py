@@ -25,7 +25,7 @@ class OrdersApi:
         order_item_part_id: int
         order_item_id: int
         part_id: int
-        part: OrdersApi.Part
+        part: 'OrdersApi.Part'
 
     class OrderItem(TypedDict):
         order_item_id: int
@@ -33,8 +33,8 @@ class OrdersApi:
         part_type_id: int
         required_quantity: int
         price: str
-        partType: OrdersApi.PartType
-        orderItemParts: list[OrdersApi.OrderItemPart]
+        partType: 'OrdersApi.PartType'
+        orderItemParts: list['OrdersApi.OrderItemPart']
 
     class Order(TypedDict):
         order_id: int
@@ -44,16 +44,16 @@ class OrdersApi:
         status: str
         notes: Optional[str]
         created_at: str
-        customer: OrdersApi.Customer
-        orderItems: list[OrdersApi.OrderItem]
+        customer: 'OrdersApi.Customer'
+        orderItems: list['OrdersApi.OrderItem']
 
     class AllOrdersResponse(TypedDict):
         count: int
-        rows: list[OrdersApi.Order]
+        rows: list['OrdersApi.Order']
 
 
     async def get_all(self) -> AllOrdersResponse:
         return await self.c.get("/api/order/")
 
-    async def get(self, id: int) -> OrdersApi.Order:
+    async def get(self, id: int) -> 'OrdersApi.Order':
         return await self.c.get(f"/api/order/{id}")

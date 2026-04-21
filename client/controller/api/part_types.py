@@ -16,7 +16,7 @@ class PartTypesApi:
 
     class AllDetailsResponse(TypedDict):
         count: int
-        rows: list[PartTypesApi.Types]
+        rows: list['PartTypesApi.Types']
 
 
     async def get_all(self) -> AllDetailsResponse:

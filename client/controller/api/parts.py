@@ -20,7 +20,7 @@ class PartsApi:
 
     class AllDetailsResponse(TypedDict):
         count: int
-        rows: list[PartsApi.Detail]
+        rows: list['PartsApi.Detail']
 
 
     async def get_all(self) -> AllDetailsResponse:
