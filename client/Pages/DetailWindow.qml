@@ -169,8 +169,9 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Выпадающий список (Принадлежит заказу)
+                // Выпадающий список (Принадлежит заказу) - Значение 5
                 ComboBox {
+                    id: orderComboBox
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     model: ["Не выбран", "Заказ №1024", "Заказ №2048"]
@@ -200,8 +201,22 @@ Rectangle {
                         fillMode: Image.PreserveAspectFit
                     }
 
+                    // Настройки popup
+                    popup.background: Rectangle {
+                        color: "#3E3E42"
+                        radius: 5
+                    }
+
+                    popup.contentItem: ListView {
+                        clip: true
+                        implicitHeight: contentHeight
+                        model: orderComboBox.popup.visible ? orderComboBox.delegateModel : null
+                        currentIndex: orderComboBox.popup.visible ? orderComboBox.highlightedIndex : -1
+                    }
+
                     delegate: ItemDelegate {
                         width: parent.width
+                        height: 36
                         contentItem: Text {
                             text: modelData
                             color: "#B2B4BC"
@@ -213,6 +228,13 @@ Rectangle {
                         background: Rectangle {
                             color: parent.hovered ? "#46464A" : "#3E3E42"
                         }
+                    }
+
+                    // popup без анимаций
+                    Component.onCompleted: {
+                        popup.enter = null
+                        popup.exit = null
+                        popup.padding = 0
                     }
                 }
 
