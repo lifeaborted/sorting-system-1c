@@ -20,7 +20,6 @@
         "controller/utils.py",
 
         "controller/types/detail.py",
-        "controller/types/order.py",
 
         "controller/api/api.py",
         "controller/api/http.py",

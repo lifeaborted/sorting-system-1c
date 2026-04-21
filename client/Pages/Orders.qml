@@ -13,113 +13,47 @@ Rectangle {
     Material.theme: Material.Dark
     Material.accent: Material.Blue
 
-    // property list<var> details: []
+    property list<var> mockDetails: []
     // property var detailsFilter
     // property QtObject sortingParams: ...
     // function loadDetails() { ... }
     // Component.onCompleted: { loadDetails() }
 
-    property var mockDetails: [
-        {
-            customerName: "ООО «Рога и Копыта»",
-            status: "выполняется",
-            priority: 5,
-            note: "Производство скворечников",
-            progress: 75,
-            price: 25000,
-            materials: [
-                {"name": "Доска 200×2000", "quantity": 123},
-                {"name": "Гвоздь 20×2",   "quantity": 321},
-                {"name": "Саморез 80×4",  "quantity": 228}
-            ]
-        },
-        {
-            customerName: "ИП Петров",
-            status: "ожидает",
-            priority: 3,
-            note: "Срочный заказ, доставка до пятницы",
-            progress: 30,
-            price: 15000,
-            materials: [
-                {"name": "Лист сталь 2мм", "quantity": 50},
-                {"name": "Болт М8",        "quantity": 200}
-            ]
-        },
-        {
-            customerName: "ЗАО «СтройМонтаж»",
-            status: "завершён",
-            priority: 1,
-            note: "Повторный заказ, постоянный клиент",
-            progress: 100,
-            price: 42000,
-            materials: [
-                {"name": "Труба профильная", "quantity": 80},
-                {"name": "Уголок 50×50",     "quantity": 40},
-                {"name": "Краска антикор",   "quantity": 15}
-            ]
-        },
-        {
-            customerName: "ООО «МеталлСервис»",
-            status: "на паузе",
-            priority: 2,
-            note: "Ждём подтверждения спецификации",
-            progress: 10,
-            price: 8500,
-            materials: [
-                {"name": "Проволока стальная", "quantity": 500},
-                {"name": "Шайба М10",          "quantity": 100}
-            ]
-        },
-        {
-            customerName: "ИП Сидоров",
-            status: "выполняется",
-            priority: 4,
-            note: "Производство металлоконструкций",
-            progress: 55,
-            price: 31000,
-            materials: [
-                {"name": "Уголок 40×40", "quantity": 60},
-                {"name": "Болт М12",     "quantity": 150}
-            ]
-        },
-        {
-            customerName: "ООО «ПромДеталь»",
-            status: "ожидает",
-            priority: 2,
-            note: "Согласование чертежей",
-            progress: 5,
-            price: 12000,
-            materials: [
-                {"name": "Пруток Ø20", "quantity": 30}
-            ]
-        },
-        {
-            customerName: "АО «ТехноСтрой»",
-            status: "выполняется",
-            priority: 5,
-            note: "Изготовление несущих конструкций",
-            progress: 62,
-            price: 87000,
-            materials: [
-                {"name": "Балка двутавровая", "quantity": 12},
-                {"name": "Анкер М16",         "quantity": 80},
-                {"name": "Грунтовка ГФ-021",  "quantity": 20}
-            ]
-        },
-        {
-            customerName: "ИП Кузнецова А.В.",
-            status: "ожидает",
-            priority: 1,
-            note: "Декоративные кованые изделия",
-            progress: 0,
-            price: 6400,
-            materials: [
-                {"name": "Полоса стальная 40×4", "quantity": 18},
-                {"name": "Прут квадратный 12×12", "quantity": 25}
-            ]
-        }
-    ]
+    function loadDetails() {
+        // detailsFilter = Backend.user.load_sorting_options()
+        let orders = Backend.user.load_orders()
 
+        mockDetails = []
+        for (const order of orders) {
+            let materials = []
+
+            for (const orderItems of order["orderItems"]) {
+                materials.push({
+                    name: orderItems["partType"]["name"],
+                    quantity: orderItems["required_quantity"]
+                })
+            }
+
+            mockDetails.push({
+                customerName: order["customer"]["company_name"],
+                status: "ожидает",
+                priority: order["priority"],
+                note: order["notes"] || "-",
+                progress: 0,
+                price: 6400,
+                materials: materials
+            })
+        }
+
+    }
+
+    Component.onCompleted: {
+        loadDetails()
+    }
+
+    // onSortingParamsChanged: {
+    //     loadDetails()
+    // }
     RowLayout {
         anchors.fill: parent
         spacing: 0

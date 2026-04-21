@@ -4,6 +4,7 @@ from operator import itemgetter
 from typing import List
 
 from controller.api.api import Api
+from controller.api.orders import OrdersApi
 from controller.types.detail import *
 import random
 from datetime import datetime, timedelta
@@ -22,8 +23,10 @@ class User(QObject):
     _first_name: str
     _last_name: str
     _middle_name: str
-
-    _details: list[Detail] = []
+    _details: list[Detail] = None
+    _details_types: dict[int, DetailType] = None
+    _warehouses: dict[int, Warehouse] = None
+    _orders: dict[int, OrdersApi.Order] = None
     _details_filter: DetailsFilter
     def __init__(
             self,
@@ -63,29 +66,12 @@ class User(QObject):
     def format_username(self, form: str):
         return form.format(first=self._first_name, second=self._last_name, middle=self._middle_name)
 
-
-    async def _load_details_from_api(self):
-        self._details.clear()
-
-        raw_details = await self._api.parts.get_all()
-        raw_part_types = await self._api.part_types.get_all()
+    async def _load_warehouses(self):
+        self._warehouses = {}
         raw_warehouses = await self._api.warehouses.get_all()
-
-        part_types: dict[int, DetailType] = {}
-        warehouses: dict[int, Warehouse] = {}
-
-        for r_type in raw_part_types["rows"]:
-            part_types[r_type["part_type_id"]] = DetailType(
-                id=r_type["part_type_id"],
-                name=r_type["name"],
-                code=r_type["type_code"],
-                price=r_type["price"],
-                order_item_type_id=r_type["order_item_type_id"]
-            )
-
         for r_warehouse in raw_warehouses["rows"]:
             r_addr = r_warehouse["address"]
-            warehouses[r_warehouse["warehouse_id"]] = Warehouse(
+            self._warehouses[r_warehouse["warehouse_id"]] = Warehouse(
                 id=r_warehouse["warehouse_id"],
                 name=r_warehouse["name"],
                 created_at=r_warehouse["created_at"],
@@ -100,9 +86,32 @@ class User(QObject):
                 )
             )
 
+    async def _load_details_types(self):
+        self._details_types = {}
+        raw_part_types = await self._api.part_types.get_all()
+        for r_type in raw_part_types["rows"]:
+            self._details_types[r_type["part_type_id"]] = DetailType(
+                id=r_type["part_type_id"],
+                name=r_type["name"],
+                code=r_type["type_code"],
+                price=r_type["price"],
+                order_item_type_id=r_type["order_item_type_id"]
+            )
 
+    async def _load_orders(self):
+        self._orders = {}
+        for i in (await self._api.orders.get_all())["rows"]:
+            self._orders[i["order_id"]] = i
+
+    async def _load_details_from_api(self):
+        if self._details_types is None:
+            await self._load_details_types()
+        if self._warehouses is None:
+            await self._load_warehouses()
+
+        self._details = []
+        raw_details = await self._api.parts.get_all()
         for r_detail in raw_details["rows"]:
-
             status = r_detail["status"]
             match status:
                 case "manufactured":
@@ -116,15 +125,14 @@ class User(QObject):
                 id=r_detail["part_id"],
                 batch_number=r_detail["batch_number"],
                 manufacture_date=datetime.strptime(r_detail["manufacture_date"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d.%m.%y %H:%M:%S"),
-                type=part_types[r_detail["part_type_id"]],
+                type=self._details_types[r_detail["part_type_id"]],
                 serial_number=r_detail["serial_number"],
                 sorted_at=r_detail["sorted_at"],
-                warehouse=warehouses[r_detail["warehouse_id"]] if r_detail["warehouse_id"] is not None else None,
+                warehouse=self._warehouses[r_detail["warehouse_id"]] if r_detail["warehouse_id"] is not None else None,
                 qc_inspector_id=r_detail["qc_inspector_id"],
                 order=None, # TODO
                 status=status,
             )
-
 
             self._details.append(detail)
             self._details_filter["detail_type"][detail["type"]["name"]] = detail["type"]["id"]
@@ -140,15 +148,17 @@ class User(QObject):
             if detail["order"]:
                 self._details_filter["order"][detail["order"]["name"]] = detail["order"]["id"]
 
-    @Slot(result = "QVariantList")
-    def load_details(self):
-        return self._details
+
+
+    @Slot(result="QVariantList")
+    def load_orders(self):
+        if self._orders is None:
+            self._api.run_blocking(self._load_orders())
+        return list(self._orders.values())
 
     @Slot(result = "QVariantMap")
     def load_sorting_options(self):
         return self._details_filter
-
-
 
     @Slot("QVariant", "QVariant", result = "QVariantList")
     def load_details_filter(self, f: QObject, sortParams: QObject):
@@ -249,6 +259,5 @@ class User(QObject):
         for i in self._details:
             if i["id"] == id:
                 return i
-
         return None
 

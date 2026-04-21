@@ -1,6 +1,7 @@
 const ApiError = require('../error/api-error')
 const {Order, Customer, OrderItem, PartType, Part, OrderItemPart} = require('../database/models')
 const sequelize = require('../database/database')
+const { Sequelize, Op } = require('sequelize')
 
 class OrderController
 {
@@ -81,6 +82,19 @@ class OrderController
                 limit,
                 offset,
                 distinct: true,
+                attributes: {
+                    include: [
+                        [
+                            sequelize.cast(sequelize.literal(`(
+                                SELECT SUM(price)
+                                FROM "Order_Items" AS orderItems
+                                WHERE
+                                    orderItems.order_id = "order".order_id
+                            )`), "float"),
+                            'fullPrice'
+                        ]
+                    ]
+                },
                 include: [
                     {
                         model: Customer,
@@ -127,6 +141,19 @@ class OrderController
         {
             const {id} = req.params
             const order = await Order.findByPk(id, {
+                attributes: {
+                    include: [
+                        [
+                            sequelize.cast(sequelize.literal(`(
+                                SELECT SUM(price)
+                                FROM "Order_Items" AS orderItems
+                                WHERE
+                                    orderItems.order_id = "order".order_id
+                            )`), "float"),
+                            'fullPrice'
+                        ]
+                    ]
+                },
                 include: [
                     {
                         model: Customer,

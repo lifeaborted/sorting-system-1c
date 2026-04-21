@@ -156,7 +156,7 @@ OrderItemPart.belongsTo(OrderItem, { foreignKey: 'order_item_id' });
 Part.hasOne(OrderItemPart, { foreignKey: 'part_id', onDelete: 'RESTRICT' });
 OrderItemPart.belongsTo(Part, { foreignKey: 'part_id' });
 
-OrderItem.hasOne(PartType, { foreignKey: 'order_item_type_id', onDelete: 'NO ACTION' });
+OrderItem.hasOne(PartType, { foreignKey: 'part_type_id', sourceKey: 'part_type_id' , onDelete: 'NO ACTION' });
 PartType.belongsTo(OrderItem, { foreignKey: 'order_item_type_id' });
 
 module.exports = {
