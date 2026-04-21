@@ -45,6 +45,7 @@ class OrdersApi:
         notes: Optional[str]
         created_at: str
         customer: 'OrdersApi.Customer'
+        completedPercentage: float
         orderItems: list['OrdersApi.OrderItem']
 
     class AllOrdersResponse(TypedDict):

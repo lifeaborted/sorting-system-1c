@@ -31,7 +31,6 @@ class DetailType(TypedDict):
     name: str
     code: str
     price: int
-    order_item_type_id: Optional[int]
 
 class Detail(TypedDict):
     id: int

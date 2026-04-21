@@ -40,7 +40,8 @@ class Backend(QObject):
             try:
                 self.login_token(self._conf.get("token"))
             except Exception as e:
-                logging.info(f"Auth failed err={e.__str__()}")
+                logging.info(traceback.format_exc())
+                logging.info(f"Auth failed err={e.__str__()}. Stacktrace above")
 
     @Property(Router, constant=True, final = True)
     def router(self):

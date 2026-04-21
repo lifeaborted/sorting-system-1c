@@ -12,7 +12,6 @@ class PartTypesApi:
         name: str
         type_code: str
         price: int
-        order_item_type_id: Optional[int]
 
     class AllDetailsResponse(TypedDict):
         count: int

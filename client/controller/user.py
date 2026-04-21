@@ -48,6 +48,7 @@ class User(QObject):
             "warehouse": {}
         }
 
+
     @staticmethod
     async def new(api: Api) -> 'User':
         user = User()
@@ -95,7 +96,6 @@ class User(QObject):
                 name=r_type["name"],
                 code=r_type["type_code"],
                 price=r_type["price"],
-                order_item_type_id=r_type["order_item_type_id"]
             )
 
     async def _load_orders(self):
@@ -150,11 +150,37 @@ class User(QObject):
 
 
 
-    @Slot(result="QVariantList")
-    def load_orders(self):
+    @Slot("QVariant", result="QVariantList")
+    def load_orders(self, f: QObject):
         if self._orders is None:
             self._api.run_blocking(self._load_orders())
-        return list(self._orders.values())
+
+        def filter_order(o: OrdersApi.Order) -> bool:
+            if f.property("status") is not None:
+                if o["status"] != f.property("status"):
+                    return False
+
+            if f.property("priority") is not None:
+                if o["priority"] != f.property("priority"):
+                    return False
+
+            if f.property("customer") is not None:
+                if o["customer_id"] != f.property("customer"):
+                    return False
+
+            if f.property("date") is not None:
+                from_date = f.property("date").property("from")
+                to_date = f.property("date").property("to")
+                from_p = datetime.strptime(from_date, "%d.%m.%Y")
+                to_p = datetime.strptime(f"{to_date} 23:59", "%d.%m.%Y %H:%M")
+                o_date = datetime.strptime(o["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+                if o_date < from_p or o_date > to_p:
+                    return False
+            return True
+
+        arr = list(filter(filter_order, self._orders.values()))
+        logging.info(f"For current filter found {len(arr)} orders")
+        return arr
 
     @Slot(result = "QVariantMap")
     def load_sorting_options(self):

@@ -14,14 +14,20 @@ Rectangle {
     Material.accent: Material.Blue
 
     property list<var> mockDetails: []
-    // property var detailsFilter
-    // property QtObject sortingParams: ...
-    // function loadDetails() { ... }
-    // Component.onCompleted: { loadDetails() }
+    property QtObject sortingParams: QtObject {
+        property var status: null
+        property var priority: null
+        property var customer: null
+        property QtObject date: QtObject {
+            property string from: "01.04.2020"
+            property string to: "20.04.2027"
+        }
+    }
+
 
     function loadDetails() {
         // detailsFilter = Backend.user.load_sorting_options()
-        let orders = Backend.user.load_orders()
+        let orders = Backend.user.load_orders(sortingParams)
 
         mockDetails = []
         for (const order of orders) {
@@ -39,21 +45,34 @@ Rectangle {
                 status: "ожидает",
                 priority: order["priority"],
                 note: order["notes"] || "-",
-                progress: 0,
-                price: 6400,
+                progress: order["completedPercentage"] * 100,
+                price: order["fullPrice"],
                 materials: materials
             })
         }
-
     }
+
+    function resetParams() {
+        sortingParams = Qt.createQmlObject(`
+            import QtQuick
+                QtObject {
+                    property var status: null
+                    property var priority: null
+                    property var customer: null
+                    property QtObject date: QtObject {
+                        property string from: "01.04.2020"
+                        property string to: "20.04.2027"
+                    }
+                }
+        `, detailsPage, "sortingParams")
+        loadDetails()
+    }
+
 
     Component.onCompleted: {
         loadDetails()
     }
 
-    // onSortingParamsChanged: {
-    //     loadDetails()
-    // }
     RowLayout {
         anchors.fill: parent
         spacing: 0
@@ -80,8 +99,24 @@ Rectangle {
 
                     Filter {
                         filterLabel: qsTr("Статус")
-                        filterModel: ["Все", "Только активные"]
-                        selectedValue: "Только активные"
+                        filterModel: ["Все", "Только активные", "Завершенные"]
+                        selectedValue: {
+                            switch (sortingParams.status) {
+                                case "sorting": return "Только активные"
+                                case "completed": return "Завершенные"
+                                case null: return "Все"
+                            }
+                        }
+
+                        onValueSelected: function(value) {
+                            switch (value) {
+                                case "Все":             sortingParams.status = null; break
+                                case "Только активные": sortingParams.status = "sorting"; break
+                                case "Завершенные":     sortingParams.status = "completed"; break
+                            }
+
+                            loadDetails()
+                        }
                     }
 
                     Filter {
@@ -114,8 +149,16 @@ Rectangle {
                         FilterCalendar {
                             Layout.preferredWidth: 160
                             Layout.preferredHeight: 30
-                            from: "01.01.2026"
-                            to:   "01.01.2027"
+                            from: sortingParams.date.from
+                            to: sortingParams.date.to
+                            onFromSelected: (date) => {
+                                sortingParams.date.from = date
+                                loadDetails()
+                            }
+                            onToSelected: (date) => {
+                                sortingParams.date.to = date
+                                loadDetails()
+                            }
                         }
                     }
 
@@ -127,7 +170,9 @@ Rectangle {
 
                         TextButton {
                             buttonText: "Сбросить"
-                            onClickedHandler: function() {}
+                            onClickedHandler: function() {
+                                resetParams()
+                            }
                         }
                     }
 

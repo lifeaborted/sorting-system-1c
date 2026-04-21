@@ -90,6 +90,25 @@ class OrderController
                                     orderItems.order_id = "order".order_id
                             )`), "float"),
                             'fullPrice'
+                        ],
+                        [
+                            sequelize.cast(sequelize.literal(`(
+                                (
+                                    SELECT COUNT(order_item_parts)
+                                    FROM "Order_Items"  orderItems
+                                    JOIN "Order_Item_Parts" order_item_parts ON order_item_parts.order_item_id = orderItems.order_item_id
+                                    WHERE
+                                        orderItems.order_id = "order".order_id
+                                ) * 1.0
+                                    /
+                                (
+                                    SELECT SUM(required_quantity)
+                                    FROM "Order_Items" AS orderItems
+                                    WHERE
+                                        orderItems.order_id = "order".order_id
+                                )
+                            )`), "float"),
+                            'completedPercentage'
                         ]
                     ]
                 },
@@ -149,6 +168,25 @@ class OrderController
                                     orderItems.order_id = "order".order_id
                             )`), "float"),
                             'fullPrice'
+                        ],
+                        [
+                            sequelize.cast(sequelize.literal(`(
+                                (
+                                    SELECT COUNT(order_item_parts)
+                                    FROM "Order_Items"  orderItems
+                                    JOIN "Order_Item_Parts" order_item_parts ON order_item_parts.order_item_id = orderItems.order_item_id
+                                    WHERE
+                                        orderItems.order_id = "order".order_id
+                                ) * 1.0
+                                    /
+                                (
+                                    SELECT SUM(required_quantity)
+                                    FROM "Order_Items" AS orderItems
+                                    WHERE
+                                        orderItems.order_id = "order".order_id
+                                )
+                            )`), "float"),
+                            'completedPercentage'
                         ]
                     ]
                 },
