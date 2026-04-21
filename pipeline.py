@@ -8,6 +8,7 @@ from typing import Optional
 import numpy as np
 from ultralytics import YOLO
 from paddleocr import PaddleOCR
+import paddle
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +83,22 @@ class MarkingPipeline:
         # det=True  — включить детектор текстовых строк внутри crop
         # rec=True  — включить распознаватель символов
 
+        if ocr_use_gpu:
+            if not paddle.is_compiled_with_cuda():
+                logger.warning("PaddlePaddle не собран с CUDA, будет использован CPU")
+                paddle.set_device('cpu')
+            else:
+                paddle.set_device('gpu')
+                logger.info("Используется GPU")
+        else:
+            # Использовать CPU
+            paddle.set_device('cpu')
+            logger.info("Используется CPU")
+
         logger.info(f"Инициализация PaddleOCR (lang={ocr_lang}, gpu={ocr_use_gpu})")
         self.ocr = PaddleOCR(
             use_angle_cls=False, #True для не горизонтального текста
-            lang=ocr_lang,
-            use_gpu=ocr_use_gpu,  # Верните этот параметр!
-            show_log=False
+            lang=ocr_lang
         )
 
         logger.info("Пайплайн инициализирован.")
@@ -193,7 +204,10 @@ class MarkingPipeline:
         Запустить PaddleOCR на вырезке.
         Возвращает (распознанный текст, средняя уверенность)
         """
-        ocr_result = self.ocr.ocr(crop, cls=True)
+        try:
+            ocr_result = self.ocr.ocr(crop)
+        except TypeError:
+            ocr_result = self.ocr.ocr(crop, cls=True)
 
         if not ocr_result or ocr_result[0] is None:
             return "", 0.0

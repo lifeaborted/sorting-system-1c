@@ -1,12 +1,8 @@
-# Основные зависимости
-ultralytics>=8.0.0          # YOLOv8
-paddlepaddle>=2.6.0         # PaddlePaddle CPU-версия
-# paddlepaddle-gpu>=2.6.0   # Раскомментировать для GPU (требует CUDA 11.7+)
-paddleocr>=2.7.3            # PaddleOCR
+ultralytics>=8.4.0
+paddlepaddle==3.3.0
+# paddlepaddle-gpu==3.3.0
+paddleocr>=2.8.0
+dotenv
 
-opencv-python>=4.8.0        # Захват и обработка изображений
-numpy>=1.24.0
-
-# Опционально (для REST-интеграции с 1С)
-# fastapi>=0.110.0
-# uvicorn[standard]>=0.29.0
+opencv-python>=4.9.0
+numpy
