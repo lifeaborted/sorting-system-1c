@@ -46,6 +46,8 @@ tmp/
 com/
 io/
 done/
+output/
+input/
 
 # ========================
 # IDE & Editors
