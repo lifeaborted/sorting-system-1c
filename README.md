@@ -124,3 +124,11 @@ python stream_mode.py
 - `run.py` — Утилита для ручной проверки одиночных файлов (без отправки на сервер).
 - `config.json` — Настройки моделей.
 - `.env` — Переменные окружения.
+  
+---
+
+<p align="center">
+  <img src="[ссылка_на_файл.gif](https://github.com/user-attachments/assets/eeee0a71-2eae-4e24-8137-755611b63ec9)">
+</p>
+
+
