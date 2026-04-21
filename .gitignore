@@ -45,6 +45,9 @@ tmp/
 *.bak
 com/
 io/
+done/
+output/
+input/
 
 # ========================
 # IDE & Editors
