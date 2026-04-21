@@ -73,8 +73,6 @@ class OrderController
         try
         {
             let {limit, offset} = req.query
-            console.log("limit", limit)
-            console.log("offset", offset)
             limit = parseInt(limit) || 20
             offset = parseInt(offset) || 0
 

@@ -1,6 +1,5 @@
 const ApiError = require('../error/api-error')
 const {Warehouse, Address} = require('../database/models')
-const e = require("express");
 
 class WarehouseController
 {

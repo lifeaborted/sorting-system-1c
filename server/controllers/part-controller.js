@@ -1,6 +1,12 @@
 const ApiError = require('../error/api-error')
 
-const {Part, PartType} = require('../database/models')
+const {
+    Part,
+    PartType,
+    OrderItemPart,
+    OrderItem,
+    Order
+} = require('../database/models')
 const sequelize = require("../database/database");
 
 
@@ -29,7 +35,7 @@ class PartController
 
             const [[{queue}]] = await sequelize.query("SELECT nextval('\"Parts_part_id_seq\"') as queue;")
             const part = await Part.create({
-                serial_number: `${type.dataValues.type_code.toUpperCase()}${dd}${mm}${yy}H${queue}`,
+                serial_number: `SN-${type.dataValues.type_code.toUpperCase()}${dd}${mm}${yy}H${queue}`,
                 batch_number: batch_number,
                 manufacture_date: new Date(),
                 warehouse_id: warehouse_id,
@@ -61,10 +67,13 @@ class PartController
         try
         {
             const {id} = req.params
-            const part = await Part.findOne({where: {part_id: id}})
+            const part = await Part.findOne({
+                where: {part_id: id},
+                include: [{model: PartType, as: "partType"}],
+            })
             if(part)
             {
-                return next(part.dataValues)
+                return res.json(part.dataValues)
             }
             else
             {
@@ -73,7 +82,7 @@ class PartController
         }
         catch(e)
         {
-            return res.json(ApiError.internal('Request error: ' + e.message))
+            return next(ApiError.internal('Request error: ' + e.message))
         }
     }
 
@@ -88,6 +97,53 @@ class PartController
             }
             await Part.destroy({where: {part_id: id.toString()}})
             return res.json({message: 'Ok'})
+        }
+        catch(e)
+        {
+            return next(ApiError.internal('Request error: ' + e.message))
+        }
+    }
+
+    async changeOrder(req, res, next)
+    {
+        try
+        {
+            const {part_id} = req.params
+            const {order_id} = req.body
+
+            const part = await Part.findOne({where: {part_id}})
+            if(!part)
+            {
+                return next(ApiError.notFound('Part not found'))
+            }
+
+            if(order_id)
+            {
+                const order = await Order.findByPk(order_id, {
+                    include: [{model: OrderItem, as: "orderItems"}],
+                })
+
+                if(!order) return next(ApiError.notFound('Order not found'))
+
+                let orderItemId = -1
+                for(let orderItem of order["orderItems"])
+                {
+                    if(orderItem.part_type_id === part.part_type_id)
+                    {
+                        orderItemId = orderItem.order_item_id
+                        break
+                    }
+                }
+
+                if(orderItemId < 0)
+                {
+                    return next(ApiError.notFound('OrderItem not found'))
+                }
+
+                await OrderItemPart.destroy({where: {part_id}})
+                return res.json({order})
+            }
+            return res.json({order: null})
         }
         catch(e)
         {

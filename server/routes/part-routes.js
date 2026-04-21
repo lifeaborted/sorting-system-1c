@@ -7,6 +7,7 @@ const authMiddleware = require('../middleware/auth-middleware')
 
 router.post('/new', checkRoleMiddleware("manager"), partController.addNew)
 router.delete('/remove', checkRoleMiddleware("manager"), partController.remove)
+router.put('/:part_id/change-order', authMiddleware, partController.changeOrder)
 router.get('/:id', authMiddleware, partController.findOne)
 router.get('/', authMiddleware, partController.findAll)
 

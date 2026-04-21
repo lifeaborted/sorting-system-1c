@@ -1,7 +1,7 @@
 const ApiError = require('../error/api-error')
 
 const {PartType, Address} = require('../database/models')
-const e = require("express");
+const utils = require("./utils-controller");
 
 
 class PartTypeController
@@ -10,15 +10,17 @@ class PartTypeController
     {
         try
         {
-            const {name, type_code} = req.body
-            if(!name || !type_code)
+            const {name, price} = req.body
+            if(!name || !price)
             {
                 return next(ApiError.badRequest("Incorrect request data"))
             }
 
+            const type_code = utils.TransliterateText(name).toUpperCase().replace(" ", "")
+
             const [partType] = await PartType.findOrCreate({
-                where: {name, type_code},
-                defaults: {name, type_code}
+                where: {name, type_code, price},
+                defaults: {name, type_code, price}
             })
 
             return res.json(partType)

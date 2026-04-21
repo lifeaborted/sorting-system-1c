@@ -1,4 +1,5 @@
 const ApiError = require('../error/api-error')
+const utils = require('./utils-controller')
 const { faker } = require('@faker-js/faker')
 const bcrypt = require('bcrypt')
 const {
@@ -123,9 +124,10 @@ class TestingController
 
             for (let i = 0; i < partTypeCount; i++)
             {
+                const name = `${faker.commerce.product()} ${i+1}`
                 const partType = await PartType.create({
-                    name: `${faker.commerce.productAdjective()} ${faker.commerce.product()} ${i + 1}`,
-                    type_code: `PT-${faker.string.alphanumeric(6).toUpperCase()}`,
+                    name: name,
+                    type_code: utils.TransliterateText(name).toUpperCase().replace(" ", ""),
                     price: faker.number.int({ min: 100, max: 10000 })
                 })
                 partTypes.push(partType.dataValues)
@@ -136,15 +138,20 @@ class TestingController
 
             for (let i = 0; i < partCount; i++)
             {
+                const d = new Date()
+                const dd = String(d.getDate()).padStart(2, '0')
+                const mm = String(d.getMonth() + 1).padStart(2, '0')
+                const yy = String(d.getFullYear()).slice(-2)
                 const isSorted = faker.datatype.boolean(0.6)
+                const partType = faker.helpers.arrayElement(partTypes)
                 const part = await Part.create({
-                    serial_number: `SN-${faker.string.alphanumeric(10).toUpperCase()}`,
-                    batch_number: `BATCH-${faker.number.int({ min: 1000, max: 9999 })}`,
+                    serial_number: `SN-${partType.type_code.toUpperCase()}${dd}${mm}${yy}H${i}`,
+                    batch_number: `B-${faker.number.int({ min: 1000, max: 9999 })}`,
                     manufacture_date: faker.date.past({ years: 1 }),
                     sorted_at: isSorted ? faker.date.recent({ days: 30 }) : null,
                     warehouse_id: isSorted ? faker.helpers.arrayElement(warehouses).warehouse_id : null,
                     qc_inspector_id: isSorted ? qcInspector.dataValues.employee_id : null,
-                    part_type_id: faker.helpers.arrayElement(partTypes).part_type_id,
+                    part_type_id: partType.part_type_id,
                     status: isSorted ? 'sorted' : 'manufactured'
                 })
                 parts.push(part.dataValues)
@@ -217,6 +224,7 @@ class TestingController
         }
         catch (e)
         {
+            console.log(e)
             return next(ApiError.internal('Request error: ' + e.message))
         }
     }
