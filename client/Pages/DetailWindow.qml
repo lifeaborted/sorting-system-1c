@@ -14,7 +14,6 @@ Rectangle {
     anchors.fill: parent
     color: "#28282A"
 
-
     // Заголовок окна
     RowLayout {
         anchors.top: parent.top
@@ -24,7 +23,7 @@ Rectangle {
         spacing: 12
 
         Image {
-            source: "qrc:/resources/icons/info-circle.svg"
+            source: "qrc:/resources/icons/info-circle-old.svg"
             width: 22
             height: 22
             fillMode: Image.PreserveAspectFit
@@ -39,7 +38,7 @@ Rectangle {
         }
     }
 
-    // Основная область с разделением на левую и правую панели
+    // Основная область
     RowLayout {
         anchors.top: parent.top
         anchors.topMargin: 85
@@ -56,50 +55,62 @@ Rectangle {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 25
-                spacing: 20
+                anchors.topMargin: 25
+                anchors.bottomMargin: 10
+                anchors.leftMargin: 50
+                anchors.rightMargin: 10
+                spacing: 25
 
-                // 1. Тип
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/type.svg"
                     labelText: qsTr("Тип")
                 }
 
-                // 2. Серийный номер
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/serial-number.svg"
                     labelText: qsTr("Серийный номер")
                 }
 
-                // 3. Номер партии
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/batch-number.svg"
                     labelText: qsTr("Номер партии")
                 }
 
-                // 4. Статус
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/status.svg"
                     labelText: qsTr("Статус")
                 }
 
-                // 5. Принадлежит заказу
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/order.svg"
                     labelText: qsTr("Принадлежит заказу")
                 }
 
-                // 6. Склад
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/warehouse.svg"
                     labelText: qsTr("Склад")
                 }
 
-                // 7. Дата производства
                 InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/date.svg"
                     labelText: qsTr("Дата производства")
                 }
+
+                Item { Layout.fillHeight: true }
             }
         }
 
@@ -111,14 +122,16 @@ Rectangle {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 25
-                spacing: 20
+                anchors.topMargin: 25
+                anchors.bottomMargin: 10
+                anchors.leftMargin: 25
+                anchors.rightMargin: 25
+                spacing: 25
 
-                // Значение 1
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: detail.type.name
                     color: "#B2B4BC"
                     font.pixelSize: 13
@@ -126,11 +139,10 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Значение 2
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: detail.serial_number
                     color: "#B2B4BC"
                     font.pixelSize: 13
@@ -138,11 +150,10 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Значение 3
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: detail.batch_number
                     color: "#B2B4BC"
                     font.pixelSize: 13
@@ -150,11 +161,10 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Значение 4
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: switch (detail.status) {
                         case "pending": return "Обрабатывается"
                         case "in_production": return "В производстве"
@@ -169,11 +179,11 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Выпадающий список (Принадлежит заказу) - Значение 5
                 ComboBox {
                     id: orderComboBox
-                    Layout.fillWidth: true
+                    Layout.preferredWidth: 500
                     Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
                     model: ["Не выбран", "Заказ №1024", "Заказ №2048"]
                     currentIndex: 0
 
@@ -201,7 +211,6 @@ Rectangle {
                         fillMode: Image.PreserveAspectFit
                     }
 
-                    // Настройки popup
                     popup.background: Rectangle {
                         color: "#3E3E42"
                         radius: 5
@@ -238,11 +247,10 @@ Rectangle {
                     }
                 }
 
-                // Значение 6 (Склад)
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: qsTr("%1, %2, %3, %4, %5, %6")
                         .arg(detail.warehouse.address.country)
                         .arg(detail.warehouse.address.region)
@@ -259,11 +267,10 @@ Rectangle {
                     elide: Text.ElideRight
                 }
 
-                // Значение 7 (Дата)
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
-                    Layout.alignment: Qt.AlignVCenter
+                    Layout.maximumHeight: 36
                     text: detail.manufacture_date
                     color: "#B2B4BC"
                     font.pixelSize: 13
@@ -271,8 +278,8 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
 
-                // Распорка, прижимающая кнопки к низу
                 Item { Layout.fillHeight: true }
+
 
                 // Кнопки управления
                 RowLayout {
@@ -298,7 +305,6 @@ Rectangle {
                         buttonWidth: 120
                         buttonHeight: 30
                         onClickedHandler: function() {
-                            // Логика сохранения
                             // TODO
                         }
                     }
