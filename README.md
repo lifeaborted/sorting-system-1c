@@ -128,7 +128,7 @@ python stream_mode.py
 ---
 
 <p align="center">
-  <img src="[ссылка_на_файл.gif](https://github.com/user-attachments/assets/eeee0a71-2eae-4e24-8137-755611b63ec9)">
+  <img src="https://github.com/user-attachments/assets/eeee0a71-2eae-4e24-8137-755611b63ec9)">
 </p>
 
 

@@ -10,7 +10,10 @@ import numpy as np
 from dotenv import load_dotenv
 import os
 import datetime
-import sys
+import threading
+
+os.environ['FLAGS_use_mkldnn'] = '0'
+os.environ['FLAGS_enable_onednn_backend'] = '0'
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -21,7 +24,7 @@ OUTPUT_FOLDER = "output"
 PROCESSED_FOLDER = "done"
 
 PORT = os.getenv('PORT', 5000)
-API_URL = f"http://localhost:{os.getenv('PORT')}/service/scan"
+API_URL = f"http://localhost:{PORT}/service/scan"
 API_KEY = os.getenv("SCANNER_API_KEY")
 
 
@@ -74,6 +77,14 @@ def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
         logging.error(f"Ошибка при отправке: {e}")
 
 
+def listen_for_exit():
+    while True:
+        user_input = input()
+        if user_input.lower() == 'exit':
+            print("\nЗавершение работы...")
+            os._exit(0)
+
+
 def main():
     print("Инициализация моделей, пожалуйста, подождите...")
     Path(INPUT_FOLDER).mkdir(exist_ok=True)
@@ -96,13 +107,12 @@ def main():
 
     pipeline = MarkingPipeline(**init_args)
     print("Модели загружены! Начинаю слежение за папкой 'input'...")
+    print('Для завершения работы введите "exit" и нажмите Enter.')
 
+    exit_thread = threading.Thread(target=listen_for_exit, daemon=True)
+    exit_thread.start()
     while True:
         try:
-            user_input = input("""Для завершения работы введите "exit":""")
-            if user_input.lower() == 'exit':
-                print("Выход из программы.")
-                sys.exit()
 
             files = list(Path(INPUT_FOLDER).glob("*.[jJ][pP][gG]")) + \
                     list(Path(INPUT_FOLDER).glob("*.[pP][nN][gG]"))

@@ -200,33 +200,30 @@ class MarkingPipeline:
         return detections
 
     def _ocr_crop(self, crop: np.ndarray) -> tuple[str, float]:
-        """
-        Запустить PaddleOCR на вырезке.
-        Возвращает (распознанный текст, средняя уверенность)
-        """
         try:
             ocr_result = self.ocr.ocr(crop)
         except TypeError:
             ocr_result = self.ocr.ocr(crop, cls=True)
 
-        if not ocr_result or ocr_result[0] is None:
+        if not ocr_result:
             return "", 0.0
 
-        lines = ocr_result[0]  # список строк: [[bbox_pts], (text, conf)]
-        texts, confs = [], []
-        for line in lines:
-            if line is None:
-                continue
-            _, (text, conf) = line
-            texts.append(text)
-            confs.append(float(conf))
+        result_obj = ocr_result[0]
 
-        if not texts:
+        if isinstance(result_obj, dict):
+            rec_texts = result_obj.get('rec_texts', [])
+            rec_scores = result_obj.get('rec_scores', [])
+        else:
+            rec_texts = getattr(result_obj, 'rec_texts', [])
+            rec_scores = getattr(result_obj, 'rec_scores', [])
+
+        if rec_texts:
+            full_text = " ".join(str(t) for t in rec_texts)
+            avg_conf = sum(rec_scores) / len(rec_scores) if rec_scores else 0.0
+            return full_text, avg_conf
+        else:
             return "", 0.0
 
-        full_text = " ".join(texts).strip()
-        avg_conf = sum(confs) / len(confs)
-        return full_text, avg_conf
 
     @staticmethod
     def _draw_detections(image: np.ndarray, result: PipelineResult) -> np.ndarray:
