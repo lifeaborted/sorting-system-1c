@@ -1,0 +1,6 @@
+path: ./dataset/synthetic_dataset
+train: images/train
+val: images/train  # Для теста используем ту же папку, так как данных мало
+
+names:
+  0: marking

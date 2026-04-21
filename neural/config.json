@@ -1,0 +1,26 @@
+{
+  "yolo": {
+    "model_path": "runs/detect/train3/weights/best.pt",
+    "conf_threshold": 0.25,
+    "iou_threshold": 0.45,
+    "comment_model": "Укажите путь к вашей дообученной модели. При отсутствии — используется yolov8n.pt (общая детекция)."
+  },
+  "ocr": {
+    "lang": "en",
+    "use_gpu": false,
+    "min_confidence": 0.60,
+    "crop_padding_px": 8,
+    "comment_lang": "Для русских символов используйте 'ru', для смешанных — 'ch'."
+  },
+  "camera": {
+    "index": 0,
+    "show_preview": true
+  },
+  "output": {
+    "save_json": true,
+    "output_dir": "results",
+    "save_crops": true,
+    "crops_dir": "crops",
+    "log_level": "INFO"
+  }
+}
