@@ -19,10 +19,17 @@ if __name__ == "__main__":
         datefmt='%Y-%m-%d %H:%M:%S')
     logging.info("Logger init")
 
-    if not os.path.exists(".env"):
-        logging.error("Failed to read .env .")
-        sys.exit(-1)
-    load_dotenv(".env")
+
+
+    if getattr(sys, 'frozen', False):
+        bundle_dir = sys._MEIPASS
+        dotenv_path = os.path.join(bundle_dir, '.env')
+        load_dotenv(dotenv_path=dotenv_path)
+    else:
+        if not os.path.exists(".env"):
+            logging.error("Failed to read .env .")
+            sys.exit(-1)
+        load_dotenv(".env")
 
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
