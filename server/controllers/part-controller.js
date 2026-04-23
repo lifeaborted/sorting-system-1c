@@ -5,10 +5,15 @@ const {
     PartType,
     OrderItemPart,
     OrderItem,
-    Order, Address, Customer, Warehouse, Employee
+    Order,
+    Address,
+    Customer,
+    Warehouse,
+    Employee
 } = require('../database/models')
+
 const sequelize = require("../database/database");
-const e = require("express");
+const { Sequelize } = require('sequelize')
 
 
 class PartController
@@ -101,6 +106,23 @@ class PartController
             const part = await Part.findOne({
                 where: {part_id: id},
                 include: [{model: PartType, as: "partType"}],
+                attributes: {
+                    include:  [
+                        [
+                            Sequelize.literal(`(
+                                SELECT json_build_object(
+                                    'order_id', "Order_Items".order_id, 
+                                    'order_number', order_number
+                                ) FROM "Order_Item_Parts"
+                                LEFT JOIN "Order_Items" ON "Order_Items".order_item_id = "Order_Item_Parts".order_item_id
+                                LEFT JOIN "Orders" ON "Orders".order_id = "Order_Items".order_id 
+                                WHERE "Order_Item_Parts".part_id = "part".part_id
+                                LIMIT 1 
+                            )`),
+                            "order"
+                        ]
+                    ]
+                }
             })
             if(part)
             {

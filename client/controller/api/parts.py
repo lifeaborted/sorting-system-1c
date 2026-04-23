@@ -17,7 +17,11 @@ class PartsApi:
         qc_inspector_id: Optional[int]
         part_type_id: int
         status: str
+        order: 'PartsApi.OrderShort'
 
+    class OrderShort(TypedDict):
+        order_id: int
+        order_number: str
     class AllDetailsResponse(TypedDict):
         count: int
         rows: list['PartsApi.Detail']

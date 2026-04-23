@@ -130,7 +130,10 @@ class User(QObject):
                 sorted_at=r_detail["sorted_at"],
                 warehouse=self._warehouses[r_detail["warehouse_id"]] if r_detail["warehouse_id"] is not None else None,
                 qc_inspector_id=r_detail["qc_inspector_id"],
-                order=None, # TODO
+                order=OrderShort(
+                    id=r_detail["order"]["order_id"],
+                    name=r_detail["order"]["order_number"]
+                ) if r_detail["order"] else None,
                 status=status,
             )
 

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <!-- ICONS -->
         <file>resources/icons/circle-key.svg</file>
         <file>resources/icons/tag.svg</file>
         <file>resources/icons/clipboard.svg</file>
@@ -21,16 +20,10 @@
         <file>resources/icons/order.svg</file>
         <file>resources/icons/warehouse.svg</file>
         <file>resources/icons/date.svg</file>
-
-
-
-        <!-- BACKGROUNDS -->
         <file>resources/backgrounds/background1.png</file>
-
-        <!-- FONTS -->
-        <!-- Roboto Family -->
         <file>resources/fonts/Roboto/Roboto-Regular.ttf</file>
         <file>resources/fonts/Roboto/Roboto-Medium.ttf</file>
         <file>resources/fonts/Roboto/Roboto-Bold.ttf</file>
+        <file>qtquickcontrols2.conf</file>
     </qresource>
 </RCC>
