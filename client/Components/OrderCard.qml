@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import "../Components"
-
+import QtQuick.Controls.Fusion 2.15
 Rectangle {
     id: root
     height: 100
@@ -106,7 +106,7 @@ Rectangle {
             spacing: 3
 
             Repeater {
-                model: root.materials
+                model: root.materials.slice(0,5)
                 delegate: Row {
                     width: parent.width
                     spacing: 0

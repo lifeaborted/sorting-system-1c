@@ -29,7 +29,7 @@ def load_config() -> Config:
 
 def save_config(conf: Config):
     if not exists(dirs.user_config_dir):
-        mkdir(dirs.user_config_dir)
+        os.makedirs(dirs.user_config_dir)
     logging.info(f"[CONF] Saving config path={_cfg_path()}")
     f = open(_cfg_path(), "w")
     f.write(json.dumps(conf))
