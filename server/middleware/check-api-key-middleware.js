@@ -1,3 +1,5 @@
+const logger = require('../modules/logger')
+
 module.exports = function (req, res, next)
 {
     if (req.method === "OPTIONS")

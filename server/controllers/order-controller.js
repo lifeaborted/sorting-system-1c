@@ -2,6 +2,7 @@ const ApiError = require('../error/api-error')
 const {Order, Customer, OrderItem, PartType, Part, OrderItemPart} = require('../database/models')
 const sequelize = require('../database/database')
 const { Sequelize, Op } = require('sequelize')
+const logger = require("../modules/logger");
 
 class OrderController
 {
@@ -9,6 +10,7 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
             const d = new Date()
             const dd = String(d.getDate()).padStart(2, '0')
             const mm = String(d.getMonth() + 1).padStart(2, '0')
@@ -17,23 +19,31 @@ class OrderController
             const {customer_id, notes, priority} = req.body
             if (!customer_id || !notes)
             {
+                logger.warn("Invalid order information: " + JSON.stringify(req.body))
                 return next(ApiError.badRequest("Incorrect request data"))
             }
 
+            logger.info("Getting order number")
             const [[{queue}]] = await sequelize.query("SELECT nextval('\"Orders_order_id_seq\"') as queue;")
+
+            logger.info("Creating new order")
             const order = await Order.create({
                 customer_id,
                 notes,
                 priority,
                 order_number: `${dd}${mm}${yy}H${queue}`
             })
+
+            logger.info("Find customer information")
             const customer = await Customer.findOne({where: {customer_id}})
             order.dataValues.customer = customer?.dataValues
 
+            logger.done("Sending response")
             return res.json(order)
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Registration error: ' + e.message))
         }
     }
@@ -42,28 +52,36 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
+
             const {order_id, part_type_id, required_quantity } = req.body
             if (!order_id || !part_type_id || !required_quantity)
             {
+                logger.warn("Invalid order-item information: " + JSON.stringify(req.body))
                 return next(ApiError.badRequest("Incorrect request data"))
             }
 
+            logger.info("Search order")
             const order = await Order.findByPk(order_id)
             if (!order)
             {
+                logger.warn("Order is not found")
                 return next(ApiError.notFound("Order not found"))
             }
 
+            logger.info("Creating new order-item")
             const item = await OrderItem.create({
                 order_id,
                 part_type_id,
                 required_quantity
             })
 
+            logger.done("Sending response")
             return res.json(item)
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Registration error: ' + e.message))
         }
     }
@@ -72,10 +90,13 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
+
             let {limit, offset} = req.query
             limit = parseInt(limit) || 20
             offset = parseInt(offset) || 0
 
+            logger.info("Find all orders")
             const {count, rows} = await Order.findAndCountAll({
                 limit,
                 offset,
@@ -112,42 +133,22 @@ class OrderController
                         ]
                     ]
                 },
-                include: [
-                    {
-                        model: Customer,
-                        as: 'customer',
-                        attributes: ['customer_id', 'company_name']
-                    },
-                    {
-                        model: OrderItem,
-                        as: 'orderItems',
-                        include: [
-                            {
-                                model: PartType,
-                                as: 'partType',
-                                attributes: ['part_type_id', 'name', 'price']
-                            },
-                            {
-                                model: OrderItemPart,
-                                as: 'orderItemParts',
-                                include: [
-                                    {
-                                        model: Part,
-                                        as: 'part',
-                                        attributes: ['part_id', 'serial_number', 'batch_number']
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                include: [{
+                    model: Customer, as: 'customer', attributes: ['customer_id', 'company_name']}, {
+                    model: OrderItem, as: 'orderItems', include: [{
+                        model: PartType, as: 'partType', attributes: ['part_type_id', 'name', 'price']}, {
+                        model: OrderItemPart, as: 'orderItemParts', include: [{
+                            model: Part, as: 'part', attributes: ['part_id', 'serial_number', 'batch_number']}]}]}
                 ],
                 order: [['created_at', 'DESC']]
             })
 
+            logger.done("Sending response")
             return res.json({count, rows})
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Fetch error: ' + e.message))
         }
     }
@@ -156,7 +157,11 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
+
             const {id} = req.params
+
+            logger.info("Getting order")
             const order = await Order.findByPk(id, {
                 attributes: {
                     include: [
@@ -190,46 +195,27 @@ class OrderController
                         ]
                     ]
                 },
-                include: [
-                    {
-                        model: Customer,
-                        as: 'customer',
-                        attributes: ['customer_id', 'company_name']
-                    },
-                    {
-                        model: OrderItem,
-                        as: 'orderItems',
-                        include: [
-                            {
-                                model: PartType,
-                                as: 'partType',
-                                attributes: ['part_type_id', 'name', 'price']
-                            },
-                            {
-                                model: OrderItemPart,
-                                as: 'orderItemParts',
-                                include: [
-                                    {
-                                        model: Part,
-                                        as: 'part',
-                                        attributes: ['part_id', 'serial_number', 'batch_number']
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                include: [{
+                    model: Customer, as: 'customer', attributes: ['customer_id', 'company_name']}, {
+                    model: OrderItem, as: 'orderItems', include: [{
+                        model: PartType, as: 'partType', attributes: ['part_type_id', 'name', 'price']}, {
+                        model: OrderItemPart, as: 'orderItemParts', include: [{
+                            model: Part, as: 'part', attributes: ['part_id', 'serial_number', 'batch_number']}]}]}
                 ]
             })
 
             if (!order)
             {
+                logger.warn("Order not found")
                 return next(ApiError.notFound("Order not found"))
             }
 
+            logger.done("Sending response")
             return res.json(order)
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Fetch error: ' + e.message))
         }
     }
@@ -238,18 +224,24 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
+
             const {id} = req.params
+
             const order = await Order.findByPk(id)
             if (!order)
             {
+                logger.warn("Order not found")
                 return next(ApiError.notFound("Order not found"))
             }
-
             await order.destroy()
+
+            logger.done("Sending response")
             return res.json({message: "Ok"})
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Delete error: ' + e.message))
         }
     }
@@ -258,18 +250,24 @@ class OrderController
     {
         try
         {
+            logger.info("Call " + req.baseUrl + req.url)
+
             const {id} = req.params
+
             const item = await OrderItem.findByPk(id)
             if (!item)
             {
+                logger.warn("Item not found")
                 return next(ApiError.notFound("Item not found"))
             }
-
             await item.destroy()
+
+            logger.done("Sending response")
             return res.json({message: "Ok"})
         }
         catch(e)
         {
+            logger.error(e)
             return next(ApiError.internal('Delete error: ' + e.message))
         }
     }

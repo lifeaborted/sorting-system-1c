@@ -1,5 +1,5 @@
 const ApiError = require('../error/api-error')
-const utils = require('./utils-controller')
+const utils = require('../modules/utils')
 const { faker } = require('@faker-js/faker')
 const bcrypt = require('bcrypt')
 const {

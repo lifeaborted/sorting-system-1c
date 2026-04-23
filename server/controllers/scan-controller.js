@@ -20,9 +20,11 @@ class ScanController
         try
         {
             let isSorted = false
+
             const {serial_number, batch_number} = req.body
             const {image} = req.files
-            if (!serial_number || !batch_number)
+
+            if (!serial_number || !batch_number || !image)
             {
                 await socket.broadcast(JSON.stringify({status: 400, message: 'Incorrect request data'}))
                 return next(ApiError.badRequest("Incorrect request data"))
