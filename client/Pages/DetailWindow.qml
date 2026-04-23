@@ -10,6 +10,23 @@ Rectangle {
     required property Window window
     property int detailId: routeData["detailId"]
     property var detail: Backend.user.get_detail(detailId)
+    property var possibleOrdersFull: Backend.user.load_details_possible_orders(detailId)
+    property list<string> ordersCodes: []
+    property var codesMap: ({
+        orderCodes: ({}),
+        orderIds: ({})
+    })
+
+    Component.onCompleted: {
+        possibleOrdersFull.forEach((x, i) => {
+            ordersCodes.push(x["order_number"])
+            codesMap["orderCodes"][x["order_number"]] = {
+                order_id: x["order_id"],
+                sequence_id: i
+            }
+        })
+    }
+
     id: detailInfoPage
     anchors.fill: parent
     color: "#28282A"
@@ -184,8 +201,8 @@ Rectangle {
                     Layout.preferredWidth: 500
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
-                    model: ["Не выбран", "Заказ №1024", "Заказ №2048"]
-                    currentIndex: 0
+                    model: ["Не выбран"].concat(ordersCodes)
+                    currentValue: detail["order"] != null ? detail["order"]["name"] : "Не выбран"
 
                     contentItem: Text {
                         text: parent.displayText
@@ -305,7 +322,12 @@ Rectangle {
                         buttonWidth: 120
                         buttonHeight: 30
                         onClickedHandler: function() {
-                            // TODO
+                            let o_id = -1
+                            if (orderComboBox.currentValue != "Не выбран") {
+                                o_id = codesMap["orderCodes"][orderComboBox.currentValue]["order_id"]
+                            }
+                            Backend.user.change_detail_order(detailId, o_id)
+                            detailInfoPage.window.close()
                         }
                     }
                 }

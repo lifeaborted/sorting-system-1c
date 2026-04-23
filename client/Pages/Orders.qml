@@ -15,6 +15,7 @@ Rectangle {
 
     property list<var> mockDetails: []
     property QtObject sortingParams: QtObject {
+        property string search: ""
         property var status: null
         property var priority: null
         property var customer: null
@@ -24,11 +25,13 @@ Rectangle {
         }
     }
 
+    property var ordersFilter
+
 
     function loadDetails() {
         // detailsFilter = Backend.user.load_sorting_options()
         let orders = Backend.user.load_orders(sortingParams)
-
+        ordersFilter = Backend.user.load_orders_filters()
         mockDetails = []
         for (const order of orders) {
             let materials = []
@@ -56,6 +59,7 @@ Rectangle {
         sortingParams = Qt.createQmlObject(`
             import QtQuick
                 QtObject {
+                    property string search: ""
                     property var status: null
                     property var priority: null
                     property var customer: null
@@ -90,7 +94,14 @@ Rectangle {
                 anchors.topMargin: 60
                 spacing: 15
 
-                ProfileAndSearch {}
+                ProfileAndSearch {
+                    text: sortingParams.search
+                    onValueChanged: (value) => {
+                        sortingParams.search = value
+                        // If this laggs add timeout debouncer
+                        loadDetails()
+                    }
+                }
 
                 // ── Фильтры ─────────────────────────────────────────
                 RowLayout {
@@ -121,14 +132,22 @@ Rectangle {
 
                     Filter {
                         filterLabel: qsTr("Приоритет")
-                        filterModel: ["Все", "1", "2", "3", "4", "5"]
-                        selectedValue: "Все"
+                        filterModel: ["Все"].concat(ordersFilter["priority"])
+                        selectedValue: sortingParams.priority != null ? sortingParams.priority : "Все"
+                        onValueSelected: (value) => {
+                            sortingParams.priority = value != "Все" ? value : null
+                            loadDetails()
+                        }
                     }
 
                     Filter {
                         filterLabel: qsTr("Заказчик")
-                        filterModel: ["Все"]
-                        selectedValue: "Все"
+                        filterModel: ["Все"].concat(ordersFilter["customer"])
+                        selectedValue: sortingParams.customer != null ? sortingParams.customer : "Все"
+                        onValueSelected: (value) => {
+                            sortingParams.customer = value != "Все" ? value : null
+                            loadDetails()
+                        }
                     }
 
                     ColumnLayout {

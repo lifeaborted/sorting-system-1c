@@ -33,6 +33,17 @@ class HttpWrapper:
                     await self._raise_response(response)
                 return await response.json()
 
+    async def put(self, path: str, data: dict) -> dict:
+        self._log_route(path, "put")
+        async with aiohttp.ClientSession(headers=self._headers()) as session:
+            async with session.put(
+                    f"{self.host}{path}",
+                    json=data,
+            ) as response:
+                if response.status != 200:
+                    await self._raise_response(response)
+                return await response.json()
+
     def _log_route(self, path: str, method: str):
         if self.log:
             logging.info(f"[HttpWrapper][{method.upper()}] Calling url {self.host}{path}")

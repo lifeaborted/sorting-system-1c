@@ -82,6 +82,14 @@ Rectangle {
         details = Backend.user.load_details_filter(sortingParams, sortingProperty)
     }
 
+
+    Connections {
+        target: Backend.user
+        function onDetailsChanged() {
+            loadDetails()
+        }
+    }
+
     Component.onCompleted: {
         loadDetails()
     }

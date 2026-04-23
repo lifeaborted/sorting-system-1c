@@ -28,6 +28,7 @@ class User(QObject):
     _warehouses: dict[int, Warehouse] = None
     _orders: dict[int, OrdersApi.Order] = None
     _details_filter: DetailsFilter
+    detailsChanged = Signal()
     def __init__(
             self,
             parent = None
@@ -46,6 +47,11 @@ class User(QObject):
             },
             "order": {},
             "warehouse": {}
+        }
+
+        self._orders_filter = {
+            "priority": {},
+            "customer": {},
         }
 
 
@@ -100,8 +106,19 @@ class User(QObject):
 
     async def _load_orders(self):
         self._orders = {}
+
+        self._orders_filter = {
+            "priority": {},
+            "customer": {},
+        }
+
         for i in (await self._api.orders.get_all())["rows"]:
+
+            self._orders_filter["priority"][i["priority"]] = i["priority"]
+            self._orders_filter["customer"][i["customer"]["company_name"]] = i["customer_id"]
             self._orders[i["order_id"]] = i
+
+
 
     async def _load_details_from_api(self):
         if self._details_types is None:
@@ -131,9 +148,9 @@ class User(QObject):
                 warehouse=self._warehouses[r_detail["warehouse_id"]] if r_detail["warehouse_id"] is not None else None,
                 qc_inspector_id=r_detail["qc_inspector_id"],
                 order=OrderShort(
-                    id=r_detail["order"]["order_id"],
-                    name=r_detail["order"]["order_number"]
-                ) if r_detail["order"] else None,
+                    id=r_detail["orderItemPart"]["orderItem"]["order"]["order_id"],
+                    name=r_detail["orderItemPart"]["orderItem"]["order"]["order_number"]
+                ) if r_detail["orderItemPart"] else None,
                 status=status,
             )
 
@@ -152,6 +169,20 @@ class User(QObject):
                 self._details_filter["order"][detail["order"]["name"]] = detail["order"]["id"]
 
 
+    @Slot(int, result="QVariantList")
+    def load_details_possible_orders(self, id: int):
+        orders = self._api.run_blocking(self._api.parts.get_details_orders(id))
+        return orders
+
+    @Slot(int, int)
+    def change_detail_order(self, id: int, o_id: int):
+        order_id = o_id
+        if o_id == -1:
+            order_id = None
+        self._api.run_blocking(self._api.parts.change_detail_order(id, order_id))
+
+        self._api.run_blocking(self._load_details_from_api())
+        self.detailsChanged.emit()
 
     @Slot("QVariant", result="QVariantList")
     def load_orders(self, f: QObject):
@@ -168,7 +199,7 @@ class User(QObject):
                     return False
 
             if f.property("customer") is not None:
-                if o["customer_id"] != f.property("customer"):
+                if o["customer_id"] != self._orders_filter["customer"][f.property("customer")]:
                     return False
 
             if f.property("date") is not None:
@@ -179,11 +210,34 @@ class User(QObject):
                 o_date = datetime.strptime(o["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
                 if o_date < from_p or o_date > to_p:
                     return False
+
+            words: dict = {}
+            for k, v in dict_iterator(o):
+                words[str(v).lower()] = True
+
+            if f.property("search") is not None and f.property("search") != "":
+                search_arr = str.split(f.property("search"), " ")
+                for word in search_arr:
+                    word = word.lower()
+                    found = False
+                    for k in words:
+                        if str.__contains__(k, word):
+                            found = True
+                            break
+                    if not found:
+                        return False
             return True
 
         arr = list(filter(filter_order, self._orders.values()))
         logging.info(f"For current filter found {len(arr)} orders")
         return arr
+
+    @Slot(result="QVariantMap")
+    def load_orders_filters(self):
+        return {
+            "priority": sorted(list(self._orders_filter["priority"].values())),
+            "customer": list(self._orders_filter["customer"].keys())
+        }
 
     @Slot(result = "QVariantMap")
     def load_sorting_options(self):
