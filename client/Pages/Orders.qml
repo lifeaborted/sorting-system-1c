@@ -131,11 +131,12 @@ Rectangle {
                     }
 
                     Filter {
+                        id: f
                         filterLabel: qsTr("Приоритет")
-                        filterModel: ["Все"].concat(ordersFilter["priority"])
+                        filterModel: ["Все"].concat(ordersFilter["priority"].map((x) => String(x)))
                         selectedValue: sortingParams.priority != null ? sortingParams.priority : "Все"
                         onValueSelected: (value) => {
-                            sortingParams.priority = value != "Все" ? value : null
+                            sortingParams.priority = value != "Все" ? Number(value) : null
                             loadDetails()
                         }
                     }
