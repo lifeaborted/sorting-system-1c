@@ -2,8 +2,8 @@ const Router = require('express')
 const router = new Router()
 
 const scanController = require("../controllers/scan-controller")
-const checkApiKeyMiddleware = require("../middleware/check-api-key-middleware")
+const authMiddleware = require("../middleware/auth-middleware")
 
-router.post("/scan", checkApiKeyMiddleware, scanController.scanCode.bind(scanController))
+router.post("/scan", authMiddleware, scanController.scanCode.bind(scanController))
 
 module.exports = router

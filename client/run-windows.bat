@@ -51,21 +51,6 @@ echo Установка зависимостей...
 pip install -r requirements.txt
 
 cls
-setlocal
-FOR /F "tokens=*" %%i in ('type build_meta.env') do SET %%i
-if exist build\ (
-	echo Очистка файлов сборки...
-	rmdir /s /q "build"
-)
-if exist dist\ (
-	echo Очистка старой версии...
-	rmdir /s /q "dist"
-)
 
-echo Начало сборки...
-pyinstaller --add-data "main.qml:." --add-data "icon.png:." --add-data "Components:Components" --add-data "ProgramWindow.qml:." --add-data "Pages:Pages" --add-data ".env:." --add-data "resources:resources"   --name=%APP_NAME% --windowed --onefile main.py --icon=%ICON% --exclude-module PyQt5 --hidden-import=dotenv
-endlocal
-
-echo Готово
-
-start explorer "%CD%\dist"
+echo Запуск приложения...
+python main.py

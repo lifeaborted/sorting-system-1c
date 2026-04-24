@@ -6,6 +6,12 @@ class ServiceController
     constructor()
     {
         this.socket = new WebSocketServer({ noServer: true })
+        this.socket.on("connection", this.connection.bind(this))
+    }
+
+    connection(ws, request)
+    {
+        ws.user = request.user
     }
 
     async authenticate(request, socket, head)
@@ -20,7 +26,7 @@ class ServiceController
                 socket.destroy();
                 return;
             }
-            jwt.verify(token, process.env.JWT_PASSWORD_CODE)
+            socket.user = jwt.verify(token, process.env.JWT_PASSWORD_CODE)
 
             this.socket.handleUpgrade(request, socket, head, () => {})
         }
@@ -32,11 +38,12 @@ class ServiceController
 
     }
 
-    async broadcast(message)
+    async broadcast(userId, message)
     {
         for(const client of this.socket.clients)
         {
             if (client.readyState !== WebSocket.OPEN) continue
+            if (client?._socket?.user?.id === userId)
             client.send(message)
         }
     }

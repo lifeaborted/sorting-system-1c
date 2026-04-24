@@ -39,7 +39,15 @@ class Logger
 
     error(message)
     {
-        console.log(`${this.getTimestamp()} ${this.colors.red}[ERROR]${this.colors.reset} ${message}`)
+        if(typeof message === 'string')
+        {
+            console.error(`${this.getTimestamp()} ${this.colors.red}[ERROR]${this.colors.reset} ${message}`)
+        }
+        else
+        {
+            console.error(`${this.getTimestamp()} ${this.colors.red}[ERROR]${this.colors.reset}`)
+            console.error(message)
+        }
     }
 }
 
