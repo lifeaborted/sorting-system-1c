@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 import datetime
 import threading
+import re
 
 os.environ['FLAGS_use_mkldnn'] = '0'
 os.environ['FLAGS_enable_onednn_backend'] = '0'
@@ -34,18 +35,29 @@ def load_config(path):
 
 
 def parse_text_to_fields(raw_text: str) -> dict:
-    current_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    sn_pattern = r'SN-[A-Za-z0-9]+' # Регулярное выражение для Serial Number
+    batch_pattern = r'B-\d+' # Регулярное выражение для Batch Number (B- + цифры)
+
+    sn_match = re.search(sn_pattern, raw_text)
+    serial_number = sn_match.group(0) if sn_match else "N/A"
+
+    batch_match = re.search(batch_pattern, raw_text)
+    batch_number = batch_match.group(0) if batch_match else "N/A"
+
+    if serial_number == "N/A" and raw_text:
+        serial_number = raw_text.strip()
 
     return {
-        "serial_number": raw_text.strip() if raw_text else "UNDEFINED",
-        "batch_number": "N/A",
-        "manufacture_date": current_dt
+        "serial_number": serial_number,
+        "batch_number": batch_number
     }
 
 
 def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
     """
-    Отправка на Node.js через form-data
+    Отправка на Node.js через form-data.
+    Поля: image (файл), serial_number, batch_number.
     """
     try:
         success, img_encoded = cv2.imencode('.jpg', image_np)
@@ -58,13 +70,18 @@ def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
             'image': (filename, img_bytes, 'image/jpeg')
         }
 
+        data = {
+            'serial_number': fields['serial_number'],
+            'batch_number': fields['batch_number']
+        }
+
         headers = {
             'Authorization': f'Bearer {API_KEY}'
         }
 
-        logging.info(f"-> Отправка данных: {fields}")
+        logging.info(f"-> Отправка данных: {data}")
 
-        response = requests.post(API_URL, files=files, data=fields, headers=headers, timeout=10)
+        response = requests.post(API_URL, files=files, data=data, headers=headers, timeout=10)
 
         if response.status_code in [200, 201]:
             logging.info(f"<- Успешно отправлено. Ответ: {response.text}")
