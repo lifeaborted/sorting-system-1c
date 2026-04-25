@@ -33,7 +33,7 @@ class ScanController
             if (!serial_number || !batch_number || !image)
             {
                 logger.warn("Invalid scan information: " + JSON.stringify(req.body))
-                await socket.broadcast(JSON.stringify({status: 400, message: 'Incorrect request data'}))
+                await socket.broadcast(req.user.id, JSON.stringify({status: 400, message: 'Incorrect request data'}))
                 return next(ApiError.badRequest("Incorrect request data"))
             }
             
@@ -46,7 +46,7 @@ class ScanController
             if(!part)
             {
                 logger.warn("Part not found")
-                await socket.broadcast(JSON.stringify({status: 400, message: 'Bad Request'}))
+                await socket.broadcast(req.user.id, JSON.stringify({status: 400, message: 'Bad Request'}))
                 return next(ApiError.badRequest("Part not found"))
             }
 
@@ -63,7 +63,7 @@ class ScanController
                 if(!inOrderId)
                 {
                     logger.warn("No available orders found")
-                    await socket.broadcast(JSON.stringify({status: 404, message: 'No available orders found'}))
+                    await socket.broadcast(req.user.id, JSON.stringify({status: 404, message: 'No available orders found'}))
                     return next(ApiError.notFound("No available orders found"))
                 }
                 isSorted = true
@@ -85,7 +85,7 @@ class ScanController
             if(!order)
             {
                 logger.warn("No available orders found")
-                await socket.broadcast(JSON.stringify({status: 404, message: 'No available orders found'}))
+                await socket.broadcast(req.user.id, JSON.stringify({status: 404, message: 'No available orders found'}))
                 return next(ApiError.notFound("No available orders found"))
             }
 
