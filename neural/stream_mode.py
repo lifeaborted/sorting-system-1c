@@ -13,6 +13,8 @@ import datetime
 import threading
 import re
 
+logging.basicConfig(level=logging.INFO)
+logging.info("Это сообщение появится")
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -21,15 +23,15 @@ CONFIG_PATH = "config.json"
 INPUT_FOLDER = "input"
 OUTPUT_FOLDER = "output"
 PROCESSED_FOLDER = "done"
-global JWT_TOKEN
+JWT_TOKEN = None
 
 PORT = os.getenv('PORT', 5000)
 AUTH_USER = os.getenv('AUTH_USER')
 AUTH_PASSWORD = os.getenv('AUTH_PASSWORD')
 
-BASE_URL = f"http://localhost:{PORT}/service/scan"
+BASE_URL = f"http://localhost:{PORT}"
 SCAN_URL = f"{BASE_URL}/api/service/scan"
-AUTH_URL = f"{BASE_URL}/api/auth/login"
+AUTH_URL = f"{BASE_URL}/api/user/login"
 
 
 def load_config(path):
@@ -38,22 +40,26 @@ def load_config(path):
 
 
 def get_jwt_token():
+    global JWT_TOKEN
+
     try:
         logging.info(f"Авторизация на {AUTH_URL}...")
 
         credentials = {
-            "username": AUTH_USER,
+            "login": AUTH_USER,
             "password": AUTH_PASSWORD
         }
 
         response = requests.post(AUTH_URL, json=credentials, timeout=10)
+        print(f"{credentials}, {response}")
 
         if response.status_code == 200:
             data = response.json()
-            JWT_TOKEN = data.get('Token') or data.get('token')
+            JWT_TOKEN = data.get('token')
 
             if JWT_TOKEN:
-                logging.info("JWT токен успешно получен.")
+                print(f"JWT токен успешно получен. {JWT_TOKEN}")
+                print(f"Логин: {AUTH_USER}/ Пароль: {AUTH_PASSWORD}")
                 return True
             else:
                 logging.error(f"Токен не найден в ответе сервера. Ответ: {data}")
