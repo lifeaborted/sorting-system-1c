@@ -118,8 +118,8 @@ def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
 
         response = requests.post(SCAN_URL, files=files, data=data, headers=headers, timeout=10)
 
-        # Если 401 (Unauthorized) - значит токен просрочен
-        if response.status_code == 401:
+        # Если 403 (Unauthorized) - значит токен просрочен
+        if response.status_code == 403:
             logging.warning("Токен устарел. Попытка обновить и отправить повторно...")
             if get_jwt_token():
                 headers['Authorization'] = f'Bearer {JWT_TOKEN}'
