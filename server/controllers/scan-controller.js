@@ -46,7 +46,7 @@ class ScanController
             if(!part)
             {
                 logger.warn("Part not found")
-                await socket.broadcast(req.user.id, JSON.stringify({status: 400, message: 'Bad Request'}))
+                await socket.broadcast(req.user.id, JSON.stringify({status: 404, message: 'Part not found'}))
                 return next(ApiError.badRequest("Part not found"))
             }
 
