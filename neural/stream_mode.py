@@ -125,7 +125,7 @@ def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
                 headers['Authorization'] = f'Bearer {JWT_TOKEN}'
                 response = requests.post(SCAN_URL, files=files, data=data, headers=headers, timeout=10)
 
-        if response.status_code in [200, 201]:
+        if response.status_code == 200:
             logging.info(f"<- Успешно отправлено. Ответ: {response.text}")
         else:
             logging.error(f"<- Ошибка сервера {response.status_code}: {response.text}")
