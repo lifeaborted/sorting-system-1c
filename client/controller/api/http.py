@@ -4,7 +4,7 @@ import asyncio
 from typing import Awaitable, Any, TypeVar, Generic, Callable, Optional
 
 import aiohttp
-from aiohttp import ClientResponse
+from aiohttp import ClientResponse, ClientWebSocketResponse
 
 T = TypeVar('T')
 
@@ -44,9 +44,17 @@ class HttpWrapper:
                     await self._raise_response(response)
                 return await response.json()
 
+    async def wss(self, path: str, f: Callable[[ClientWebSocketResponse], Awaitable[None]]):
+        self._log_route(path, "wss")
+
+        async with aiohttp.ClientSession(headers=self._headers()) as session:
+            async with session.ws_connect(f"{self.host}{path}") as ws:
+                await f(ws)
+
     def _log_route(self, path: str, method: str):
         if self.log:
             logging.info(f"[HttpWrapper][{method.upper()}] Calling url {self.host}{path}")
+
     async def _raise_response(self, resp: ClientResponse):
         raise Exception(
             f"Error calling {resp.url}. status={resp.status}. text={await resp.text()}"

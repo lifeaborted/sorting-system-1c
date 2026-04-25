@@ -8,8 +8,10 @@ import "../Components"
 Rectangle {
     required property var routeData
     required property Window window
-    property int detailId: routeData["detailId"]
-    property var detail: Backend.user.get_detail(detailId)
+    property int detailId: routeData["part"]["part_id"]
+    property var detail: routeData["part"]
+    property var image: routeData["image"]
+    property var order: routeData["order"]
     property var possibleOrdersFull: Backend.user.load_details_possible_orders(detailId)
     property list<string> ordersCodes: []
     property var codesMap: ({
@@ -149,7 +151,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
-                    text: detail.type.name
+                    text: detail.partType.name
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -183,10 +185,10 @@ Rectangle {
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
                     text: switch (detail.status) {
-                        case "pending": return "Обрабатывается"
+                        case "manufactured": return "Обрабатывается"
                         case "in_production": return "В производстве"
                         case "sorting": return "Сортировка"
-                        case "completed": return "Отсортирован"
+                        case "sorted": return "Отсортирован"
                         case "canceled": return "Отменён"
                         default: return "—"
                     }
@@ -202,7 +204,7 @@ Rectangle {
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
                     model: ["Не выбран"].concat(ordersCodes)
-                    currentValue: detail["order"] != null ? detail["order"]["name"] : "Не выбран"
+                    currentValue: order != null ? order["order_number"] : "Не выбран"
 
                     contentItem: Text {
                         text: parent.displayText
@@ -288,7 +290,20 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
-                    text: detail.manufacture_date
+                    text: {
+                        const date = new Date(detail.manufacture_date);
+
+                        const day = date.getDate();
+                        const month = date.getMonth() + 1;
+                        const year = date.getFullYear();
+
+                        const hours = date.getHours();
+                        const minutes = date.getMinutes();
+                        const seconds = date.getSeconds();
+
+                        return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+                    }
+
                     color: "#B2B4BC"
                     font.pixelSize: 13
                     font.family: "Roboto"
@@ -332,6 +347,12 @@ Rectangle {
                     }
                 }
             }
+        }
+        Image {
+            Layout.maximumWidth: 200
+            Layout.maximumHeight: 200
+            fillMode: Image.PreserveAspectFit
+            source: qsTr("data:image/jpeg;base64,%1").arg(image["data"])
         }
     }
 }

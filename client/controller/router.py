@@ -13,7 +13,7 @@ QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
 class RouteParams(TypedDict):
-    data: NotRequired[QJSValue]
+    data: NotRequired["QVariantMap"]
     route: str
     popup: NotRequired[bool]
 
@@ -36,26 +36,26 @@ class Router(QObject):
             route=r
         ))
 
-    @Property(QJSValue, notify = _route_changed, final = True )
+    @Property("QVariantMap", notify = _route_changed, final = True )
     def data(self):
         return self._route.get("data", {})
 
-    @Slot(str, QJSValue)
-    def set_route_detailed(self, route: str, data: QJSValue):
+    @Slot(str, "QVariantMap")
+    def set_route_detailed(self, route: str, data: "QVariantMap"):
         self._change_route(RouteParams(
             route=route,
             data=data
         ))
 
-    @Slot(str, QJSValue)
-    def open_popup_detailed(self, route: str, data: QJSValue):
+    @Slot(str, "QVariantMap")
+    def open_popup_detailed(self, route: str, data: "QVariantMap"):
         self._change_route(RouteParams(
             route=route,
             data=data,
             popup=True
         ))
 
-    @Slot(str, QJSValue)
+    @Slot(str, "QVariantMap")
     def _change_route(self, route: RouteParams):
         if route.get("popup", False):
             self.popupRequested.emit(route)

@@ -7,6 +7,12 @@ class PartsApi:
     def __init__(self, client: HttpWrapper):
         self.c = client
 
+    class Image(TypedDict):
+        name: str
+        data: str
+        mimetype: str
+        size: int
+
     class Detail(TypedDict):
         part_id: int
         serial_number: str

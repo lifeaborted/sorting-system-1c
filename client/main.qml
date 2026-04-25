@@ -47,6 +47,14 @@ ProgramWindow {
                     page: Component {
                         DetailWindow {}
                     }
+                },
+                Page{
+                    useWindow: true
+                    useRouterData: true
+                    path: "/detailScanned"
+                    page: Component {
+                        DetailScanned {}
+                    }
                 }
 
             ]

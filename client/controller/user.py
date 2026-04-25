@@ -1,14 +1,20 @@
 # This Python file uses the following encoding: utf-8
+import base64
 import logging
 from operator import itemgetter
 from typing import List
 
+from PySide6.QtGui import QImage
+
 from controller.api.api import Api
 from controller.api.orders import OrdersApi
+from controller.notification import Notificator
+from controller.router import Router
 from controller.types.detail import *
 import random
 from datetime import datetime, timedelta
 
+from controller.user_wss import UserWss, DetailScanned
 from controller.utils import dict_iterator
 
 QML_IMPORT_NAME = "io.backend"
@@ -20,9 +26,12 @@ QML_IMPORT_MINOR_VERSION = 0
 @QmlElement
 class User(QObject):
     _api: Api
+    _router: Router
+    notificator: Notificator
     _first_name: str
     _last_name: str
     _middle_name: str
+    _user_wss: UserWss = None
     _details: list[Detail] = None
     _details_types: dict[int, DetailType] = None
     _warehouses: dict[int, Warehouse] = None
@@ -56,18 +65,26 @@ class User(QObject):
 
 
     @staticmethod
-    async def new(api: Api) -> 'User':
+    async def new(api: Api, router: Router, notificator: Notificator) -> 'User':
         user = User()
         user._api = api
+        user._router = router
+        user._notificator = notificator
         data = await api.user.me()
         user._first_name = data["first_name"]
         user._last_name = data["last_name"]
         user._middle_name = data["middle_name"]
+        user._user_wss = UserWss(api, handlers={
+            "on_error": lambda x: notificator.new_err_notification("Ошибка", "Деталь не отсканирована"),
+            "on_detail_scanned": user._on_detail_scanned
+        })
+        user._user_wss.start()
 
         await user._load_details_from_api()
-
         return user
 
+    def _on_detail_scanned(self, data: DetailScanned):
+        self._router.open_popup_detailed("/detailScanned", data)
 
     @Slot(str, result = str)
     def format_username(self, form: str):
@@ -113,11 +130,9 @@ class User(QObject):
         }
 
         for i in (await self._api.orders.get_all())["rows"]:
-
             self._orders_filter["priority"][i["priority"]] = i["priority"]
             self._orders_filter["customer"][i["customer"]["company_name"]] = i["customer_id"]
             self._orders[i["order_id"]] = i
-
 
 
     async def _load_details_from_api(self):
@@ -336,6 +351,7 @@ class User(QObject):
         arr = list(data)
         logging.info(f"For current filter found {len(arr)} entry")
         return arr
+
 
     @Slot(int, result="QVariant")
     def get_detail(self, id: int):

@@ -4,13 +4,12 @@
         "Pages/Details.qml",
         "Pages/Orders.qml",
         "Pages/DetailWindow.qml",
-
+        "Pages/DetailScanned.qml",
         "main.py",
         "main.qml",
         "qmldir",
         "ProgramWindow.qml",
         "resources.qrc",
-
         "rc_resources.py",
         "controller/backend.py",
         "controller/notification.py",
@@ -18,16 +17,13 @@
         "controller/router.py",
         "controller/config.py",
         "controller/utils.py",
-
         "controller/types/detail.py",
-
         "controller/api/api.py",
         "controller/api/http.py",
         "controller/api/part_types.py",
         "controller/api/parts.py",
         "controller/api/user.py",
         "controller/api/warehouses.py",
-
         "Components/CTextField.qml",
         "Components/Filter.qml",
         "Components/LeftSidebar.qml",

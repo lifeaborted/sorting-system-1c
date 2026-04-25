@@ -1,4 +1,6 @@
-from typing import TypedDict
+from typing import TypedDict, Callable, Awaitable
+
+from aiohttp import ClientWebSocketResponse
 
 from controller.api.http import HttpWrapper
 
@@ -26,7 +28,6 @@ class UserApi:
     async def login(self, data: LoginRequest) -> LoginResponse:
         return await self.c.post("/api/user/login", data)
 
-
     class MeResponse(TypedDict):
         employee_id: int
         first_name: str
@@ -38,3 +39,6 @@ class UserApi:
         created_at: str
     async def me(self) -> MeResponse:
         return await self.c.get("/api/user/me")
+
+    async def detail_wss(self, f: Callable[[ClientWebSocketResponse], Awaitable[None]]) -> None:
+        return await self.c.wss("/", f)

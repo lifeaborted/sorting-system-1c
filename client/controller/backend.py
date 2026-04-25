@@ -73,7 +73,7 @@ class Backend(QObject):
 
     def login_token(self, token: str):
         self._api.client.use_auth(token)
-        self._user = self._api.run_blocking(User.new(self._api))
+        self._user = self._api.run_blocking(User.new(self._api, self._router, self._notificator))
         logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
         self._conf["token"] = token
         save_config(self._conf)
