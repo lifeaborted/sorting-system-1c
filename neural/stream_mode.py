@@ -13,8 +13,6 @@ import datetime
 import threading
 import re
 
-os.environ['FLAGS_use_mkldnn'] = '0'
-os.environ['FLAGS_enable_onednn_backend'] = '0'
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -23,15 +21,50 @@ CONFIG_PATH = "config.json"
 INPUT_FOLDER = "input"
 OUTPUT_FOLDER = "output"
 PROCESSED_FOLDER = "done"
+global JWT_TOKEN
 
 PORT = os.getenv('PORT', 5000)
-API_URL = f"http://localhost:{PORT}/service/scan"
-API_KEY = os.getenv("SCANNER_API_KEY")
+AUTH_USER = os.getenv('AUTH_USER')
+AUTH_PASSWORD = os.getenv('AUTH_PASSWORD')
+
+BASE_URL = f"http://localhost:{PORT}/service/scan"
+SCAN_URL = f"{BASE_URL}/api/service/scan"
+AUTH_URL = f"{BASE_URL}/api/auth/login"
 
 
 def load_config(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def get_jwt_token():
+    try:
+        logging.info(f"Авторизация на {AUTH_URL}...")
+
+        credentials = {
+            "username": AUTH_USER,
+            "password": AUTH_PASSWORD
+        }
+
+        response = requests.post(AUTH_URL, json=credentials, timeout=10)
+
+        if response.status_code == 200:
+            data = response.json()
+            JWT_TOKEN = data.get('Token') or data.get('token')
+
+            if JWT_TOKEN:
+                logging.info("JWT токен успешно получен.")
+                return True
+            else:
+                logging.error(f"Токен не найден в ответе сервера. Ответ: {data}")
+        else:
+            logging.error(f"Ошибка авторизации {response.status_code}: {response.text}")
+
+    except Exception as e:
+        logging.error(f"Ошибка при получении токена: {e}")
+
+    JWT_TOKEN = None
+    return False
 
 
 def parse_text_to_fields(raw_text: str) -> dict:
@@ -56,40 +89,47 @@ def parse_text_to_fields(raw_text: str) -> dict:
 
 def send_to_server(fields: dict, image_np: np.ndarray, filename: str):
     """
-    Отправка на Node.js через form-data.
-    Поля: image (файл), serial_number, batch_number.
+    Отправка данных from-data.
+    Поля: serial_number, batch_number, image.
     """
+    if not JWT_TOKEN:
+        logging.warning("Токен отсутствует. Попытка авторизации...")
+        if not get_jwt_token():
+            logging.error("Не удалось получить токен. Отправка отменена.")
+            return
+
     try:
         success, img_encoded = cv2.imencode('.jpg', image_np)
         if not success:
-            logging.error("Ошибка кодирования изображения")
             return
         img_bytes = img_encoded.tobytes()
 
-        files = {
-            'image': (filename, img_bytes, 'image/jpeg')
-        }
-
+        files = {'image': (filename, img_bytes, 'image/jpeg')}
         data = {
             'serial_number': fields['serial_number'],
             'batch_number': fields['batch_number']
         }
 
         headers = {
-            'Authorization': f'Bearer {API_KEY}'
+            'Authorization': f'Bearer {JWT_TOKEN}'
         }
 
         logging.info(f"-> Отправка данных: {data}")
 
-        response = requests.post(API_URL, files=files, data=data, headers=headers, timeout=10)
+        response = requests.post(SCAN_URL, files=files, data=data, headers=headers, timeout=10)
+
+        # Если 401 (Unauthorized) - значит токен просрочен
+        if response.status_code == 401:
+            logging.warning("Токен устарел. Попытка обновить и отправить повторно...")
+            if get_jwt_token():
+                headers['Authorization'] = f'Bearer {JWT_TOKEN}'
+                response = requests.post(SCAN_URL, files=files, data=data, headers=headers, timeout=10)
 
         if response.status_code in [200, 201]:
             logging.info(f"<- Успешно отправлено. Ответ: {response.text}")
         else:
             logging.error(f"<- Ошибка сервера {response.status_code}: {response.text}")
 
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Ошибка соединения: {e}")
     except Exception as e:
         logging.error(f"Ошибка при отправке: {e}")
 
