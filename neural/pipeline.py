@@ -153,12 +153,12 @@ class MarkingPipeline:
             source=image,
             conf=self.yolo_conf,
             iou=self.yolo_iou,
-            verbose=False,
+            verbose=True,
         )
         boxes = yolo_results[0].boxes  # Boxes object
 
         if boxes is None or len(boxes) == 0:
-            logger.debug("YOLO: нет детекций")
+            print("!!! YOLO: детекции не найдены !!!")  # Временная диагностика
             return []
 
         for i, box in enumerate(boxes):
@@ -200,10 +200,43 @@ class MarkingPipeline:
         return detections
 
     def _ocr_crop(self, crop: np.ndarray) -> tuple[str, float]:
+        """
+        Запустить PaddleOCR с предобработкой.
+        """
         try:
-            ocr_result = self.ocr.ocr(crop)
-        except TypeError:
-            ocr_result = self.ocr.ocr(crop, cls=True)
+            # Добавляем 15 пикселей белого цвета по краям
+            border_size = 15
+            crop_bordered = cv2.copyMakeBorder(
+                crop,
+                border_size, border_size, border_size, border_size,
+                cv2.BORDER_CONSTANT,
+                value=[255, 255, 255]  # Белый фон
+            )
+
+            # 2. Увеличиваем размер — x2 для лучшего чтения мелкого текста
+            h, w = crop_bordered.shape[:2]
+            crop_scaled = cv2.resize(crop_bordered, (w * 2, h * 2), interpolation=cv2.INTER_CUBIC)
+
+            # 3. Улучшение контраста
+            lab = cv2.cvtColor(crop_scaled, cv2.COLOR_BGR2LAB)
+            l, a, b = cv2.split(lab)
+            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+            cl = clahe.apply(l)
+            limg = cv2.merge((cl,a,b))
+            final_crop = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+
+            # 4. Конвертация BGR -> RGB
+            final_crop = cv2.cvtColor(final_crop, cv2.COLOR_BGR2RGB)
+
+            # Запуск OCR
+            ocr_result = self.ocr.ocr(final_crop)
+
+        except Exception as e:
+            logging.warning(f"OCR Preprocessing failed, trying raw: {e}")
+            try:
+                ocr_result = self.ocr.ocr(crop)
+            except TypeError:
+                ocr_result = self.ocr.ocr(crop, cls=True)
 
         if not ocr_result:
             return "", 0.0
