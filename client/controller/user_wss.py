@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import threading
+from asyncio import AbstractEventLoop
 from threading import Thread
 from typing import TypedDict, Callable
 
@@ -28,7 +29,7 @@ class UserWss:
     _api: Api
     _thread: Thread
     _is_stopped: bool = False
-
+    _loop: AbstractEventLoop
     def __init__(self, api: Api, handlers: UserHandlersWss):
         self._ev = asyncio.Event()
         self._api = api
@@ -43,18 +44,16 @@ class UserWss:
 
     def stop(self):
         self._log("Trying to stop websocket")
-        self._ev.set()
         self._is_stopped = True
-
+        self._loop.call_soon_threadsafe(self._ev.set)
     async def _socket_loop(self, ws: WebSocketResponse):
+        self._loop = asyncio.get_event_loop()
         self._log("Thread started")
         while True:
-
             done, pending = await asyncio.wait([
                 asyncio.create_task(ws.receive()),
                 asyncio.create_task(self._ev.wait())
             ], return_when=asyncio.FIRST_COMPLETED)
-
             for task in pending:
                 task.cancel()
 

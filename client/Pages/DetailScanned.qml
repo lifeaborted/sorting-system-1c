@@ -8,6 +8,7 @@ import "../Components"
 Rectangle {
     required property var routeData
     required property Window window
+    required property string routePath
     property int detailId: routeData["part"]["part_id"]
     property var detail: routeData["part"]
     property var image: routeData["image"]
@@ -18,6 +19,15 @@ Rectangle {
         orderCodes: ({}),
         orderIds: ({})
     })
+
+    Connections {
+        target: Backend.router
+        function onBeforePopupRequested(path) {
+            if (path == routePath) {
+                window.close()
+            }
+        }
+    }
 
     Component.onCompleted: {
         possibleOrdersFull.forEach((x, i) => {

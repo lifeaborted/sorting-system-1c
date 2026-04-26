@@ -30,6 +30,9 @@ Window {
             if (page.useWindow) {
                 data["window"] = window
             }
+            if (page.useRouterPath) {
+                data["routePath"] = page.path
+            }
 
             page.page.createObject(window, data)
         }

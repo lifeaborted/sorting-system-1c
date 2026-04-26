@@ -20,6 +20,7 @@ class RouteParams(TypedDict):
 @QmlElement
 class Router(QObject):
     _route_changed = Signal()
+    beforePopupRequested = Signal(str)
     popupRequested = Signal(dict)
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -58,6 +59,7 @@ class Router(QObject):
     @Slot(str, "QVariantMap")
     def _change_route(self, route: RouteParams):
         if route.get("popup", False):
+            self.beforePopupRequested.emit(route["route"])
             self.popupRequested.emit(route)
         else:
             self._route = route
@@ -70,6 +72,7 @@ class Page(QQuickItem):
     _page: QObject
     _use_router_data: bool = False
     _use_window: bool = False
+    _use_router_path: bool = False
     def __init__(self, parent = None):
         super().__init__(parent)
 
@@ -104,3 +107,11 @@ class Page(QQuickItem):
     @useRouterData.setter
     def useWindow(self, p):
         self._use_window = p
+
+    @Property(bool, final=True, constant=True)
+    def useRouterPath(self):
+        return self._use_router_path
+
+    @useRouterPath.setter
+    def useRouterPath(self, p):
+        self._use_router_path = p

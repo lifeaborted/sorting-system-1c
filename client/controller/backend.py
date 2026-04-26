@@ -3,7 +3,7 @@ import asyncio
 import logging
 import os
 import traceback
-from typing import final, Optional, Any
+from typing import final, Optional, Any, Callable
 
 from dotenv import load_dotenv
 from PySide6 import QtCore, QtAsyncio
@@ -21,6 +21,11 @@ QML_IMPORT_NAME = "io.backend"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
+_shutdown_exec: Optional[Callable[[], None]] = None
+def execute_shutdown():
+    logging.info("[ON_EXIT]Called shutdown executor")
+    if _shutdown_exec is not None:
+        _shutdown_exec()
 @QmlElement
 @QmlSingleton
 class Backend(QObject):
@@ -30,6 +35,8 @@ class Backend(QObject):
     _user_changed = Signal()
     def __init__(self, parent=None):
         super().__init__(parent)
+        global _shutdown_exec
+        _shutdown_exec = self.on_shutdown
         self._api = Api(os.getenv("SERVER_URL"), int(os.getenv("PORT")))
         self._router = Router()
         self._notificator = Notificator()
@@ -81,6 +88,11 @@ class Backend(QObject):
 
     @Slot()
     def logout(self):
+        self._user.stop()
         self._user = None
         self._conf["token"] = None
         save_config(self._conf)
+
+    def on_shutdown(self):
+        if self.user is not None:
+            self._user.stop()

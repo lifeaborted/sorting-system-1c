@@ -360,3 +360,6 @@ class User(QObject):
                 return i
         return None
 
+
+    def stop(self):
+        self._user_wss.stop()

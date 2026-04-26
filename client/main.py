@@ -9,7 +9,7 @@ from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase, QIcon
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
 from dotenv import load_dotenv
 
-from controller.backend import Backend
+from controller.backend import Backend, execute_shutdown
 import rc_resources
 
 if __name__ == "__main__":
@@ -59,4 +59,8 @@ if __name__ == "__main__":
 
     if not engine.rootObjects():
         sys.exit(-1)
-    sys.exit(app.exec())
+
+    code = app.exec()
+    execute_shutdown()
+
+    sys.exit(code)

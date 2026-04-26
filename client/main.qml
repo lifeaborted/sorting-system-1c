@@ -49,6 +49,7 @@ ProgramWindow {
                     }
                 },
                 Page{
+                    useRouterPath: true
                     useWindow: true
                     useRouterData: true
                     path: "/detailScanned"
