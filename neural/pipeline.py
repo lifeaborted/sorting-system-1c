@@ -201,61 +201,73 @@ class MarkingPipeline:
 
     def _ocr_crop(self, crop: np.ndarray) -> tuple[str, float]:
         """
-        Запустить PaddleOCR с предобработкой.
+        Адаптивное распознавание:
+        1. Пробуем улучшенное изображение.
+        2. Если уверенность низкая - пробуем исходное.
+        3. Возвращаем лучший результат.
         """
-        try:
-            # Добавляем 15 пикселей белого цвета по краям
-            border_size = 15
-            crop_bordered = cv2.copyMakeBorder(
-                crop,
-                border_size, border_size, border_size, border_size,
-                cv2.BORDER_CONSTANT,
-                value=[255, 255, 255]  # Белый фон
-            )
 
-            # 2. Увеличиваем размер — x2 для лучшего чтения мелкого текста
-            h, w = crop_bordered.shape[:2]
-            crop_scaled = cv2.resize(crop_bordered, (w * 2, h * 2), interpolation=cv2.INTER_CUBIC)
-
-            # 3. Улучшение контраста
-            lab = cv2.cvtColor(crop_scaled, cv2.COLOR_BGR2LAB)
-            l, a, b = cv2.split(lab)
-            clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
-            cl = clahe.apply(l)
-            limg = cv2.merge((cl,a,b))
-            final_crop = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-
-            # 4. Конвертация BGR -> RGB
-            final_crop = cv2.cvtColor(final_crop, cv2.COLOR_BGR2RGB)
-
-            # Запуск OCR
-            ocr_result = self.ocr.ocr(final_crop)
-
-        except Exception as e:
-            logging.warning(f"OCR Preprocessing failed, trying raw: {e}")
+        def run_ocr(img):
             try:
-                ocr_result = self.ocr.ocr(crop)
+                # PaddleOCR 3.x лучше работает с RGB
+                img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                result = self.ocr.ocr(img_rgb)
             except TypeError:
-                ocr_result = self.ocr.ocr(crop, cls=True)
+                result = self.ocr.ocr(img, cls=True)
+            except Exception:
+                return "", 0.0
 
-        if not ocr_result:
+            if not result:
+                return "", 0.0
+
+            result_obj = result[0]
+            if isinstance(result_obj, dict):
+                texts = result_obj.get('rec_texts', [])
+                scores = result_obj.get('rec_scores', [])
+            else:
+                texts = getattr(result_obj, 'rec_texts', [])
+                scores = getattr(result_obj, 'rec_scores', [])
+
+            if texts:
+                full_text = " ".join(str(t) for t in texts)
+                avg_conf = sum(scores) / len(scores) if scores else 0.0
+                return full_text, avg_conf
             return "", 0.0
 
-        result_obj = ocr_result[0]
 
-        if isinstance(result_obj, dict):
-            rec_texts = result_obj.get('rec_texts', [])
-            rec_scores = result_obj.get('rec_scores', [])
-        else:
-            rec_texts = getattr(result_obj, 'rec_texts', [])
-            rec_scores = getattr(result_obj, 'rec_scores', [])
+        # === ПРОХОД 1: С улучшением ===
+        try:
+            # 1. Рамка
+            border_size = 10
+            processed = cv2.copyMakeBorder(crop, border_size, border_size, border_size, border_size,
+                                           cv2.BORDER_CONSTANT, value=[255, 255, 255])
 
-        if rec_texts:
-            full_text = " ".join(str(t) for t in rec_texts)
-            avg_conf = sum(rec_scores) / len(rec_scores) if rec_scores else 0.0
-            return full_text, avg_conf
+            # 2. Увеличение
+            h, w = processed.shape[:2]
+            processed = cv2.resize(processed, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
+
+            # 3. Мягкое улучшение контраста
+            lab = cv2.cvtColor(processed, cv2.COLOR_BGR2LAB)
+            l, a, b = cv2.split(lab)
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            l = clahe.apply(l)
+            processed = cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
+
+            text_proc, conf_proc = run_ocr(processed)
+        except Exception:
+            text_proc, conf_proc = "", 0.0
+
+        if conf_proc > 0.8:
+            return text_proc, conf_proc
+
+        # === ПРОХОД 2: Исходное изображение ===
+        text_raw, conf_raw = run_ocr(crop)
+
+        # === ВЫБОР ЛУЧШЕГО РЕЗУЛЬТАТА ===
+        if conf_proc >= conf_raw:
+            return text_proc, conf_proc
         else:
-            return "", 0.0
+            return text_raw, conf_raw
 
 
     @staticmethod
