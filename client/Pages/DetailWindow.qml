@@ -272,6 +272,7 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignBottom | Qt.AlignRight
+                    Layout.bottomMargin: 10
                     spacing: 10
 
                     TextButton {
