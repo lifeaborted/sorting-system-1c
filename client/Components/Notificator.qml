@@ -1,56 +1,73 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
 import io.backend 1.0
+import "../Components"
 
 Item {
     id: root
     anchors.fill: parent
 
-    ColumnLayout {
+    ListModel {
+        id: notifModel
+    }
+
+    function syncModel() {
+        var data = Backend.notificator.visible_notifications
+
+        for (var i = notifModel.count - 1; i >= 0; i--) {
+            var found = false
+            for (var j = 0; j < data.length; j++) {
+                if (notifModel.get(i).uuid === data[j].uuid) {
+                    found = true
+                    break
+                }
+            }
+            if (!found) notifModel.remove(i)
+        }
+
+        for (var j = 0; j < data.length; j++) {
+            var exists = false
+            for (var i = 0; i < notifModel.count; i++) {
+                if (notifModel.get(i).uuid === data[j].uuid) {
+                    exists = true
+                    break
+                }
+            }
+            if (!exists) notifModel.append(data[j])
+        }
+    }
+
+    Connections {
+        target: Backend.notificator
+        function onNotificationChanged() {
+            root.syncModel()
+        }
+    }
+
+    Component.onCompleted: root.syncModel()
+
+    Column {
         anchors.right: parent.right
-        spacing: 5
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        anchors.rightMargin: 20
+        spacing: 10
+        width: 250
 
         Repeater {
-            model: Backend.notificator.notifications
-            delegate:
-                Rectangle {
-                implicitHeight: layoutChild.implicitHeight
-                required property var modelData
-                color: {
-                    if (modelData.importance == "error") {
-                        return "red"
-                    } else if (modelData.importance == "success") {
-                        return "green"
-                    } else {
-                        // == normal
-                        return "grey"
-                    }
+            model: notifModel
+            delegate: NotificationItem {
+                width: 250
+                notificationMessage: model.message
+                notificationType: {
+                    if (model.importance === "success") return "success"
+                    else if (model.importance === "warning") return "warning"
+                    else if (model.importance === "error") return "error"
+                    else return "info"
                 }
-
-                ColumnLayout {
-                    id: layoutChild
-                    width: 400
-                    Text {
-                        text: modelData.title
-                    }
-                    Text {
-                        Layout.fillWidth: true
-                        font.pointSize:12
-                        wrapMode: Text.Wrap
-                        text: modelData.message
-                    }
-                    Button {
-                        text: "x"
-                        onClicked: {
-                            Backend.notificator.remove_notification(modelData.uuid)
-                        }
-                    }
+                closeCallback: function() {
+                    Backend.notificator.remove_notification(model.uuid)
                 }
-
-                width: 500
-                height: 40
-                radius: 5
             }
         }
     }

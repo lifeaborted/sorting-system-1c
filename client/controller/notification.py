@@ -20,10 +20,13 @@ class Notification(TypedDict):
 
 @QmlElement
 class Notificator(QObject):
-    _notificationChanged = Signal()
+    notificationChanged = Signal()
     _notifications: list[Notification]
-    def __init__(self, parent = None):
+    _visible: list[Notification]
+
+    def __init__(self, parent=None):
         self._notifications = []
+        self._visible = []
         super().__init__(parent)
 
     @Slot(str, str, result=None)
@@ -38,18 +41,25 @@ class Notificator(QObject):
     def new_normal_notification(self, title: str, message: str):
         self._append_notification(self._create_notification(title, message, "normal"))
 
-
-    @Property("QVariantList", notify=_notificationChanged)
+    @Property("QVariantList", notify=notificationChanged)
     def notifications(self):
         return self._notifications
+
+    @Property("QVariantList", notify=notificationChanged)
+    def visible_notifications(self):
+        return self._visible
+
+    def _update_visible(self):
+        last_four = self._notifications[-4:] if len(self._notifications) > 4 else self._notifications
+        self._visible = list(reversed(last_four))
+        self.notificationChanged.emit()
 
     def _create_notification(self, title: str, message: str, importance: str) -> Notification:
         return Notification(title=title, message=message, importance=importance, uuid=uuid.uuid4().__str__())
 
     def _append_notification(self, n):
         self._notifications.append(n)
-        self._notificationChanged.emit()
-
+        self._update_visible()
 
     # Not using id, because we need to allow track each notification separately
     @Slot(str, result=None)
@@ -57,7 +67,8 @@ class Notificator(QObject):
         for i, v in enumerate(self._notifications):
             if v["uuid"] == notification_uuid:
                 self._notifications.pop(i)
-        self._notificationChanged.emit()
+                break
+        self._update_visible()
 
 
 

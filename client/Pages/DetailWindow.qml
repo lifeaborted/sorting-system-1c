@@ -176,7 +176,7 @@ Rectangle {
                     }
                 }
 
-                // Заказ (ComboBox — не заменяем, т.к. это интерактивный элемент)
+                // Заказ
                 ComboBox {
                     id: orderComboBox
                     Layout.preferredWidth: 500

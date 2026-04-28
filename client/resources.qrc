@@ -21,6 +21,10 @@
         <file>resources/icons/warehouse.svg</file>
         <file>resources/icons/date.svg</file>
         <file>resources/icons/person.svg</file>
+        <file>resources/icons/check-circle.svg</file>
+        <file>resources/icons/exclamation-circle.svg</file>
+        <file>resources/icons/x-circle.svg</file>
+        <file>resources/icons/notification-info-circle.svg</file>
         <file>resources/backgrounds/background1.png</file>
         <file>resources/fonts/Roboto/Roboto-Regular.ttf</file>
         <file>resources/fonts/Roboto/Roboto-Medium.ttf</file>
