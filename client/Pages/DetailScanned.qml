@@ -30,6 +30,8 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        window.width = 900
+        window.height = 680
         possibleOrdersFull.forEach((x, i) => {
             ordersCodes.push(x["order_number"])
             codesMap["orderCodes"][x["order_number"]] = {
@@ -59,7 +61,7 @@ Rectangle {
         }
 
         Text {
-            text: qsTr("Информация о детали")
+            text: detail.serial_number
             color: "#E6E8E9"
             font.pixelSize: 18
             font.weight: Font.Bold
@@ -121,8 +123,8 @@ Rectangle {
                 InfoRow {
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
-                    iconSource: "qrc:/resources/icons/order.svg"
-                    labelText: qsTr("Принадлежит заказу")
+                    iconSource: "qrc:/resources/icons/person.svg"
+                    labelText: qsTr("Сортировщик")
                 }
 
                 InfoRow {
@@ -137,6 +139,13 @@ Rectangle {
                     Layout.maximumHeight: 36
                     iconSource: "qrc:/resources/icons/date.svg"
                     labelText: qsTr("Дата производства")
+                }
+
+                InfoRow {
+                    Layout.preferredHeight: 36
+                    Layout.maximumHeight: 36
+                    iconSource: "qrc:/resources/icons/order.svg"
+                    labelText: qsTr("Распределен в")
                 }
 
                 Item { Layout.fillHeight: true }
@@ -157,57 +166,95 @@ Rectangle {
                 anchors.rightMargin: 25
                 spacing: 25
 
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: detail.partType.name
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
-                }
+                    spacing: 25
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: detail.serial_number
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
-                }
+                    // Левая колонка с информацией
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 25
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: detail.batch_number
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
-                }
+                        // Тип детали
+                        InfoText {
+                            infoText: detail.partType?.name || "-"
+                        }
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: switch (detail.status) {
-                        case "manufactured": return "Обрабатывается"
-                        case "in_production": return "В производстве"
-                        case "sorting": return "Сортировка"
-                        case "sorted": return "Отсортирован"
-                        case "canceled": return "Отменён"
-                        default: return "—"
+                        // Серийный номер
+                        InfoText {
+                            infoText: detail.serial_number || "-"
+                        }
+
+                        // Номер партии
+                        InfoText {
+                            infoText: detail.batch_number || "-"
+                        }
+
+                        // Статус
+                        InfoText {
+                            infoText: {
+                                switch (detail.status) {
+                                    case "manufactured": return "Обрабатывается"
+                                    case "in_production": return "В производстве"
+                                    case "sorting": return "Сортировка"
+                                    case "sorted": return "Отсортирован"
+                                    case "canceled": return "Отменён"
+                                    default: return "—"
+                                }
+                            }
+                        }
+
+                        // Сортировщик
+                        InfoText {
+                            infoText: "Затычка Затычка Затычка" // василий прикрути сортировщика
+                        }
                     }
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
+
+                    // Изображение
+                    Image {
+                        Layout.preferredWidth: 320
+                        Layout.preferredHeight: 160
+                        Layout.rightMargin: 20
+                        fillMode: Image.PreserveAspectFit
+                        source: qsTr("data:image/jpeg;base64,%1").arg(image["data"])
+                    }
                 }
 
+                // Склад (с переносом текста)
+                InfoText {
+                    infoText: detail.warehouse != null
+                             ? qsTr("%1, %2, %3, %4, %5, %6")
+                                .arg(detail.warehouse.address.country)
+                                .arg(detail.warehouse.address.region)
+                                .arg(detail.warehouse.address.city)
+                                .arg(detail.warehouse.address.street)
+                                .arg(detail.warehouse.address.building)
+                                .arg(detail.warehouse.address.postal_code)
+                             : "-"
+                    enableWrap: true
+                    maxLineCount: 2
+                    enableElide: true
+                }
+
+                // Дата производства
+                InfoText {
+                    infoText: {
+                        const date = new Date(detail.manufacture_date);
+
+                        const day = date.getDate();
+                        const month = date.getMonth() + 1;
+                        const year = date.getFullYear();
+
+                        const hours = date.getHours();
+                        const minutes = date.getMinutes();
+                        const seconds = date.getSeconds();
+
+                        return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+                    }
+                }
+
+                // Распределен в
                 ComboBox {
                     id: orderComboBox
                     Layout.preferredWidth: 500
@@ -268,7 +315,6 @@ Rectangle {
                         }
                     }
 
-                    // popup без анимаций
                     Component.onCompleted: {
                         popup.enter = null
                         popup.exit = null
@@ -276,52 +322,7 @@ Rectangle {
                     }
                 }
 
-                Text {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: detail.warehouse != null ? qsTr("%1, %2, %3, %4, %5, %6")
-                        .arg(detail.warehouse.address.country)
-                        .arg(detail.warehouse.address.region)
-                        .arg(detail.warehouse.address.city)
-                        .arg(detail.warehouse.address.street)
-                        .arg(detail.warehouse.address.building)
-                        .arg(detail.warehouse.address.postal_code) : "-"
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 2
-                    elide: Text.ElideRight
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    text: {
-                        const date = new Date(detail.manufacture_date);
-
-                        const day = date.getDate();
-                        const month = date.getMonth() + 1;
-                        const year = date.getFullYear();
-
-                        const hours = date.getHours();
-                        const minutes = date.getMinutes();
-                        const seconds = date.getSeconds();
-
-                        return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-                    }
-
-                    color: "#B2B4BC"
-                    font.pixelSize: 13
-                    font.family: "Roboto"
-                    verticalAlignment: Text.AlignVCenter
-                }
-
                 Item { Layout.fillHeight: true }
-
 
                 // Кнопки управления
                 RowLayout {
@@ -357,12 +358,6 @@ Rectangle {
                     }
                 }
             }
-        }
-        Image {
-            Layout.maximumWidth: 200
-            Layout.maximumHeight: 200
-            fillMode: Image.PreserveAspectFit
-            source: qsTr("data:image/jpeg;base64,%1").arg(image["data"])
         }
     }
 }

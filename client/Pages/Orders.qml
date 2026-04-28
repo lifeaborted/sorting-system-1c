@@ -103,7 +103,7 @@ Rectangle {
                     }
                 }
 
-                // ── Фильтры ─────────────────────────────────────────
+                // Фильтры
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 15
