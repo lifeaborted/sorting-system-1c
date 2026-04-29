@@ -36,6 +36,7 @@ class NeuralNetworkWrapper:
         if self._p is not None:
             self._p.stdin.write("exit\n")
             self._p.stdin.flush()
+            
 
     def _loop(self, token: str):
         self._log("Trying to start popen")
@@ -60,6 +61,7 @@ class NeuralNetworkWrapper:
         if status != 0:
             self._log_err(f"Exited with status {status}")
             self._log_err(f"{self._p.stderr.readlines()}")
+            self._p = None
         self._log("Popen is stopped")
 
 
