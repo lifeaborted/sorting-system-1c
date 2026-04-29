@@ -88,11 +88,16 @@ class Backend(QObject):
         save_config(self._conf)
 
         self._neural_wrapper = NeuralNetworkWrapper(token)
+
         self._router.set_route_detailed("/details", None)
 
     @Slot()
     def logout(self):
         self._user.stop()
+        self._neural_wrapper.stop()
+
+        self._user = None
+        self._neural_wrapper = None
         self._user = None
         self._conf["token"] = None
         save_config(self._conf)

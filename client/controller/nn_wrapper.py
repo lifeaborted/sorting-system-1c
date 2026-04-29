@@ -34,8 +34,8 @@ class NeuralNetworkWrapper:
         self._log("Trying to stop neural network")
         self._is_stopped = True
         if self._p is not None:
-            self._p.communicate("exit\n")
-        self._thread.join()
+            self._p.stdin.write("exit\n")
+            self._p.stdin.flush()
 
     def _loop(self, token: str):
         self._log("Trying to start popen")
@@ -43,8 +43,8 @@ class NeuralNetworkWrapper:
         possible_venvs = [
             '../neural/.venv/bin/python3',
             '../neural/venv/bin/python3',
-            '../neural/.venv/Scripts/python',
-            '../neural/venv/Scripts/python'
+            '../neural/.venv/Scripts/python.exe',
+            '../neural/venv/Scripts/python.exe'
         ]
         found = False
         for i in possible_venvs:
@@ -69,5 +69,4 @@ class NeuralNetworkWrapper:
     def _log_err(self, text: str):
         logging.error(f"[NeuralNetwork]{text}")
 
-    def __del__(self):
-        self.stop()
+

@@ -82,5 +82,3 @@ class UserWss:
     def _log(self, text: str):
         logging.info(f"[UserWss]{text}")
 
-    def __del__(self):
-        self.stop()
