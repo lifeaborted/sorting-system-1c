@@ -49,7 +49,7 @@ class PartController
 
             logger.info("Creating new part")
             const part = await Part.create({
-                serial_number: `SN-${type.dataValues.type_code.toUpperCase()}${dd}${mm}${yy}H${queue}`,
+                serial_number: `SN-${type.dataValues.type_code.toUpperCase()}${dd}${mm}${yy}H${queue}#`,
                 batch_number: batch_number,
                 manufacture_date: new Date(),
                 warehouse_id: warehouse_id,

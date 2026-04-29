@@ -145,8 +145,8 @@ class TestingController
                 const isSorted = faker.datatype.boolean(0.6)
                 const partType = faker.helpers.arrayElement(partTypes)
                 const part = await Part.create({
-                    serial_number: `SN-${partType.type_code.toUpperCase()}${dd}${mm}${yy}H${i}`,
-                    batch_number: `B-${faker.number.int({ min: 1000, max: 9999 })}`,
+                    serial_number: `SN-${partType.type_code.toUpperCase()}${dd}${mm}${yy}H${i}#`,
+                    batch_number: `B-${faker.number.int({ min: 1000, max: 9999 })}#`,
                     manufacture_date: faker.date.past({ years: 1 }),
                     sorted_at: isSorted ? faker.date.recent({ days: 30 }) : null,
                     warehouse_id: isSorted ? faker.helpers.arrayElement(warehouses).warehouse_id : null,
