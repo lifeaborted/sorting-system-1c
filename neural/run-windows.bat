@@ -66,4 +66,4 @@ endlocal
 cls
 
 echo Запуск...
-python stream_mode.py
+sudo python stream_mode.py

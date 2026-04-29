@@ -1,18 +1,16 @@
 const ApiError = require('../error/api-error')
 const {Buffer} = require('buffer')
-const {Op, NUMBER} = require('sequelize')
+const sequelize = require('sequelize')
 const logger = require('../modules/logger')
 const socket = require('./service-controller')
 const {OrderItemPart,
     Part,
     PartType,
-    Employee,
     Warehouse,
     Address,
     OrderItem,
     Order,
     Customer} = require('../database/models')
-
 
 class ScanController
 {
@@ -75,12 +73,13 @@ class ScanController
                 orderItemId = sorted.dataValues.orderItem.order_item_id
             }
 
-            const order = await Order.findOne({where: {order_id: inOrderId}, include: [{
-                model: OrderItem, as: "orderItems", include: [{
-                    model: PartType, as: "partType"
-                }]},{
-                model: Customer, as: "customer"
-            }]})
+            const order = await Order.findOne({where: {order_id: inOrderId}, include: [{model: Customer, as: "customer"}]})
+            // const order = await Order.findOne({where: {order_id: inOrderId}, include: [{
+            //     model: OrderItem, as: "orderItems", include: [{
+            //         model: PartType, as: "partType"
+            //     }]},{
+            //     model: Customer, as: "customer"
+            // }]})
 
             if(!order)
             {
@@ -135,7 +134,7 @@ class ScanController
                 model: PartType, as: "partType", attributes: ["part_type_id"], include: [{
                     model: OrderItem, as: "orderItems", attributes: ["order_item_id", "order_id", "required_quantity"], include: [{
                         model: Order, as: "order", attributes: ["order_id", "priority"], where: {
-                            priority: {[Op.eq]: sequelize.literal('(SELECT MAX(priority) FROM "Orders")')},
+                            priority: {[sequelize.Op.eq]: sequelize.literal('(SELECT MAX(priority) FROM "Orders")')},
                             status: "sorting"}
                 }]}]
             }]})

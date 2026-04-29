@@ -12,8 +12,10 @@ const {
     Employee
 } = require('../database/models')
 
-const sequelize = require("../database/database");
-const { Sequelize } = require('sequelize')
+const sequelize = require("../database/database")
+const scanController = require("./scan-controller")
+const { Sequelize, or} = require('sequelize')
+const socket = require("./service-controller");
 
 
 class PartController
@@ -229,6 +231,51 @@ class PartController
         }
     }
 
+    async sortPart(req, res, next)
+    {
+        try
+        {
+            logger.info("Call " + req.baseUrl + req.url)
+            const {part_id} = req.params
+
+            logger.info("Find notes about part")
+            const inOrder = await OrderItemPart.findOne({where: {part_id}})
+
+            if(inOrder)
+            {
+                logger.info("Removing order-item part")
+                await OrderItemPart.destroy({where: {part_id}})
+                logger.done("Sending response")
+                return res.json({isSorted: false, order: null})
+            }
+
+            const [inOrderId, orderItemId] = await scanController.sort(part_id)
+
+            if(!inOrderId || !orderItemId)
+            {
+                logger.warn("No available orders found")
+                return next(ApiError.notFound("No available orders found"))
+            }
+
+            logger.info("Creating part-in-order note")
+            await OrderItemPart.create({
+                order_item_id: orderItemId,
+                part_id: part_id,
+            })
+
+            logger.done("Find order")
+            const order = await Order.findOne({where: {order_id: inOrderId}, include: [{model: Customer, as: "customer"}]})
+
+            logger.done("Sending response")
+            return res.json({isSorted: true, order: order})
+        }
+        catch(e)
+        {
+            logger.error(e)
+            return next(ApiError.internal('Request error: ' + e.message))
+        }
+    }
+
     async findOrders(req, res, next)
     {
         try
@@ -244,9 +291,7 @@ class PartController
                     model: PartType, as: "partType", attributes: ["part_type_id"], include: [{
                         model: OrderItem, as: "orderItems", attributes: ["order_item_id", "order_id"], include: [{
                             model: Order, as: "order", include: [{
-                                model: Customer, as: "customer", include: [{
-                                    model: Address, as: "address"
-                                }]
+                                model: Customer, as: "customer"
                             }]
                         }]
                     }]}],
