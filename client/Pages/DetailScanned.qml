@@ -207,7 +207,7 @@ Rectangle {
 
                         // Сортировщик
                         InfoText {
-                            infoText: "Затычка Затычка Затычка" // василий прикрути сортировщика
+                            infoText: Backend.user.format_username("{first} {second} {middle}")
                         }
                     }
 
