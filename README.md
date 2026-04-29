@@ -15,18 +15,15 @@
 
 ### 1. Требования
 
-- Python 3.10 или 3.11 (Рекомендуется).
+- Python 3.13.
 - Видеокарта NVIDIA (опционально, для ускорения YOLO).
 
 ### 2. Создание виртуального окружения
 
 ```bash
  # Windows
-py -3.13 -m venv .venv
-venv/bin/activate
-
-# Linux/Macsource 
-.\venv\Scripts\activate 
+py -3.13 -m venv venv
+.\venv\Scripts\activate
 ```
 
 ### 3. Установка зависимостей
