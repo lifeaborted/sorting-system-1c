@@ -75,7 +75,7 @@ AUTH_PASSWORD=your_password
 ```json
 "yolo": {
 
-"model_path": "runs/detect/train3/weights/best.pt",
+"model_path": "runs/detect/train2/weights/best.pt",
 
 ...
 
