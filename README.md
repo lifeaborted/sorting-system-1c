@@ -25,6 +25,10 @@
 py -3.13 -m venv venv
 .\venv\Scripts\activate
 ```
+# Linux/Macsource 
+python3.13 -m venv venv
+./venv/bin/activate
+```
 
 ### 3. Установка зависимостей
 
