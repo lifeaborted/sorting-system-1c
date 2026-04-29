@@ -46,6 +46,8 @@ class UserWss:
         self._log("Trying to stop websocket")
         self._is_stopped = True
         self._loop.call_soon_threadsafe(self._ev.set)
+        self._thread.join()
+
     async def _socket_loop(self, ws: WebSocketResponse):
         self._loop = asyncio.get_event_loop()
         self._log("Thread started")

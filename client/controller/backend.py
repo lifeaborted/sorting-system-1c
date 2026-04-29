@@ -13,6 +13,7 @@ from PySide6.QtCore import QObject, Slot, Property, Signal
 
 from controller.api.api import Api
 from controller.config import load_config, save_config
+from controller.nn_wrapper import NeuralNetworkWrapper
 from controller.notification import Notificator
 from controller.router import Router
 from controller.user import User
@@ -33,6 +34,7 @@ class Backend(QObject):
     _notificator: Notificator
     _user: Optional[User]
     _user_changed = Signal()
+    _neural_wrapper: Optional[NeuralNetworkWrapper]
     def __init__(self, parent=None):
         super().__init__(parent)
         global _shutdown_exec
@@ -84,6 +86,8 @@ class Backend(QObject):
         logging.info(f"Login as {self._user.format_username('{first} {second} {middle}')}")
         self._conf["token"] = token
         save_config(self._conf)
+
+        self._neural_wrapper = NeuralNetworkWrapper(token)
         self._router.set_route_detailed("/details", None)
 
     @Slot()
@@ -96,3 +100,5 @@ class Backend(QObject):
     def on_shutdown(self):
         if self.user is not None:
             self._user.stop()
+        if self._neural_wrapper is not None:
+            self._neural_wrapper.stop()

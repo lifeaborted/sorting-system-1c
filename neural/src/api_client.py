@@ -4,6 +4,8 @@
 
 import os
 import logging
+from typing import Optional
+
 import requests
 import cv2
 import numpy as np
@@ -13,8 +15,8 @@ load_dotenv()
 
 # Загрузка конфига окружения
 PORT = os.getenv('PORT', 5000)
-AUTH_USER = os.getenv('AUTH_USER')
-AUTH_PASSWORD = os.getenv('AUTH_PASSWORD')
+AUTH_USER = os.getenv('AUTH_USER', None)
+AUTH_PASSWORD = os.getenv('AUTH_PASSWORD', None)
 
 BASE_URL = f"http://localhost:{PORT}"
 SCAN_URL = f"{BASE_URL}/api/service/scan"
@@ -22,8 +24,9 @@ AUTH_URL = f"{BASE_URL}/api/user/login"
 
 
 class APIClient:
-    def __init__(self):
-        self.token = None
+    def __init__(self, token: Optional[str] = None):
+        self.token = token
+        self.try_login()
 
     def authenticate(self) -> bool:
         try:
@@ -47,12 +50,14 @@ class APIClient:
         self.token = None
         return False
 
-    def send_scan_result(self, fields: dict, image_np: np.ndarray, filename: str) -> bool:
-        if not self.token:
+
+    def try_login(self):
+        if self.token is None:
             logging.warning("Токен отсутствует. Попытка авторизации...")
             if not self.authenticate():
-                return False
+                raise Exception("Ошибка аунтефикации")
 
+    def send_scan_result(self, fields: dict, image_np: np.ndarray, filename: str) -> bool:
         try:
             success, img_encoded = cv2.imencode('.jpg', image_np)
             if not success:

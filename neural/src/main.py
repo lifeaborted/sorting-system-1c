@@ -1,3 +1,4 @@
+import sys
 import time
 import logging
 import shutil
@@ -5,6 +6,8 @@ import json
 import threading
 import os
 from pathlib import Path
+from typing import Optional
+
 import cv2
 
 # Импорт наших модулей
@@ -40,9 +43,10 @@ def main():
     print("Инициализация моделей, пожалуйста, подождите...")
 
     # Создание папок
-    Path(INPUT_FOLDER).mkdir(exist_ok=True)
-    Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
-    Path(PROCESSED_FOLDER).mkdir(exist_ok=True)
+    os.makedirs(Path(INPUT_FOLDER), exist_ok=True)
+    os.makedirs(Path(OUTPUT_FOLDER), exist_ok=True)
+    os.makedirs(Path(PROCESSED_FOLDER), exist_ok=True)
+
 
     # Загрузка конфига
     cfg = load_config(CONFIG_PATH)
@@ -60,7 +64,13 @@ def main():
         crops_dir=cfg["output"]["crops_dir"],
     )
 
-    api_client = APIClient()
+    argv_token: Optional[str] = None
+    for i in sys.argv[1:]:
+         if i.startswith("TOKEN="):
+             argv_token = i.removeprefix("TOKEN=")
+             print('Токен загружен')
+             break
+    api_client = APIClient(argv_token)
 
     print("Модели загружены! Начинаю слежение за папкой 'input'...")
     print('Для завершения работы введите "exit" и нажмите Enter.')
