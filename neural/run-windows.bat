@@ -37,10 +37,20 @@ setlocal enabledelayedexpansion
 
 set ENV_FILE=.env
 
+:: Проверяем, существует ли .env файл
 if not exist "%ENV_FILE%" (
     echo Файл %ENV_FILE% не найден. Создание нового файла...
+	echo.
+	set /p API_TOKEN="Введите API токен: "
+
+	if "!API_TOKEN!"=="" (
+	    echo Токен не может быть пустым!
+	    goto :eof
+	)
+
 	(
 	    echo PORT=5000
+		echo SCANNER_API_KEY=!API_TOKEN!
 	) > "%ENV_FILE%"
 
 )
@@ -56,4 +66,4 @@ endlocal
 cls
 
 echo Запуск...
-sudo python stream_mode.py
+python stream_mode.py
