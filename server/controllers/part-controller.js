@@ -14,8 +14,7 @@ const {
 
 const sequelize = require("../database/database")
 const scanController = require("./scan-controller")
-const { Sequelize, or} = require('sequelize')
-const socket = require("./service-controller");
+const { Sequelize } = require('sequelize')
 
 
 class PartController
@@ -289,12 +288,13 @@ class PartController
                 attributes: ["part_id"],
                 include: [{
                     model: PartType, as: "partType", attributes: ["part_type_id"], include: [{
-                        model: OrderItem, as: "orderItems", attributes: ["order_item_id", "order_id"], include: [{
+                        model: OrderItem, as: "orderItems", attributes: ["order_item_id", "order_id", "required_quantity"], include: [{
                             model: Order, as: "order", include: [{
                                 model: Customer, as: "customer"
                             }]
                         }]
-                    }]}],
+                    }]
+                }],
             })
             if(!part)
             {
@@ -304,11 +304,26 @@ class PartController
 
             logger.info("Sort orders")
             const request = {}
-            for(const orderItem of part?.partType?.orderItems)
+            const quantity = {}
+            for(const orderItem of part.partType.orderItems)
             {
-                request[orderItem.order.order_id] = orderItem.order
+                let orderId = orderItem.order.order_id
+                request[orderId] = orderItem.order
+
+                if(!quantity[orderId]) quantity[orderId] = {}
+                if(!quantity[orderId].required_quantity) quantity[orderId].required_quantity = 0
+                if(!quantity[orderId].items) quantity[orderId].items = []
+
+                quantity[orderId].required_quantity += orderItem.required_quantity
+                quantity[orderId].items.push(orderItem.order_item_id)
             }
 
+            for(const order of Object.keys(request))
+            {
+                const count = await OrderItemPart.count({where: {order_item_id: quantity[order].items}})
+                request[order].dataValues.required_quantity = quantity[order].required_quantity
+                request[order].dataValues.quantity = count
+            }
             logger.done("Sending response")
             return res.json(Object.keys(request).map(key => request[key]))
         }
