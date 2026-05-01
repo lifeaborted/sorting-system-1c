@@ -74,12 +74,6 @@ class ScanController
             }
 
             const order = await Order.findOne({where: {order_id: inOrderId}, include: [{model: Customer, as: "customer"}]})
-            // const order = await Order.findOne({where: {order_id: inOrderId}, include: [{
-            //     model: OrderItem, as: "orderItems", include: [{
-            //         model: PartType, as: "partType"
-            //     }]},{
-            //     model: Customer, as: "customer"
-            // }]})
 
             if(!order)
             {
@@ -101,12 +95,51 @@ class ScanController
                 })
             }
 
+            logger.info("Getting orders")
+            const allOrders = await Part.findOne({
+                where: {part_id: part.dataValues.part_id},
+                attributes: ["part_id"],
+                include: [{
+                    model: PartType, as: "partType", attributes: ["part_type_id"], include: [{
+                        model: OrderItem, as: "orderItems", attributes: ["order_item_id", "order_id", "required_quantity"], include: [{
+                            model: Order, as: "order", include: [{
+                                model: Customer, as: "customer"
+                            }]
+                        }]
+                    }]
+                }],
+            })
+
+            logger.info("Sort orders")
+            const request = {}
+            const quantity = {}
+            for(const orderItem of allOrders.partType.orderItems)
+            {
+                let orderId = orderItem.order.order_id
+                request[orderId] = orderItem.order
+
+                if(!quantity[orderId]) quantity[orderId] = {}
+                if(!quantity[orderId].required_quantity) quantity[orderId].required_quantity = 0
+                if(!quantity[orderId].items) quantity[orderId].items = []
+
+                quantity[orderId].required_quantity += orderItem.required_quantity
+                quantity[orderId].items.push(orderItem.order_item_id)
+            }
+
+            for(const orderId of Object.keys(request))
+            {
+                const count = await OrderItemPart.count({where: {order_item_id: quantity[orderId].items}})
+                request[orderId].dataValues.required_quantity = quantity[orderId].required_quantity
+                request[orderId].dataValues.quantity = count
+            }
+
             logger.info("Sending WebSocket response")
             await socket.broadcast(req.user.id, JSON.stringify({
                 status: 200,
                 part: part.dataValues,
                 order: order,
                 isSorted: isSorted,
+                allOrders: Object.keys(request).filter(key => {return key !== order.dataValues.order_id}).map(key => request[key]),
                 image: {
                     name: image.name,
                     data: Buffer.from(image.data).toString('base64'),
