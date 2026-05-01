@@ -1,4 +1,5 @@
 # Система распознавания маркировки (Python + Node.js)
+!["preview.gif"](./readme/preview.gif)
 
 Проект представляет собой локальный сервис для автоматического распознавания текста маркировки с изображений металлических изделий и отправки данных на удаленный сервер (Node.js) для дальнейшей обработки в 1С.
 
@@ -25,7 +26,7 @@
 py -3.13 -m venv venv
 .\venv\Scripts\activate
 ```
-# Linux/Macsource 
+#### Linux/Macsource 
 python3.13 -m venv venv
 ./venv/bin/activate
 ```

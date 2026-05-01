@@ -17,8 +17,16 @@ Rectangle {
     property list<string> ordersCodes: []
     property var codesMap: ({
         orderCodes: ({}),
-        orderIds: ({})
     })
+
+
+    function format_order(x): String {
+        return qsTr("%1 от '%2' (%3) %4%")
+            .arg(x["order_number"])
+            .arg(x["customer"]["company_name"])
+            .arg(x["priority"])
+            .arg(Math.round(x["quantity"] / x["required_quantity"] * 100))
+    }
 
     Connections {
         target: Backend.router
@@ -33,8 +41,8 @@ Rectangle {
         window.width = 900
         window.height = 680
         possibleOrdersFull.forEach((x, i) => {
-            ordersCodes.push(x["order_number"])
-            codesMap["orderCodes"][x["order_number"]] = {
+            ordersCodes.push(format_order(x))
+            codesMap["orderCodes"][format_order(x)] = {
                 order_id: x["order_id"],
                 sequence_id: i
             }
@@ -261,7 +269,8 @@ Rectangle {
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
                     model: ["Не выбран"].concat(ordersCodes)
-                    currentValue: order != null ? order["order_number"] : "Не выбран"
+                    currentValue: order != null ? format_order(order)  : "Не выбран"
+
 
                     contentItem: Text {
                         text: parent.displayText
