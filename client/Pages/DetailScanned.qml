@@ -12,13 +12,11 @@ Rectangle {
     property int detailId: routeData["part"]["part_id"]
     property var detail: routeData["part"]
     property var image: routeData["image"]
-    property var order: routeData["order"]
-    property var possibleOrdersFull: Backend.user.load_details_possible_orders(detailId)
+    property var orderId: routeData["order"]
+    property var order: null
+    property var possibleOrdersFull: routeData["allOrders"]
     property list<string> ordersCodes: []
-    property var codesMap: ({
-        orderCodes: ({}),
-    })
-
+    property var codesMap: ({})
 
     function format_order(x): String {
         return qsTr("%1 от '%2' (%3) %4%")
@@ -42,9 +40,12 @@ Rectangle {
         window.height = 680
         possibleOrdersFull.forEach((x, i) => {
             ordersCodes.push(format_order(x))
-            codesMap["orderCodes"][format_order(x)] = {
+            codesMap[format_order(x)] = {
                 order_id: x["order_id"],
                 sequence_id: i
+            }
+            if (orderId == x["order_id"]) {
+                order = x
             }
         })
     }
@@ -360,7 +361,7 @@ Rectangle {
                         onClickedHandler: function() {
                             let o_id = -1
                             if (orderComboBox.currentValue != "Не выбран") {
-                                o_id = codesMap["orderCodes"][orderComboBox.currentValue]["order_id"]
+                                o_id = codesMap[orderComboBox.currentValue]["order_id"]
                             }
                             Backend.user.change_detail_order(detailId, o_id)
                             detailInfoPage.window.close()
