@@ -10,9 +10,7 @@ if %errorlevel% neq 0 (
 echo Node.js установлен
 cls
 
-if not exist "node_modules" (
-    npm install --verbose 
-)
+call npm install --verbose 
 
 cls
 
@@ -81,3 +79,5 @@ if not exist ".env" (
 cls
 
 node index.js
+
+pause

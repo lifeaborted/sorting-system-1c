@@ -40,7 +40,7 @@ endlocal
 echo Проверка виртуального окружения...
 if not exist "venv\" (
 	echo Создание виртуального окружения...
-    python -m venv venv
+    call python -m venv venv
 )
 
 echo Активация виртуального окружения...
@@ -48,9 +48,10 @@ call .\venv\Scripts\activate.bat
 
 cls
 echo Установка зависимостей...
-pip install -r requirements.txt
+call pip install -r requirements.txt
 
 cls
 
 echo Запуск приложения...
 python main.py
+pause

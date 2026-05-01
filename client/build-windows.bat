@@ -40,7 +40,7 @@ endlocal
 echo Проверка виртуального окружения...
 if not exist "venv\" (
 	echo Создание виртуального окружения...
-    python -m venv venv
+    call python -m venv venv
 )
 
 echo Активация виртуального окружения...
@@ -48,7 +48,7 @@ call .\venv\Scripts\activate.bat
 
 cls
 echo Установка зависимостей...
-pip install -r requirements.txt
+call pip install -r requirements.txt
 
 cls
 setlocal
@@ -63,7 +63,7 @@ if exist dist\ (
 )
 
 echo Начало сборки...
-pyinstaller --add-data "main.qml:." --add-data "icon.png:." --add-data "Components:Components" --add-data "ProgramWindow.qml:." --add-data "Pages:Pages" --add-data ".env:." --add-data "resources:resources"   --name=%APP_NAME% --windowed --onefile main.py --icon=%ICON% --exclude-module PyQt5 --hidden-import=dotenv
+call pyinstaller --add-data "main.qml:." --add-data "icon.png:." --add-data "Components:Components" --add-data "ProgramWindow.qml:." --add-data "Pages:Pages" --add-data ".env:." --add-data "resources:resources"   --name=%APP_NAME% --windowed --onefile main.py --icon=%ICON% --exclude-module PyQt5 --hidden-import=dotenv
 endlocal
 
 echo Готово
