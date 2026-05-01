@@ -66,7 +66,7 @@ Item {
 
             // Поле логина
             CTextField {
-                placeholder: "Логин"
+                placeholder: qsTr("Логин")
                 id: loginField
                 // Альтернатива с калбэком, впринципе для кнопочек там или обратной связи чеб нет
                 // onValueChanged: {
@@ -75,7 +75,7 @@ Item {
             }
             // Поле пароля
             CTextField {
-                placeholder: "Пароль"
+                placeholder: qsTr("Пароль")
                 id: passwordField
                 echo: TextField.Password
             }
@@ -109,6 +109,7 @@ Item {
                     Backend.login(loginField.text, passwordField.text)
                 }
             }
+            LanguageSelect{}
         }
     }
 }

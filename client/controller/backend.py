@@ -5,10 +5,11 @@ import os
 import traceback
 from typing import final, Optional, Any, Callable
 
+from PySide6.QtGui import QGuiApplication
 from dotenv import load_dotenv
 from PySide6 import QtCore, QtAsyncio
 from PySide6.QtCore import Property
-from PySide6.QtQml import QmlElement, QmlSingleton
+from PySide6.QtQml import QmlElement, QmlSingleton, QQmlApplicationEngine
 from PySide6.QtCore import QObject, Slot, Property, Signal
 
 from controller.api.api import Api
@@ -16,6 +17,7 @@ from controller.config import load_config, save_config
 from controller.nn_wrapper import NeuralNetworkWrapper
 from controller.notification import Notificator
 from controller.router import Router
+from controller.translator import Translator
 from controller.user import User
 
 QML_IMPORT_NAME = "io.backend"
@@ -23,14 +25,19 @@ QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
 _shutdown_exec: Optional[Callable[[], None]] = None
+QAPP: Optional[QGuiApplication] = None
+QENGINE: Optional[QQmlApplicationEngine] = None
+
 def execute_shutdown():
     logging.info("[ON_EXIT]Called shutdown executor")
     if _shutdown_exec is not None:
         _shutdown_exec()
+
 @QmlElement
 @QmlSingleton
 class Backend(QObject):
     _router: Router
+    _translator: Translator
     _notificator: Notificator
     _user: Optional[User]
     _user_changed = Signal()
@@ -43,7 +50,9 @@ class Backend(QObject):
         self._router = Router()
         self._notificator = Notificator()
         self._user = None
+        self._neural_wrapper = None
         self._conf = load_config()
+        self._translator = Translator(QAPP, QENGINE, self._conf)
         if self._conf.get("token"):
             logging.info("Found token in conf file")
             try:
@@ -55,6 +64,10 @@ class Backend(QObject):
     @Property(Router, constant=True, final = True)
     def router(self):
         return self._router
+
+    @Property(Translator, constant=True, final=True)
+    def translator(self):
+        return self._translator
 
     @Property(Notificator, constant=True, final = True)
     def notificator(self):

@@ -30,5 +30,16 @@
         <file>resources/fonts/Roboto/Roboto-Medium.ttf</file>
         <file>resources/fonts/Roboto/Roboto-Bold.ttf</file>
         <file>qtquickcontrols2.conf</file>
+        <file>translation/en.ts</file>
+        <file>translation/ru.ts</file>
+        <file>translation/ru.qm</file>
+        <file>translation/en.qm</file>
+        <file>translation/zn.qm</file>
+        <file>translation/es.qm</file>
+        <file>translation/de.qm</file>
+        <file>translation/fr.qm</file>
+        <file>translation/pt.qm</file>
+        <file>translation/ar.qm</file>
+        <file>translation/hi.qm</file>
     </qresource>
 </RCC>

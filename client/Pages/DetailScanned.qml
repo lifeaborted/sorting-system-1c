@@ -204,11 +204,11 @@ Rectangle {
                         InfoText {
                             infoText: {
                                 switch (detail.status) {
-                                    case "manufactured": return "Обрабатывается"
-                                    case "in_production": return "В производстве"
-                                    case "sorting": return "Сортировка"
-                                    case "sorted": return "Отсортирован"
-                                    case "canceled": return "Отменён"
+                                    case "pending": return qsTr("Обрабатывается")
+                                    case "in_production": return qsTr("В производстве")
+                                    case "sorting": return qsTr("Сортировка")
+                                    case "completed": return qsTr("Отсортирован")
+                                    case "canceled": return qsTr("Отменён")
                                     default: return "—"
                                 }
                             }
@@ -269,8 +269,8 @@ Rectangle {
                     Layout.preferredWidth: 500
                     Layout.preferredHeight: 36
                     Layout.maximumHeight: 36
-                    model: ["Не выбран"].concat(ordersCodes)
-                    currentValue: order != null ? format_order(order)  : "Не выбран"
+                    model: [qsTr("Не выбран")].concat(ordersCodes)
+                    currentValue: order != null ? format_order(order)  : qsTr("Не выбран")
 
 
                     contentItem: Text {
@@ -360,7 +360,7 @@ Rectangle {
                         buttonHeight: 30
                         onClickedHandler: function() {
                             let o_id = -1
-                            if (orderComboBox.currentValue != "Не выбран") {
+                            if (orderComboBox.currentValue != qsTr("Не выбран")) {
                                 o_id = codesMap[orderComboBox.currentValue]["order_id"]
                             }
                             Backend.user.change_detail_order(detailId, o_id)

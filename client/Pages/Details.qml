@@ -18,11 +18,11 @@ Rectangle {
 
     property QtObject sortingParams: QtObject {
         property string search: ""
-        property string type: "Все"
-        property string batch: "Все"
-        property string status: "Все"
-        property string order: "Все"
-        property string warehouse: "Все"
+        property var type: null
+        property var batch: null
+        property var status: null
+        property var order: null
+        property var warehouse: null
         property QtObject date: QtObject {
             property string from: "01.04.2020"
             property string to: "20.04.2027"
@@ -59,11 +59,11 @@ Rectangle {
             import QtQuick
                 QtObject {
                     property string search: ""
-                    property string type: "Все"
-                    property string batch: "Все"
-                    property string status: "Все"
-                    property string order: "Все"
-                    property string warehouse: "Все"
+                    property var type: null
+                    property var batch: null
+                    property var status: null
+                    property var order: null
+                    property var warehouse: null
                     property QtObject date: QtObject {
                         property string from: "01.04.2020"
                         property string to: "20.04.2027"
@@ -133,10 +133,10 @@ Rectangle {
                     // Тип детали
                     Filter {
                         filterLabel: qsTr("Тип детали")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.detail_type))
-                        selectedValue: sortingParams.type
-                        onValueSelected: function(value) {
-                            sortingParams.type = value
+                        filterModel: [qsTr("Все")].concat(Object.keys(detailsFilter.detail_type))
+                        selectedValue: sortingParams.type != null ? sortingParams.type : qsTr("Все")
+                        onValueSelected: (value) => {
+                            sortingParams.type = value != qsTr("Все") ? value : null
                             loadDetails()
                         }
                     }
@@ -144,10 +144,10 @@ Rectangle {
                     // Партия
                     Filter {
                         filterLabel: qsTr("Партия")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.batch))
-                        selectedValue: sortingParams.batch
-                        onValueSelected: function(value) {
-                            sortingParams.batch = value
+                        filterModel: [qsTr("Все")].concat(Object.keys(detailsFilter.batch))
+                        selectedValue: sortingParams.batch != null ? sortingParams.batch : qsTr("Все")
+                        onValueSelected: (value) => {
+                            sortingParams.batch = value != qsTr("Все") ? value : null
                             loadDetails()
                         }
                     }
@@ -155,10 +155,27 @@ Rectangle {
                     // Статус
                     Filter {
                         filterLabel: qsTr("Статус")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.status))
-                        selectedValue: sortingParams.status
+                        filterModel: [qsTr("Все")].concat([qsTr("Обрабатывается"), qsTr("В производстве"), qsTr("Сортировка"), qsTr("Отсортирован"), qsTr("Отменён")])
+                        selectedValue: {
+                            switch (sortingParams.status) {
+                                case "pending":        return qsTr("Обрабатывается")
+                                case "in_production":  return qsTr("В производстве")
+                                case "sorting":        return qsTr("Сортировка")
+                                case "completed":      return qsTr("Отсортирован")
+                                case "canceled":       return qsTr("Отменён")
+                                case null:             return qsTr("Все")
+                            }
+                        }
+
                         onValueSelected: function(value) {
-                            sortingParams.status = value
+                            switch (value) {
+                                case qsTr("Все"):               sortingParams.status = null; break
+                                case qsTr("Обрабатывается"):    sortingParams.status = "pending"; break
+                                case qsTr("В производстве"):    sortingParams.status = "in_production"; break
+                                case qsTr("Сортировка"):        sortingParams.status = "sorting"; break
+                                case qsTr("Отсортирован"):      sortingParams.status = "completed"; break
+                                case qsTr("Отменён"):           sortingParams.status = "canceled"; break
+                            }
                             loadDetails()
                         }
                     }
@@ -166,10 +183,10 @@ Rectangle {
                     // Заказ
                     Filter {
                         filterLabel: qsTr("Заказ")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.order))
-                        selectedValue: sortingParams.order
-                        onValueSelected: function(value) {
-                            sortingParams.order = value
+                        filterModel: [qsTr("Все")].concat(Object.keys(detailsFilter.order))
+                        selectedValue: sortingParams.order != null ? sortingParams.order : qsTr("Все")
+                        onValueSelected: (value) => {
+                            sortingParams.order = value != qsTr("Все") ? value : null
                             loadDetails()
                         }
                     }
@@ -177,10 +194,10 @@ Rectangle {
                     // Склад
                     Filter {
                         filterLabel: qsTr("Склад")
-                        filterModel: ["Все"].concat(Object.keys(detailsFilter.warehouse))
-                        selectedValue: sortingParams.warehouse
-                        onValueSelected: function(value) {
-                            sortingParams.warehouse = value
+                        filterModel: [qsTr("Все")].concat(Object.keys(detailsFilter.warehouse))
+                        selectedValue: sortingParams.warehouse != null ? sortingParams.warehouse : qsTr("Все")
+                        onValueSelected: (value) => {
+                            sortingParams.warehouse = value != qsTr("Все") ? value : null
                             loadDetails()
                         }
                     }
@@ -229,7 +246,7 @@ Rectangle {
 
                         // Кнопка сброса фильтров
                         TextButton {
-                            buttonText: "Сбросить"
+                            buttonText: qsTr("Сбросить")
                             onClickedHandler: function() {
                                 resetParams()
                             }
@@ -263,7 +280,7 @@ Rectangle {
 
                         // Тип
                         TableHeaderColumn {
-                            columnHeader: "Тип"
+                            columnHeader: qsTr("Тип")
                             columnKey: "type"
                             columnWidth: 135
                             textLeftPadding: 45
@@ -276,7 +293,7 @@ Rectangle {
 
                         // Номер
                         TableHeaderColumn {
-                            columnHeader: "Номер"
+                            columnHeader: qsTr("Номер")
                             columnKey: "serial"
                             columnWidth: 120
                             textLeftPadding: -5
@@ -289,7 +306,7 @@ Rectangle {
 
                         // Партия
                         TableHeaderColumn {
-                            columnHeader: "Партия"
+                            columnHeader: qsTr("Партия")
                             columnKey: "batch"
                             columnWidth: 100
                             textLeftPadding: 10
@@ -302,7 +319,7 @@ Rectangle {
 
                         // Статус
                         TableHeaderColumn {
-                            columnHeader: "Статус"
+                            columnHeader: qsTr("Статус")
                             columnKey: "status"
                             columnWidth: 100
                             textLeftPadding: 28
@@ -315,7 +332,7 @@ Rectangle {
 
                         // Заказ
                         TableHeaderColumn {
-                            columnHeader: "Заказ"
+                            columnHeader: qsTr("Заказ")
                             columnKey: "order"
                             columnWidth: 120
                             textLeftPadding: 40
@@ -328,7 +345,7 @@ Rectangle {
 
                         // Склад
                         TableHeaderColumn {
-                            columnHeader: "Склад"
+                            columnHeader: qsTr("Склад")
                             columnKey: "warehouse"
                             columnWidth: 145
                             textLeftPadding: 33
@@ -341,7 +358,7 @@ Rectangle {
 
                         // Дата
                         TableHeaderColumn {
-                            columnHeader: "Дата"
+                            columnHeader: qsTr("Дата")
                             columnKey: "date"
                             columnWidth: 80
                             textLeftPadding: 9
@@ -419,11 +436,11 @@ Rectangle {
                                     TableCell {
                                         cellText: {
                                             switch (modelData.status) {
-                                                case "pending": return "Обрабатывается"
-                                                case "in_production": return "В производстве"
-                                                case "sorting": return "Сортировка"
-                                                case "completed": return "Отсортирован"
-                                                case "canceled": return "Отменён"
+                                                case "pending": return qsTr("Обрабатывается")
+                                                case "in_production": return qsTr("В производстве")
+                                                case "sorting": return qsTr("Сортировка")
+                                                case "completed": return qsTr("Отсортирован")
+                                                case "canceled": return qsTr("Отменён")
                                                 default: return "—"
                                             }
                                         }

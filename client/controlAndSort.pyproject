@@ -1,5 +1,14 @@
 {
     "files": [
+        "translation/en.ts",
+        "translation/ru.ts",
+        "translation/zn.ts",
+        "translation/es.ts",
+        "translation/de.ts",
+        "translation/fr.ts",
+        "translation/pt.ts",
+        "translation/ar.ts",
+        "translation/hi.ts",
         "Pages/Login.qml",
         "Pages/Details.qml",
         "Pages/Orders.qml",
@@ -17,6 +26,7 @@
         "controller/router.py",
         "controller/config.py",
         "controller/utils.py",
+        "controller/translator.py",
         "controller/types/detail.py",
         "controller/api/api.py",
         "controller/api/http.py",
@@ -38,6 +48,7 @@
         "Components/InfoRow.qml",
         "Components/Notificator.qml",
         "Components/NavRouter.qml",
-        "Components/qmldir"
+        "Components/qmldir",
+        "Components/LanguageSelect.qml"
     ]
 }

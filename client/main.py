@@ -4,11 +4,12 @@ import os
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, QTranslator, QLocale
 from PySide6.QtGui import QGuiApplication, QFont, QFontDatabase, QIcon
 from PySide6.QtQml import QQmlApplicationEngine, qmlContext
 from dotenv import load_dotenv
 
+import controller.backend
 from controller.backend import Backend, execute_shutdown
 import rc_resources
 
@@ -21,7 +22,6 @@ if __name__ == "__main__":
 
 
     app = QGuiApplication(sys.argv)
-
     if getattr(sys, 'frozen', False):
         bundle_dir = sys._MEIPASS
         dotenv_path = os.path.join(bundle_dir, '.env')
@@ -35,6 +35,10 @@ if __name__ == "__main__":
         load_dotenv(".env")
 
     engine = QQmlApplicationEngine()
+
+    controller.backend.QENGINE = engine
+    controller.backend.QAPP = app
+
     qml_file = Path(__file__).resolve().parent / "main.qml"
     # dunno if needed
     engine.addImportPath(sys.path[0].join("/controller"))

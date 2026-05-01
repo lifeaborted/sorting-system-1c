@@ -45,7 +45,7 @@ Rectangle {
 
             mockDetails.push({
                 customerName: order["customer"]["company_name"],
-                status: "ожидает",
+                status: order["status"] != "completed" ? qsTr("Ожидает") : qsTr("Завершён"),
                 priority: order["priority"],
                 note: order["notes"] || "-",
                 progress: order["completedPercentage"] * 100,
@@ -110,22 +110,21 @@ Rectangle {
 
                     Filter {
                         filterLabel: qsTr("Статус")
-                        filterModel: ["Все", "Только активные", "Завершенные"]
+                        filterModel: [qsTr("Все"), qsTr("Только активные"), qsTr("Завершенные")]
                         selectedValue: {
                             switch (sortingParams.status) {
-                                case "sorting": return "Только активные"
-                                case "completed": return "Завершенные"
-                                case null: return "Все"
+                                case "sorting": return qsTr("Только активные")
+                                case "completed": return qsTr("Завершенные")
+                                case null: return qsTr("Все")
                             }
                         }
 
                         onValueSelected: function(value) {
                             switch (value) {
-                                case "Все":             sortingParams.status = null; break
-                                case "Только активные": sortingParams.status = "sorting"; break
-                                case "Завершенные":     sortingParams.status = "completed"; break
+                                case qsTr("Все"):             sortingParams.status = null; break
+                                case qsTr("Только активные"): sortingParams.status = "sorting"; break
+                                case qsTr("Завершенные"):     sortingParams.status = "completed"; break
                             }
-
                             loadDetails()
                         }
                     }
@@ -133,20 +132,20 @@ Rectangle {
                     Filter {
                         id: f
                         filterLabel: qsTr("Приоритет")
-                        filterModel: ["Все"].concat(ordersFilter["priority"].map((x) => String(x)))
-                        selectedValue: sortingParams.priority != null ? sortingParams.priority : "Все"
+                        filterModel: [qsTr("Все")].concat(ordersFilter["priority"].map((x) => String(x)))
+                        selectedValue: sortingParams.priority != null ? sortingParams.priority : qsTr("Все")
                         onValueSelected: (value) => {
-                            sortingParams.priority = value != "Все" ? Number(value) : null
+                            sortingParams.priority = value != qsTr("Все") ? Number(value) : null
                             loadDetails()
                         }
                     }
 
                     Filter {
                         filterLabel: qsTr("Заказчик")
-                        filterModel: ["Все"].concat(ordersFilter["customer"])
-                        selectedValue: sortingParams.customer != null ? sortingParams.customer : "Все"
+                        filterModel: [qsTr("Все")].concat(ordersFilter["customer"])
+                        selectedValue: sortingParams.customer != null ? sortingParams.customer : qsTr("Все")
                         onValueSelected: (value) => {
-                            sortingParams.customer = value != "Все" ? value : null
+                            sortingParams.customer = value != qsTr("Все") ? value : null
                             loadDetails()
                         }
                     }
@@ -189,7 +188,7 @@ Rectangle {
                         Text { text: ""; font.pixelSize: 12 }
 
                         TextButton {
-                            buttonText: "Сбросить"
+                            buttonText: qsTr("Сбросить")
                             onClickedHandler: function() {
                                 resetParams()
                             }

@@ -132,7 +132,7 @@ RowLayout {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.leftMargin: 14
-                            text: "Выход"
+                            text: qsTr("Выход")
                             color: "#B2B4BC"
                             font.pixelSize: 13
                             font.family: "Roboto"

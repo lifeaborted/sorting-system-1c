@@ -56,7 +56,7 @@ Rectangle {
             RowLayout {
                 spacing: 4
                 Text {
-                    text: "Приоритет:"
+                    text: qsTr("Приоритет:")
                     color: "white"
                     font.pixelSize: 12
                     font.family: "Roboto"
@@ -73,7 +73,7 @@ Rectangle {
                 spacing: 4
                 Layout.fillWidth: true
                 Text {
-                    text: "Заметка:"
+                    text: qsTr("Заметка:")
                     color: "white"
                     font.pixelSize: 12
                     font.family: "Roboto"

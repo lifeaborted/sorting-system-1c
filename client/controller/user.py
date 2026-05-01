@@ -48,11 +48,11 @@ class User(QObject):
             "detail_type": {},
             "batch": {},
             "status": {
-                "Обрабатывается": "pending",
-                "В производстве": "in_production",
-                "Сортировка": "sorting",
-                "Отсортирован": "completed",
-                "Отменён": "canceled"
+                "pending": "pending",
+                "in_production": "in_production",
+                "sorting": "sorting",
+                "completed": "completed",
+                "canceled": "canceled"
             },
             "order": {},
             "warehouse": {}
@@ -260,13 +260,6 @@ class User(QObject):
 
     @Slot("QVariant", "QVariant", result = "QVariantList")
     def load_details_filter(self, f: QObject, sortParams: QObject):
-        ru_translate = {
-            "pending": "обрабатывается",
-            "in_production": "в производстве",
-            "sorting": "сортировка",
-            "completed": "отсортирован",
-            "canceled": "отменён"
-        }
         def filter_detail(d: Detail) -> bool:
             if f.property("date") is not None:
                 from_date = f.property("date").property("from")
@@ -278,27 +271,27 @@ class User(QObject):
                 if detail_date < from_p or detail_date > to_p:
                     return False
             type_f = f.property("type")
-            if type_f is not None and type_f != "Все":
+            if type_f is not None:
                 if d["type"]["id"] != self._details_filter["detail_type"][type_f]:
                     return False
 
             batch_f = f.property("batch")
-            if batch_f is not None and batch_f != "Все":
+            if batch_f is not None:
                 if d["batch_number"] != self._details_filter["batch"][batch_f]:
                     return False
 
             status_f = f.property("status")
-            if status_f is not None and status_f != "Все":
+            if status_f is not None:
                 if d["status"] != self._details_filter["status"][status_f]:
                     return False
 
             order_f = f.property("order")
-            if order_f is not None and order_f != "Все":
+            if order_f is not None:
                 if d["order"] is None or d["order"]["id"] != self._details_filter["order"][order_f]:
                     return False
 
             warehouse_f = f.property("warehouse")
-            if warehouse_f is not None and warehouse_f != "Все":
+            if warehouse_f is not None:
                 if d["warehouse"] is None:
                     return False
                 if d["warehouse"]["id"] != self._details_filter["warehouse"][warehouse_f]:
@@ -314,8 +307,6 @@ class User(QObject):
                     word = word.lower()
                     found=False
                     for k in words:
-                        if ru_translate.get(k) is not None:
-                            k = ru_translate[k]
                         if str.__contains__(k, word):
                             found=True
                             break

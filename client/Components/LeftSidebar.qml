@@ -19,7 +19,7 @@ Rectangle {
 
         // Детали
         LeftSidebarTab {
-            tabText: "Детали"
+            tabText: qsTr("Детали")
             iconSource: "qrc:/resources/icons/clipboard.svg"
             isSelected: Backend.router.route == "/details"
             onClicked: {
@@ -28,7 +28,7 @@ Rectangle {
         }
         // Заказы
         LeftSidebarTab {
-            tabText: "Заказы"
+            tabText: qsTr("Заказы")
             iconSource: "qrc:/resources/icons/tag.svg"
             isSelected: Backend.router.route == "/orders"
             onClicked: {
