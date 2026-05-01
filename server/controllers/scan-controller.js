@@ -73,7 +73,7 @@ class ScanController
                 orderItemId = sorted.dataValues.orderItem.order_item_id
             }
 
-            const order = await Order.findOne({where: {order_id: inOrderId}, include: [{model: Customer, as: "customer"}]})
+            const order = await Order.findOne({where: {order_id: inOrderId}, attributes: ["order_id"]})
 
             if(!order)
             {
@@ -133,13 +133,14 @@ class ScanController
                 request[orderId].dataValues.quantity = count
             }
 
+
             logger.info("Sending WebSocket response")
             await socket.broadcast(req.user.id, JSON.stringify({
                 status: 200,
                 part: part.dataValues,
-                order: order,
+                order: order.dataValues.order_id,
                 isSorted: isSorted,
-                allOrders: Object.keys(request).filter(key => {return key !== order.dataValues.order_id}).map(key => request[key]),
+                allOrders: Object.keys(request).map(key => request[key]),
                 image: {
                     name: image.name,
                     data: Buffer.from(image.data).toString('base64'),
