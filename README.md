@@ -56,30 +56,26 @@ pip install paddleocr==2.7.3
 pip install numpy==1.24.3 opencv-python==4.6.0.66 --force-reinstall
 ```
 
+##### Шифрование
+
+```bash
+pip install cryptography
+```
+
 ### 4. Конфигурация
 
 Создайте файл `.env` в корне проекта:
 
 ```env
-PORT=5000
-
-AUTH_USER=your_login
-
-AUTH_PASSWORD=your_password
+KEY=
 ```
 
-Убедитесь, что в `config.json` указан корректный путь к модели YOLO:
+Сгенерируйте ключ шифрования и вставьте в .env файл
+```python
+from cryptography.fernet import Fernet
 
-```json
-"yolo": {
-
-"model_path": "runs/detect/train2/weights/best.pt",
-
-...
-
-}
+print(Fernet.generate_key())
 ```
-
 ---
 
 ## Запуск и проверка
