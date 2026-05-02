@@ -3,6 +3,6 @@ paddlepaddle==3.2.2
 # paddlepaddle-gpu==3.3.0
 paddleocr>=2.8.0
 dotenv
-
+cryptography
 opencv-python>=4.9.0
 numpy<2.4

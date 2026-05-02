@@ -17,10 +17,12 @@ from api_client import APIClient
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
 
-INPUT_FOLDER = os.path.join("data", "input")
-OUTPUT_FOLDER = os.path.join("data", "output")
-PROCESSED_FOLDER = os.path.join("data", "done")
-CONFIG_PATH = os.path.join("config.json")
+ROOT_FOLDER = Path(__file__).resolve().parent.parent
+
+INPUT_FOLDER = ROOT_FOLDER/"src"/"data"/"input"
+OUTPUT_FOLDER = ROOT_FOLDER/"src"/"data"/"output"
+PROCESSED_FOLDER = ROOT_FOLDER/"src"/"data"/"done"
+CONFIG_PATH = ROOT_FOLDER/"data"/"config.json"
 
 
 def listen_for_exit():
@@ -36,26 +38,26 @@ def main():
 
     print("Инициализация моделей, пожалуйста, подождите...")
 
-    os.makedirs(Path(INPUT_FOLDER), exist_ok=True)
-    os.makedirs(Path(OUTPUT_FOLDER), exist_ok=True)
-    os.makedirs(Path(PROCESSED_FOLDER), exist_ok=True)
+    INPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+    OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+    PROCESSED_FOLDER.mkdir(parents=True, exist_ok=True)
 
     neural_cfg = cfg.get("neural", {})
     output_cfg = cfg.get("output", {})
-
-    # Инициализация компонентов
     pipeline = MarkingPipeline(neural_cfg, output_cfg)
-
-    argv_token: Optional[str] = None
-    for i in sys.argv[1:]:
-         if i.startswith("TOKEN="):
-             argv_token = i.removeprefix("TOKEN=")
-             print('Токен загружен')
-             break
-    api_client = APIClient(argv_token)
 
     print("Модели загружены! Начинаю слежение за папкой 'input'...")
     print('Для завершения работы введите "exit" и нажмите Enter.')
+
+    conn_cfg = cfg.get("connection", {})
+    host = conn_cfg.get("host", "localhost")
+    port = conn_cfg.get("port", 5000)
+
+    try:
+        api_client = APIClient(host=host, port=port)
+    except Exception as e:
+        logging.critical(f"Не удалось инициализировать API клиент: {e}")
+        return
 
     # Поток для выхода
     exit_thread = threading.Thread(target=listen_for_exit, daemon=True)
@@ -64,8 +66,8 @@ def main():
     # Основной цикл
     while True:
         try:
-            files = list(Path(INPUT_FOLDER).glob("*.[jJ][pP][gG]")) + \
-                    list(Path(INPUT_FOLDER).glob("*.[pP][nN][gG]"))
+            files = list(INPUT_FOLDER.glob("*.[jJ][pP][gG]")) + \
+                    list(INPUT_FOLDER.glob("*.[pP][nN][gG]"))
 
             if not files:
                 time.sleep(0.5)
