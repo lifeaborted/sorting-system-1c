@@ -7,28 +7,20 @@ import threading
 import os
 from pathlib import Path
 from typing import Optional
-
 import cv2
 
-# Импорт наших модулей
+from config_manager import load_or_create_config
 from pipeline import MarkingPipeline
 from utils import draw_detections
 from parser import parse_text_to_fields
 from api_client import APIClient
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
 
-# Константы
 INPUT_FOLDER = os.path.join("data", "input")
 OUTPUT_FOLDER = os.path.join("data", "output")
 PROCESSED_FOLDER = os.path.join("data", "done")
 CONFIG_PATH = os.path.join("config.json")
-
-
-def load_config(path):
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
 
 
 def listen_for_exit():
@@ -40,29 +32,19 @@ def listen_for_exit():
 
 
 def main():
+    cfg = load_or_create_config(CONFIG_PATH)
+
     print("Инициализация моделей, пожалуйста, подождите...")
 
-    # Создание папок
     os.makedirs(Path(INPUT_FOLDER), exist_ok=True)
     os.makedirs(Path(OUTPUT_FOLDER), exist_ok=True)
     os.makedirs(Path(PROCESSED_FOLDER), exist_ok=True)
 
-
-    # Загрузка конфига
-    cfg = load_config(CONFIG_PATH)
+    neural_cfg = cfg.get("neural", {})
+    output_cfg = cfg.get("output", {})
 
     # Инициализация компонентов
-    pipeline = MarkingPipeline(
-        yolo_model_path=cfg["yolo"].get("model_path"),
-        yolo_conf=cfg["yolo"]["conf_threshold"],
-        yolo_iou=cfg["yolo"]["iou_threshold"],
-        ocr_lang=cfg["ocr"]["lang"],
-        ocr_use_gpu=cfg["ocr"]["use_gpu"],
-        min_ocr_conf=cfg["ocr"]["min_confidence"],
-        crop_padding=cfg["ocr"]["crop_padding_px"],
-        save_crops=cfg["output"]["save_crops"],
-        crops_dir=cfg["output"]["crops_dir"],
-    )
+    pipeline = MarkingPipeline(neural_cfg, output_cfg)
 
     argv_token: Optional[str] = None
     for i in sys.argv[1:]:

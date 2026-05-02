@@ -18,25 +18,19 @@ logger = logging.getLogger(__name__)
 class MarkingPipeline:
     def __init__(
             self,
-            yolo_model_path: str = None,
-            yolo_conf: float = 0.5,
-            yolo_iou: float = 0.45,
-            ocr_lang: str = "en",
-            ocr_use_gpu: bool = False,
-            min_ocr_conf: float = 0.6,
-            crop_padding: int = 8,
-            save_crops: bool = False,
-            crops_dir: str = "crops",
+            neural_config: dict,
+            output_config: dict = None
     ):
+        yolo_cfg = neural_config.get("yolo", {})
+        ocr_cfg = neural_config.get("ocr", {})
         # Инициализация компонентов
-        self.detector = YOLODetector(yolo_model_path, yolo_conf, yolo_iou)
-        self.recognizer = OCRRecognizer(ocr_lang, ocr_use_gpu, min_ocr_conf)
+        self.detector = YOLODetector(yolo_cfg)
+        self.recognizer = OCRRecognizer(ocr_cfg)
+        self.crop_padding = ocr_cfg.get("crop_padding_px", 8)
+        self.save_crops = output_config.get("save_crops", False)
+        self.crops_dir = Path(output_config.get("crops_dir", "data/crops"))
 
-        self.crop_padding = crop_padding
-        self.save_crops = save_crops
-        self.crops_dir = Path(crops_dir)
-
-        if save_crops:
+        if self.save_crops:
             self.crops_dir.mkdir(parents=True, exist_ok=True)
 
     def process_image(self, image: np.ndarray, source: str = "frame") -> PipelineResult:

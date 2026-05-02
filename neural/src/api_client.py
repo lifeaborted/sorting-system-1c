@@ -9,18 +9,18 @@ from typing import Optional
 import requests
 import cv2
 import numpy as np
-from dotenv import load_dotenv
+from config_manager import load_or_create_config
 
-load_dotenv()
+cfg = load_or_create_config(os.path.join("config.json"))
 
-# Загрузка конфига окружения
-PORT = os.getenv('PORT', 5000)
-AUTH_USER = os.getenv('AUTH_USER', None)
-AUTH_PASSWORD = os.getenv('AUTH_PASSWORD', None)
-
-BASE_URL = f"http://localhost:{PORT}"
+conn_cfg = cfg.get("connection", {})
+HOST = conn_cfg.get("host", "localhost")
+PORT = conn_cfg.get("port", 5000)
+BASE_URL = f"http://{HOST}:{PORT}"
 SCAN_URL = f"{BASE_URL}/api/service/scan"
 AUTH_URL = f"{BASE_URL}/api/user/login"
+AUTH_USER = os.getenv('AUTH_USER', None)
+AUTH_PASSWORD = os.getenv('AUTH_PASSWORD', None)
 
 
 class APIClient:

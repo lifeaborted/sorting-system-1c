@@ -11,10 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 class YOLODetector:
-    def __init__(self, model_path: Optional[str] = None, conf: float = 0.5, iou: float = 0.45):
-        self.conf = conf
-        self.iou = iou
-        path = model_path or "yolov8n.pt"
+    def __init__(
+            self,
+            config: dict
+    ):
+        self.conf = config.get("conf_threshold", 0.25)
+        self.iou = config.get("iou_threshold", 0.45)
+        path = config.get("model_path", "yolov8n.pt")
+
         logger.info(f"Загрузка YOLO модели: {path}")
         self.model = YOLO(path)
 

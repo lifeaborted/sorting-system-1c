@@ -5,8 +5,8 @@
 import re
 
 def parse_text_to_fields(raw_text: str) -> dict:
-    sn_pattern = r'SN-[A-Za-z0-9]+'
-    batch_pattern = r'B-\d+'
+    sn_pattern = rf"SN-[A-Za-z]+[0-9]{{6}}H[0-9]+Z" #Серийный номер
+    batch_pattern = rf"B-[0-9]+Z" #Номер партии
 
     sn_match = re.search(sn_pattern, raw_text)
     serial_number = sn_match.group(0) if sn_match else "N/A"

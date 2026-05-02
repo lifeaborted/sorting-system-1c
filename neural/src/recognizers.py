@@ -12,8 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class OCRRecognizer:
-    def __init__(self, lang: str = "en", use_gpu: bool = False, min_conf: float = 0.6):
-        self.min_conf = min_conf
+    def __init__(
+            self,
+            config: dict
+    ):
+        self.min_conf = config.get("min_confidence", 0.6)
+        use_gpu = config.get("use_gpu", False)
+        lang = config.get("lang", "en")
+        use_angle_cls = config.get("use_angle_cls", "False")
 
         if use_gpu:
             if not paddle.is_compiled_with_cuda():
@@ -25,7 +31,7 @@ class OCRRecognizer:
             paddle.set_device('cpu')
 
         logger.info(f"Инициализация PaddleOCR (lang={lang}, gpu={use_gpu})")
-        self.ocr = PaddleOCR(use_angle_cls=False, lang=lang)
+        self.ocr = PaddleOCR(use_angle_cls=use_angle_cls, lang=lang)
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
         """
