@@ -47,6 +47,10 @@ class Translator(QObject):
     def language_list(self):
         return self._language_list()
 
+    @Slot(result=str)
+    def current_language(self):
+        return self._config.get("language", "ru")
+
     def _language_list(self) -> list[str]:
         return ["ru", "en", "zn", "es", "de", "fr", "pt", "ar", "hi"]
 

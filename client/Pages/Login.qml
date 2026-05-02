@@ -21,12 +21,20 @@ Item {
 
     // Центральная карточка
     Rectangle {
+
         id: card
         width: 400
         height: 550
         color: "#E6E8E9"
         radius: 30
         anchors.centerIn: parent
+
+        LanguageSelect {
+            anchors.top: parent.top
+            anchors.right: parent.right
+        }
+
+
 
         ColumnLayout {
             anchors {
@@ -109,7 +117,6 @@ Item {
                     Backend.login(loginField.text, passwordField.text)
                 }
             }
-            LanguageSelect{}
         }
     }
 }

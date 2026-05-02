@@ -6,17 +6,17 @@ import io.backend 1.0
 
 
 Item {
-    RowLayout {
-        Repeater {
-            model: Backend.translator.language_list()
-            Button {
-                required property string modelData
-                text: modelData
-                onClicked: {
-                    Backend.translator.translate(modelData)
-                }
-            }
-        }
+    anchors.margins: 10
+    property list<string> languages: Backend.translator.language_list()
 
+    ComboBox {
+        width: 50
+        anchors.right: parent.right
+        id: combo
+        model: languages
+        currentIndex: languages.indexOf(Backend.translator.current_language())
+        onActivated: function (index) {
+            Backend.translator.translate(languages[index])
+        }
     }
 }
