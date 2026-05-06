@@ -2,6 +2,7 @@ const ApiError = require('../error/api-error')
 const utils = require('../modules/utils')
 const { faker } = require('@faker-js/faker')
 const bcrypt = require('bcrypt')
+const config = require('../modules/config')
 const {
     Address,
     Warehouse,
@@ -35,8 +36,8 @@ class TestingController
                 await sequelize.sync()
             }
 
-            const adminPasswordHash = await bcrypt.hash('1234' + process.env.ENCRYPTION_SALT, 10)
-            const qcPasswordHash = await bcrypt.hash('1234' + process.env.ENCRYPTION_SALT, 10)
+            const adminPasswordHash = await bcrypt.hash('1234' + config.encryption.salt, 10)
+            const qcPasswordHash = await bcrypt.hash('1234' + config.encryption.salt, 10)
 
             await Employee.findOrCreate({
                 where: {login: 'admin'},
@@ -145,8 +146,8 @@ class TestingController
                 const isSorted = faker.datatype.boolean(0.6)
                 const partType = faker.helpers.arrayElement(partTypes)
                 const part = await Part.create({
-                    serial_number: `SN-${partType.type_code.toUpperCase()}${dd}${mm}${yy}H${i}#`,
-                    batch_number: `B-${faker.number.int({ min: 1000, max: 9999 })}#`,
+                    serial_number: `SN-${partType.type_code.toUpperCase()}${dd}${mm}${yy}H${i}Z`,
+                    batch_number: `B-${faker.number.int({ min: 1000, max: 9999 })}Z`,
                     manufacture_date: faker.date.past({ years: 1 }),
                     sorted_at: isSorted ? faker.date.recent({ days: 30 }) : null,
                     warehouse_id: isSorted ? faker.helpers.arrayElement(warehouses).warehouse_id : null,
