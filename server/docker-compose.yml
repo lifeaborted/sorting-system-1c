@@ -5,14 +5,3 @@ services:
     restart: always
     volumes:
       - ./data:/data
-    env_file:
-      - path: .env
-        required: true
-    environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_HOST=${DB_HOST}
-      - POSTGRES_PORT=${DB_PORT}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    ports:
-      - ${DB_PORT}:${DB_PORT}

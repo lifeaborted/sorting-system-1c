@@ -1,7 +1,7 @@
 const logger = require('./modules/logger')
 
 logger.info("Load environment")
-require('dotenv').config()
+const config = require('./modules/config')
 
 logger.info("Load libraries")
 const express = require('express')
@@ -16,7 +16,7 @@ const socket = require('./controllers/service-controller')
 const errorHandler = require('./middleware/error-handling-middleware')
 
 // Server settings
-const PORT = process.env.PORT || 5000
+const PORT = config.app.port || 5000
 
 logger.info("Creating app")
 const app = express()

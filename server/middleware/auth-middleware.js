@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const logger = require('../modules/logger')
+const config = require('../modules/config')
 
 module.exports = function (req, res, next)
 {
@@ -18,7 +19,7 @@ module.exports = function (req, res, next)
             return res.status(401).json({message: "Not authorized"})
         }
         logger.info("Check access token")
-        req.user = jwt.verify(token, process.env.JWT_PASSWORD_CODE)
+        req.user = jwt.verify(token, config.encryption.JWT_pass_code)
         logger.info("Access token is valid")
         next()
     }

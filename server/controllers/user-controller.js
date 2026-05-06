@@ -1,5 +1,6 @@
 const ApiError = require('../error/api-error')
 const {Employee} = require('../database/models')
+const config = require('../modules/config')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -21,7 +22,7 @@ class UserController
                 return next(ApiError.conflict('This login is already in use'))
             }
 
-            const hashPassword = await bcrypt.hash(password + process.env.ENCRYPTION_SALT, 10)
+            const hashPassword = await bcrypt.hash(password + config.encryption.salt, 10)
             user = await Employee.create({
                 first_name: first_name,
                 last_name: last_name,
@@ -33,8 +34,8 @@ class UserController
 
             const token = jwt.sign(
                 {id: user.dataValues.employee_id, role: user.dataValues.role},
-                process.env.JWT_PASSWORD_CODE,
-                {expiresIn: process.env.JWT_PASSWORD_DURATION + 'h'}
+                config.encryption.JWT_pass_code,
+                {expiresIn: config.encryption.JWT_duration + 'h'}
             )
             return res.json({token})
         }
@@ -64,7 +65,7 @@ class UserController
                 return next(ApiError.forbidden('Employee has been deactivated'))
             }
 
-            const isPassCorrect = await bcrypt.compare(password + process.env.ENCRYPTION_SALT, user.dataValues.password_hash)
+            const isPassCorrect = await bcrypt.compare(password + config.encryption.salt, user.dataValues.password_hash)
             if (!isPassCorrect)
             {
                 return next(ApiError.badRequest('Incorrect authentication data'))
@@ -72,8 +73,8 @@ class UserController
 
             const token = jwt.sign(
                 {id: user.dataValues.employee_id, role: user.dataValues.role},
-                process.env.JWT_PASSWORD_CODE,
-                {expiresIn: process.env.JWT_PASSWORD_DURATION + 'h'}
+                config.encryption.JWT_pass_code,
+                {expiresIn: config.encryption.JWT_duration + 'h'}
             )
             return res.json({token})
         }
@@ -89,8 +90,8 @@ class UserController
         {
             const token = jwt.sign(
                 {id: req.user.id, role: req.user.role},
-                process.env.JWT_PASSWORD_CODE,
-                {expiresIn: process.env.JWT_PASSWORD_DURATION + 'h'}
+                config.encryption.JWT_pass_code,
+                {expiresIn: config.encryption.JWT_duration + 'h'}
             )
             return res.json({token})
         }

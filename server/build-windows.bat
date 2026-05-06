@@ -14,14 +14,6 @@ call npm install --save-dev --verbose
 
 cls
 
-if not exist ".env" (
-    echo ERROR: .env file is not exist
-    pause
-    exit /b 1
-)
-
-cls
-
 call npm run build
 
 start explorer "%CD%\dist"

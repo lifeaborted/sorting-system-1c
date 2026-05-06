@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const logger = require('../modules/logger')
+const config = require("../modules/config");
 
 module.exports = (role) =>
 {
@@ -20,7 +21,7 @@ module.exports = (role) =>
             }
 
             logger.info("Check access token")
-            const decoded = jwt.verify(token, process.env.JWT_PASSWORD_CODE)
+            const decoded = jwt.verify(token, config.encryption.JWT_pass_code)
             logger.info("Access token is valid")
 
             if (decoded.role !== role)
