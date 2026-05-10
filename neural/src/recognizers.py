@@ -4,10 +4,13 @@
 
 import cv2
 import logging
+import time
 import paddle
 from paddleocr import PaddleOCR
 import numpy as np
+from torch.backends.quantized import engine
 
+# Правильная настройка логирования
 logger = logging.getLogger(__name__)
 
 
@@ -31,20 +34,27 @@ class OCRRecognizer:
             paddle.set_device('cpu')
 
         logger.info(f"Инициализация PaddleOCR (lang={lang}, gpu={use_gpu})")
-        self.ocr = PaddleOCR(use_angle_cls=use_angle_cls, lang=lang)
+        self.ocr = PaddleOCR(use_angle_cls=use_angle_cls,
+                             device='gpu:0' if use_gpu else 'cpu',
+                             lang=lang,
+                             engine="paddle_static",
+                             text_recognition_batch_size=6,
+                             text_detection_model_name='PP-OCRv5_mobile_det',  # Легкая мобильная модель поиска
+                             text_recognition_model_name='PP-OCRv5_mobile_rec'  # Легкая мобильная модель чтения
+                             )
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
         """
-        Адаптивное распознавание с предобработкой.
+        Адаптивное распознавание с предобработкой и замером времени.
         Возвращает (текст, уверенность).
         """
 
         def run_ocr(img):
             try:
                 img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                result = self.ocr.ocr(img_rgb)
+                result = self.ocr.ocr(img_rgb, det=False, rec=True)
             except TypeError:
-                result = self.ocr.ocr(img, cls=True)
+                result = self.ocr.ocr(img)
             except Exception:
                 return "", 0.0
 
@@ -65,33 +75,71 @@ class OCRRecognizer:
                 return full_text, avg_conf
             return "", 0.0
 
-        # === Проход 1: С улучшением (для сложных фото) ===
+        # === Начало замеров ===
+        t_total_start = time.perf_counter()
+
+        # --- Проход 1: С улучшением (для сложных фото) ---
+        t_prep_start = time.perf_counter()
         try:
             processed = self._preprocess_image(crop)
+        except Exception as e:
+            logger.error(f"Ошибка предобработки: {e}")
+            processed = crop # Fallback
+        t_prep_end = time.perf_counter()
+        dt_prep = (t_prep_end - t_prep_start) * 1000
+
+        t_ocr1_start = time.perf_counter()
+        try:
             text_proc, conf_proc = run_ocr(processed)
         except Exception:
             text_proc, conf_proc = "", 0.0
+        t_ocr1_end = time.perf_counter()
+        dt_ocr1 = (t_ocr1_end - t_ocr1_start) * 1000
 
+        # Если уверенность высокая, второй проход не нужен
         if conf_proc > 0.8:
+            t_total_end = time.perf_counter()
+            dt_total = (t_total_end - t_total_start) * 1000
+            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | Result: Processed")
             return text_proc, conf_proc
 
-        # === Проход 2: Исходное изображение (для четких фото) ===
+        # --- Проход 2: Исходное изображение (для четких фото) ---
+        t_ocr2_start = time.perf_counter()
         text_raw, conf_raw = run_ocr(crop)
+        t_ocr2_end = time.perf_counter()
+        dt_ocr2 = (t_ocr2_end - t_ocr2_start) * 1000
 
+        t_total_end = time.perf_counter()
+        dt_total = (t_total_end - t_total_start) * 1000
+
+        # Логируем с указанием, какой вариант выбран
         if conf_proc >= conf_raw:
+            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Processed")
             return text_proc, conf_proc
         else:
+            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Raw")
             return text_raw, conf_raw
 
     def _preprocess_image(self, crop: np.ndarray) -> np.ndarray:
-        """Внутренняя логика улучшения картинки для OCR."""
-        # 1. Рамка
+        """
+        Оптимизированная предобработка.
+        Главное изменение: resize больших изображений вниз.
+        """
+        h, w = crop.shape[:2]
+
+        target_width = 1280
+        if w > target_width:
+            scale = target_width / w
+            processed = cv2.resize(crop, (target_width, int(h * scale)), interpolation=cv2.INTER_AREA)
+        elif w < 300:
+            processed = cv2.resize(crop, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
+        else:
+            processed = crop
+
+        # 2. Рамка
         border_size = 10
-        processed = cv2.copyMakeBorder(crop, border_size, border_size, border_size, border_size,
+        processed = cv2.copyMakeBorder(processed, border_size, border_size, border_size, border_size,
                                        cv2.BORDER_CONSTANT, value=[255, 255, 255])
-        # 2. Увеличение
-        h, w = processed.shape[:2]
-        processed = cv2.resize(processed, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
 
         # 3. Улучшение контраста (CLAHE)
         lab = cv2.cvtColor(processed, cv2.COLOR_BGR2LAB)

@@ -1,123 +1,115 @@
-import sys
-import time
 import logging
-import shutil
 import json
-import threading
-import os
 from pathlib import Path
-from typing import Optional
 import cv2
+import numpy as np
 
 from config_manager import load_or_create_config
 from pipeline import MarkingPipeline
 from utils import draw_detections
 from parser import parse_text_to_fields
 from api_client import APIClient
+from datetime import datetime
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", encoding="utf-8", force=True)
+logger = logging.getLogger(__name__)
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
+CONFIG_PATH = ROOT_FOLDER / "data" / "config.json"
+OUTPUT_FOLDER = ROOT_FOLDER / "src" / "data" / "output"
+CROPS_DIR = ROOT_FOLDER / "src" / "data" / "crops"
 
-INPUT_FOLDER = ROOT_FOLDER/"src"/"data"/"input"
-OUTPUT_FOLDER = ROOT_FOLDER/"src"/"data"/"output"
-PROCESSED_FOLDER = ROOT_FOLDER/"src"/"data"/"done"
-CONFIG_PATH = ROOT_FOLDER/"data"/"config.json"
-
-
-def listen_for_exit():
-    while True:
-        user_input = input()
-        if user_input.lower() == 'exit':
-            print("\nЗавершение работы...")
-            os._exit(0)
+pipeline = None
+api_client = None
 
 
-def main():
-    cfg = load_or_create_config(CONFIG_PATH)
+def initialize():
+    """
+    Инициализация всех компонентов (вызывается один раз при старте).
+    """
+    global pipeline, api_client
 
-    print("Инициализация моделей, пожалуйста, подождите...")
+    logger.info("Инициализация моделей и коннектов...")
 
-    INPUT_FOLDER.mkdir(parents=True, exist_ok=True)
     OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
-    PROCESSED_FOLDER.mkdir(parents=True, exist_ok=True)
+    CROPS_DIR.mkdir(parents=True, exist_ok=True)
+
+    cfg = load_or_create_config(CONFIG_PATH)
 
     neural_cfg = cfg.get("neural", {})
     output_cfg = cfg.get("output", {})
-    pipeline = MarkingPipeline(neural_cfg, output_cfg)
+    output_cfg["crops_dir"] = str(CROPS_DIR)  # Передаем путь для crops
 
-    print("Модели загружены! Начинаю слежение за папкой 'input'...")
-    print('Для завершения работы введите "exit" и нажмите Enter.')
+    pipeline = MarkingPipeline(neural_cfg, output_cfg)
 
     conn_cfg = cfg.get("connection", {})
     host = conn_cfg.get("host", "localhost")
-    port = conn_cfg.get("port", 5000)
+    port = conn_cfg.get("port", 5001)
 
     try:
         api_client = APIClient(host=host, port=port)
     except Exception as e:
-        logging.critical(f"Не удалось инициализировать API клиент: {e}")
-        return
+        logger.warning(f"Не удалось подключиться к API: {e}")
+        api_client = None
 
-    # Поток для выхода
-    exit_thread = threading.Thread(target=listen_for_exit, daemon=True)
-    exit_thread.start()
+    logger.info("Инициализация завершена.")
 
-    # Основной цикл
-    while True:
-        try:
-            files = list(INPUT_FOLDER.glob("*.[jJ][pP][gG]")) + \
-                    list(INPUT_FOLDER.glob("*.[pP][nN][gG]"))
 
-            if not files:
-                time.sleep(0.5)
-                continue
+def process_image_logic(contents: bytes, filename: str) -> dict:
+    """
+    Основная логика обработки изображения.
+    Принимает байты файла и имя файла.
+    Возвращает словарь с результатами.
+    """
+    if pipeline is None:
+        raise RuntimeError("Models not initialized. Call initialize() first.")
 
-            for img_path in files:
-                logging.info(f"Обработка файла: {img_path.name}")
+    # 1. Декодирование
+    nparr = np.frombuffer(contents, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if img is None:
+        logger.error(f"Не удалось прочитать изображение: {filename}")
+        return {"status": "error", "detail": "Invalid image"}
 
-                img = cv2.imread(str(img_path))
-                if img is None:
-                    shutil.move(str(img_path), Path(PROCESSED_FOLDER) / img_path.name)
-                    continue
+    # 2. Запуск пайплайна
+    source_name = filename
+    result = pipeline.process_image(img, source=source_name)
 
-                # 1. Запуск пайплайна (YOLO + OCR)
-                result = pipeline.process_image(img, source=img_path.name)
+    # 3. Парсинг
+    full_text = " ".join([d.text for d in result.detections])
+    payload = parse_text_to_fields(full_text)
 
-                # 2. Парсинг текста
-                full_text = " ".join([d.text for d in result.detections])
-                payload = parse_text_to_fields(full_text)
+    # 4. Визуализация
+    annotated_img = draw_detections(img, result)
 
-                # 3. Визуализация
-                annotated_img = draw_detections(img, result)
+    # 5. Сохранение файлов
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    base_filename = Path(source_name).stem
 
-                # 4. Сохранение результатов локально
-                result_json_path = Path(OUTPUT_FOLDER) / f"{img_path.stem}_result.json"
-                with open(result_json_path, "w", encoding="utf-8") as f:
-                    f.write(result.to_json())
+    result_json_path = OUTPUT_FOLDER / f"{base_filename}_result.json"
+    with open(result_json_path, "w", encoding="utf-8") as f:
+        f.write(result.to_json())
 
-                payload_json_path = Path(OUTPUT_FOLDER) / f"{img_path.stem}_payload.json"
-                with open(payload_json_path, "w", encoding="utf-8") as f:
-                    json.dump(payload, f, indent=2, ensure_ascii=False)
+    payload_json_path = OUTPUT_FOLDER / f"{base_filename}_payload.json"
+    with open(payload_json_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
 
-                annotated_img_path = Path(OUTPUT_FOLDER) / f"{img_path.stem}_annotated.jpg"
-                cv2.imwrite(str(annotated_img_path), annotated_img)
+    annotated_img_path = OUTPUT_FOLDER / f"{base_filename}_annotated.jpg"
+    cv2.imwrite(str(annotated_img_path), annotated_img)
 
-                logging.info(f"Результаты сохранены в папку 'output'")
+    logger.info(f"Обработка завершена: {filename}")
 
-                # 5. Отправка на сервер
-                api_client.send_scan_result(payload, annotated_img, img_path.name)
+    # 6. Отправка на JS сервер
+    if api_client:
+        api_client.send_scan_result(payload, annotated_img, source_name)
 
-                # 6. Архивация исходника
-                shutil.move(str(img_path), Path(PROCESSED_FOLDER) / img_path.name)
-
-        except KeyboardInterrupt:
-            logging.info("Остановка работы.")
-            break
-        except Exception as e:
-            logging.error(f"Критическая ошибка: {e}")
-            time.sleep(1)
+    return {
+        "status": "success",
+        "payload": payload,
+        "processing_time_ms": result.processing_time_ms
+    }
 
 
 if __name__ == "__main__":
-    main()
+    initialize()
+    print("Модуль логики загружен. Для работы используйте server.py")
