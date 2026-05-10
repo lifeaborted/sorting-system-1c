@@ -8,9 +8,7 @@ import time
 import paddle
 from paddleocr import PaddleOCR
 import numpy as np
-from torch.backends.quantized import engine
 
-# Правильная настройка логирования
 logger = logging.getLogger(__name__)
 
 
@@ -23,6 +21,9 @@ class OCRRecognizer:
         use_gpu = config.get("use_gpu", False)
         lang = config.get("lang", "en")
         use_angle_cls = config.get("use_angle_cls", "False")
+        text_recognition_batch_size = config.get("batch", 6)
+        text_detection_model_name = config.get("detection_model", "PP-OCRv5_mobile_det")  # Легкая мобильная модель поиска
+        text_recognition_model_name = config.get("recognition_model", "PP-OCRv5_mobile_rec")  # Легкая мобильная модель поиска
 
         if use_gpu:
             if not paddle.is_compiled_with_cuda():
@@ -38,9 +39,9 @@ class OCRRecognizer:
                              device='gpu:0' if use_gpu else 'cpu',
                              lang=lang,
                              engine="paddle_static",
-                             text_recognition_batch_size=6,
-                             text_detection_model_name='PP-OCRv5_mobile_det',  # Легкая мобильная модель поиска
-                             text_recognition_model_name='PP-OCRv5_mobile_rec'  # Легкая мобильная модель чтения
+                             text_recognition_batch_size=text_recognition_batch_size,
+                             text_detection_model_name=text_detection_model_name,
+                             text_recognition_model_name=text_recognition_model_name
                              )
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
@@ -75,7 +76,6 @@ class OCRRecognizer:
                 return full_text, avg_conf
             return "", 0.0
 
-        # === Начало замеров ===
         t_total_start = time.perf_counter()
 
         # --- Проход 1: С улучшением (для сложных фото) ---
@@ -96,7 +96,6 @@ class OCRRecognizer:
         t_ocr1_end = time.perf_counter()
         dt_ocr1 = (t_ocr1_end - t_ocr1_start) * 1000
 
-        # Если уверенность высокая, второй проход не нужен
         if conf_proc > 0.8:
             t_total_end = time.perf_counter()
             dt_total = (t_total_end - t_total_start) * 1000
@@ -112,7 +111,6 @@ class OCRRecognizer:
         t_total_end = time.perf_counter()
         dt_total = (t_total_end - t_total_start) * 1000
 
-        # Логируем с указанием, какой вариант выбран
         if conf_proc >= conf_raw:
             logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Processed")
             return text_proc, conf_proc
@@ -123,16 +121,15 @@ class OCRRecognizer:
     def _preprocess_image(self, crop: np.ndarray) -> np.ndarray:
         """
         Оптимизированная предобработка.
-        Главное изменение: resize больших изображений вниз.
         """
         h, w = crop.shape[:2]
 
-        target_width = 1280
-        if w > target_width:
-            scale = target_width / w
-            processed = cv2.resize(crop, (target_width, int(h * scale)), interpolation=cv2.INTER_AREA)
-        elif w < 300:
-            processed = cv2.resize(crop, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
+        max_side = 640
+        if max(h, w) > max_side:
+            scale = max_side / max(h, w)
+            processed = cv2.resize(crop, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+        elif max(h, w) < 200:
+            processed = cv2.resize(crop, (w * 2, h * 2), interpolation=cv2.INTER_CUBIC)
         else:
             processed = crop
 
