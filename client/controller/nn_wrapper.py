@@ -50,7 +50,7 @@ class NeuralNetworkWrapper:
         found = False
         for i in possible_venvs:
             if os.path.exists(i):
-                self._p = Popen([i, '../neural/src/main.py', f'TOKEN={token}'], cwd="../neural/", stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
+                self._p = Popen([i, '../neural/src/server.py', f'TOKEN={token}'], cwd="../neural/", stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
                 found = True
                 break
         if not found:
