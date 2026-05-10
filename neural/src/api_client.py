@@ -11,7 +11,7 @@ import time
 import logging
 import getpass
 from typing import Optional
-import dotenv
+from pathlib import Path
 import requests
 import cv2
 import numpy as np
@@ -29,7 +29,7 @@ except Exception as e:
     logger.critical(f"Неверный ключ шифрования! Сгенерируйте новый. Ошибка: {e}")
     cipher_suite = None
 
-AUTH_FILE = "../data/auth.dat"
+AUTH_FILE = Path(__file__).resolve().parent.parent / "data" / "auth.dat"
 
 class APIClient:
     def __init__(self, host: str, port: int):

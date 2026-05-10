@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT_FOLDER / "data" / "config.json"
-OUTPUT_FOLDER = ROOT_FOLDER / "src" / "data" / "output"
-CROPS_DIR = ROOT_FOLDER / "src" / "data" / "crops"
+OUTPUT_FOLDER = ROOT_FOLDER / "data" / "output"
+CROPS_DIR = ROOT_FOLDER / "data" / "crops"
 
 pipeline = None
 api_client = None

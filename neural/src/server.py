@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 
@@ -8,11 +8,12 @@ import main
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Neural Marking Service")
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     main.initialize()
+    yield
+
+app = FastAPI(title="Neural Marking Service", lifespan=lifespan)
 
 @app.post("/neural/upload/")
 async def upload_image(
