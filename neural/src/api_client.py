@@ -81,6 +81,24 @@ class APIClient:
         if not exp: return True
         return time.time() < (exp - 60)
 
+
+    def _ensure_authenticated(self):
+        # 1. Проверка аргументов
+        token_from_arg = self._check_arguments()
+        if token_from_arg and self.is_token_valid(token_from_arg):
+            self.token = token_from_arg
+            return
+
+        # 2. Проверка файла
+        token_from_file = self.load_token_from_file()
+        if token_from_file:
+            self.token = token_from_file
+            return
+
+        # 3. Ввод пароля
+        self._interactive_login_flow()
+
+
     @staticmethod
     def load_token_from_file() -> Optional[str]:
         if not os.path.exists(AUTH_FILE):
@@ -108,21 +126,6 @@ class APIClient:
 
     # --- Логика процесса авторизации ---
 
-    def _ensure_authenticated(self):
-        # 1. Проверка аргументов
-        token_from_arg = self._check_arguments()
-        if token_from_arg and self.is_token_valid(token_from_arg):
-            self.token = token_from_arg
-            return
-
-        # 2. Проверка файла
-        token_from_file = self.load_token_from_file()
-        if token_from_file:
-            self.token = token_from_file
-            return
-
-        # 3. Ввод пароля
-        self._interactive_login_flow()
 
     @staticmethod
     def _check_arguments() -> Optional[str]:

@@ -10,6 +10,11 @@ DEFAULT_CONFIG = {
         "host": "localhost",
         "port": 5000
     },
+    "server":
+        {
+            "host": "localhost",
+            "port": 5001
+        },
     "neural": {
         "yolo": {
             "model_path": r"../runs/detect/train2/weights/best.pt",
