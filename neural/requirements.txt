@@ -10,3 +10,4 @@ uvicorn
 python-multipart
 opencv-python>=4.9.0
 numpy<2.4
+loguru
