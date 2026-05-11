@@ -2,17 +2,19 @@
 Класс, отвечающий за чтение текста и всю предобработку
 """
 
-import cv2
 import logging
+from logger_config import setup_logger
+
+setup_logger()
+logger = logging.getLogger(__name__)
+
+from paddleocr import PaddleOCR
+
+import cv2
 import time
 import paddle
 import numpy as np
 import os
-
-from paddleocr import PaddleOCR
-
-logger = logging.getLogger(__name__)
-
 
 class OCRRecognizer:
     def __init__(
@@ -43,7 +45,6 @@ class OCRRecognizer:
         else:
             logger.info(
                 f"Инициализация PaddleOCR через встроенные параметры (lang={lang}, gpu={use_gpu}, device={device})")
-            # Используем наши оптимизированные ручные настройки
             self.ocr = PaddleOCR(
                 lang=lang,
                 use_angle_cls=use_angle_cls,
@@ -53,8 +54,6 @@ class OCRRecognizer:
                 text_recognition_model_name=text_recognition_model_name,
                 enable_mkldnn=True if device=='cpu' else False
             )
-
-        logger.info(f"Инициализация PaddleOCR (lang={lang}, gpu={use_gpu})")
 
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
@@ -112,7 +111,7 @@ class OCRRecognizer:
         if conf_proc > 0.8:
             t_total_end = time.perf_counter()
             dt_total = (t_total_end - t_total_start) * 1000
-            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | Result: Processed")
+            logger.debug(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | Result: Processed")
             return text_proc, conf_proc
 
         # --- Проход 2: Исходное изображение (для четких фото) ---
@@ -125,10 +124,10 @@ class OCRRecognizer:
         dt_total = (t_total_end - t_total_start) * 1000
 
         if conf_proc >= conf_raw:
-            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Processed")
+            logger.debug(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Processed")
             return text_proc, conf_proc
         else:
-            logger.info(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Raw")
+            logger.debug(f"TIMING | Total: {dt_total:.1f}ms | Prep: {dt_prep:.1f}ms | OCR Pass1: {dt_ocr1:.1f}ms | OCR Pass2: {dt_ocr2:.1f}ms | Result: Raw")
             return text_raw, conf_raw
 
     def _preprocess_image(self, crop: np.ndarray) -> np.ndarray:

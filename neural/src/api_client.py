@@ -181,7 +181,7 @@ class APIClient:
                         response = requests.post(self.scan_url, files=files, data=data, headers=headers, timeout=10)
 
             if response.status_code == 200:
-                logger.info("<- Успешно отправлено.")
+                logger.debug("<- Успешно отправлено.")
                 return True
             logger.error(f"<- Ошибка {response.status_code}")
             return False

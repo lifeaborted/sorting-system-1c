@@ -4,7 +4,9 @@ import main
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
+from logger_config import setup_logger
 
+setup_logger()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Neural Marking Service")
@@ -17,7 +19,7 @@ async def upload_image(
     """
     Принимает изображение и ставит в очередь.
     """
-    logger.info(f"Запрос получен: {file.filename}")
+    logger.debug(f"Запрос получен: {file.filename}")
 
     contents = await file.read()
 
@@ -49,4 +51,4 @@ if __name__ == "__main__":
         host, port = "0.0.0.0", 5001
 
     logger.info(f"Запуск HTTP сервера на {host}:{port}")
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(app, host=host, port=port, access_log=False)

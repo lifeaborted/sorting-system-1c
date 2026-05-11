@@ -1,3 +1,13 @@
+import logging
+from logger_config import setup_logger
+
+setup_logger()
+logger = logging.getLogger(__name__)
+
+import json
+import cv2
+import numpy as np
+
 from pathlib import Path
 from config_manager import load_or_create_config
 from pipeline import MarkingPipeline
@@ -6,13 +16,6 @@ from parser import parse_text_to_fields
 from api_client import APIClient
 from datetime import datetime
 
-import logging
-import json
-import cv2
-import numpy as np
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", encoding="utf-8", force=True)
-logger = logging.getLogger(__name__)
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT_FOLDER / "data" / "config.json"
@@ -51,6 +54,14 @@ def initialize():
     except Exception as e:
         logger.warning(f"Не удалось подключиться к API: {e}")
         api_client = None
+
+    logger.info("Прогрев нейросетей...")
+    try:
+        dummy_img = np.zeros((640, 640, 3), dtype=np.uint8)
+        pipeline.process_image(dummy_img, source="warmup")
+        logger.info("Прогрев успешно завершен.")
+    except Exception as e:
+        logger.warning(f"Ошибка при прогреве: {e}")
 
     logger.info("Инициализация завершена.")
 
@@ -97,7 +108,7 @@ def process_image_logic(contents: bytes, filename: str) -> dict:
     annotated_img_path = OUTPUT_FOLDER / f"{base_filename}_annotated.jpg"
     cv2.imwrite(str(annotated_img_path), annotated_img)
 
-    logger.info(f"Обработка завершена: {filename}")
+    logger.info(f"Обработка завершена: {filename} (за {result.processing_time_ms} мс)")
 
     # 6. Отправка на JS сервер
     if api_client:
