@@ -5,7 +5,7 @@ import os.path
 import threading
 from asyncio import AbstractEventLoop
 from threading import Thread
-from typing import TypedDict, Callable
+from typing import TypedDict, Callable, Optional
 
 import aiohttp
 from aiohttp.web_ws import WebSocketResponse
@@ -18,7 +18,7 @@ from subprocess import Popen, PIPE, STDOUT
 
 class NeuralNetworkWrapper:
     _is_stopped: bool = False
-    _p: Popen
+    _p: Optional[Popen] = None
     _thread: Thread
     def __init__(self, token: str):
         self.start(token)

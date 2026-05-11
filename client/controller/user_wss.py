@@ -56,7 +56,6 @@ class UserWss:
 
     async def _socket_loop(self, ws: WebSocketResponse):
         self._loop = asyncio.get_event_loop()
-        self._log(self._loop is None)
         self._log("Thread started")
         while True:
             done, pending = await asyncio.wait([
