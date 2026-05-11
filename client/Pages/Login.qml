@@ -30,11 +30,12 @@ Item {
         anchors.centerIn: parent
 
         LanguageSelect {
+            anchors.rightMargin: 30
+            anchors.topMargin: 20
             anchors.top: parent.top
             anchors.right: parent.right
+            z: 2
         }
-
-
 
         ColumnLayout {
             anchors {
