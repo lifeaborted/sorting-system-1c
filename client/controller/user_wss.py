@@ -29,7 +29,7 @@ class UserWss:
     _api: Api
     _thread: Thread
     _is_stopped: bool = False
-    _loop: AbstractEventLoop
+    _loop: AbstractEventLoop = None
     def __init__(self, api: Api, handlers: UserHandlersWss):
         self._ev = asyncio.Event()
         self._api = api
@@ -39,17 +39,24 @@ class UserWss:
         if self._is_stopped:
             logging.error(f"[UserWss] Trying to start a stopped websocket... ignoring")
             return
-        self._thread = threading.Thread(target=self._api.run_blocking, args=(self._api.user.detail_wss(self._socket_loop),))
-        self._thread.start()
+        # TODO check why therad doesnt capture errors
+        try:
+            self._thread = threading.Thread(target=self._api.run_blocking, args=(self._api.user.detail_wss(self._socket_loop),))
+            self._thread.start()
+        except Exception as e:
+            logging.error(f"[UserWss] Failed to start thread. Err={e}")
 
     def stop(self):
         self._log("Trying to stop websocket")
         self._is_stopped = True
-        self._loop.call_soon_threadsafe(self._ev.set)
-        self._thread.join()
+        if self._loop:
+            self._loop.call_soon_threadsafe(self._ev.set)
+        if self._thread:
+            self._thread.join()
 
     async def _socket_loop(self, ws: WebSocketResponse):
         self._loop = asyncio.get_event_loop()
+        self._log(self._loop is None)
         self._log("Thread started")
         while True:
             done, pending = await asyncio.wait([
