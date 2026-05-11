@@ -1,5 +1,6 @@
 const {WebSocketServer} = require('ws')
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken')
+const config = require('../modules/config')
 
 class ServiceController
 {
@@ -26,7 +27,7 @@ class ServiceController
                 socket.destroy();
                 return;
             }
-            socket.user = jwt.verify(token, process.env.JWT_PASSWORD_CODE)
+            socket.user = jwt.verify(token, config.encryption.JWT_pass_code)
 
             this.socket.handleUpgrade(request, socket, head, () => {})
         }
