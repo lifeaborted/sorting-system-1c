@@ -24,6 +24,9 @@ DEFAULT_CONFIG = {
         "ocr": {
             "lang": "en",
             "use_gpu": False,
+            "batch": 6,
+            "detection_model": "PP-OCRv5_mobile_det",
+            "recognition_model": "PP-OCRv5_mobile_rec",
             "min_confidence": 0.60,
             "crop_padding_px": 8,
             "use_angle_cls": False
