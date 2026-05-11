@@ -19,8 +19,8 @@ from pathlib import Path
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 
-logger = logging.getLogger(__name__)
-load_dotenv()
+from loguru import logger
+
 SECRET_KEY =  os.getenv('KEY')
 
 

@@ -1,8 +1,5 @@
 import logging
-from logger_config import setup_logger
-
-setup_logger()
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 import json
 import cv2

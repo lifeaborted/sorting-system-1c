@@ -4,10 +4,7 @@ import main
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
-from logger_config import setup_logger
-
-setup_logger()
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 app = FastAPI(title="Neural Marking Service")
 
