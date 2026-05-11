@@ -88,7 +88,7 @@ RowLayout {
 
             // Имя пользователя
             Text {
-                text: Backend.user.format_username("{first} {second[0]}.{middle[0]}.")
+                text: Backend.user.format_username("{second} {first[0]}.{middle[0]}.")
                 color: "#B2B4BC"
                 font.pixelSize: 16
                 font.weight: 500
