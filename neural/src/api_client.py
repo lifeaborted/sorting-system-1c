@@ -10,11 +10,12 @@ import base64
 import time
 import logging
 import getpass
-from typing import Optional
-from pathlib import Path
 import requests
 import cv2
 import numpy as np
+
+from typing import Optional
+from pathlib import Path
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 

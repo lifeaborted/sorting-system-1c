@@ -3,8 +3,8 @@
 """
 
 import logging
-from typing import Optional
 import numpy as np
+
 from ultralytics import YOLO
 
 logger = logging.getLogger(__name__)

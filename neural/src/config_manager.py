@@ -1,6 +1,11 @@
+"""
+Создание файла найстроки проекта
+"""
+
 import json
-from pathlib import Path
 import logging
+
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +34,7 @@ DEFAULT_CONFIG = {
             "recognition_model": "PP-OCRv5_mobile_rec",
             "min_confidence": 0.60,
             "crop_padding_px": 8,
+            "paddle_config_path": "",
             "use_angle_cls": False
         }
     },

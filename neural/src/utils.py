@@ -2,8 +2,8 @@
 Вспомогательные функции визуализации
 """
 
-import cv2
 import numpy as np
+
 from models import PipelineResult
 from ultralytics.utils.plotting import Annotator, colors
 from parser import parse_text_to_fields

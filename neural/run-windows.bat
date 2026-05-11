@@ -66,5 +66,5 @@ endlocal
 cls
 
 echo Запуск...
-python src/main.py
+python src/server.py
 pause

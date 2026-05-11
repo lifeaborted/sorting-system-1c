@@ -1,19 +1,13 @@
 import logging
+import main
+
 from pathlib import Path
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 
-import main
-
 logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    main.initialize()
-    yield
-
-app = FastAPI(title="Neural Marking Service", lifespan=lifespan)
+app = FastAPI(title="Neural Marking Service")
 
 @app.post("/neural/upload/")
 async def upload_image(
@@ -40,6 +34,8 @@ async def upload_image(
 
 if __name__ == "__main__":
     import uvicorn
+
+    main.initialize()
 
     cfg_path = Path(__file__).resolve().parent.parent / "data" / "config.json"
     import json

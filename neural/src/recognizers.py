@@ -6,8 +6,10 @@ import cv2
 import logging
 import time
 import paddle
-from paddleocr import PaddleOCR
 import numpy as np
+import os
+
+from paddleocr import PaddleOCR
 
 logger = logging.getLogger(__name__)
 
@@ -24,25 +26,36 @@ class OCRRecognizer:
         text_recognition_batch_size = config.get("batch", 6)
         text_detection_model_name = config.get("detection_model", "PP-OCRv5_mobile_det")  # Легкая мобильная модель поиска
         text_recognition_model_name = config.get("recognition_model", "PP-OCRv5_mobile_rec")  # Легкая мобильная модель поиска
+        paddle_config_path = config.get("paddle_config_path", "")
 
         if use_gpu:
             if not paddle.is_compiled_with_cuda():
                 logger.warning("PaddlePaddle не собран с CUDA, используется CPU")
-                paddle.set_device('cpu')
+                device = 'cpu'
             else:
-                paddle.set_device('gpu')
+                device = 'gpu:0'
         else:
-            paddle.set_device('cpu')
+            device = 'cpu'
+
+        if paddle_config_path and os.path.exists(paddle_config_path):
+            logger.info(f"Инициализация PaddleOCR через HPI/PaddleX конфиг: {paddle_config_path} (device={device})")
+            self.ocr = PaddleOCR(paddlex_config=paddle_config_path, device=device, enable_hpi=True)
+        else:
+            logger.info(
+                f"Инициализация PaddleOCR через встроенные параметры (lang={lang}, gpu={use_gpu}, device={device})")
+            # Используем наши оптимизированные ручные настройки
+            self.ocr = PaddleOCR(
+                lang=lang,
+                use_angle_cls=use_angle_cls,
+                device=device,
+                text_recognition_batch_size=text_recognition_batch_size,
+                text_detection_model_name=text_detection_model_name,
+                text_recognition_model_name=text_recognition_model_name,
+                enable_mkldnn=True if device=='cpu' else False
+            )
 
         logger.info(f"Инициализация PaddleOCR (lang={lang}, gpu={use_gpu})")
-        self.ocr = PaddleOCR(use_angle_cls=use_angle_cls,
-                             device='gpu:0' if use_gpu else 'cpu',
-                             lang=lang,
-                             engine="paddle_static",
-                             text_recognition_batch_size=text_recognition_batch_size,
-                             text_detection_model_name=text_detection_model_name,
-                             text_recognition_model_name=text_recognition_model_name
-                             )
+
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
         """

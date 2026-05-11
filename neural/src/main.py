@@ -1,15 +1,15 @@
-import logging
-import json
 from pathlib import Path
-import cv2
-import numpy as np
-
 from config_manager import load_or_create_config
 from pipeline import MarkingPipeline
 from utils import draw_detections
 from parser import parse_text_to_fields
 from api_client import APIClient
 from datetime import datetime
+
+import logging
+import json
+import cv2
+import numpy as np
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", encoding="utf-8", force=True)
 logger = logging.getLogger(__name__)
