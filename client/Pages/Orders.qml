@@ -7,7 +7,7 @@ import "../Components"
 
 Rectangle {
     id: detailsPage
-    color: "#2e2e2e"
+    color: "#28282A"
     anchors.fill: parent
 
     Material.theme: Material.Dark
@@ -86,7 +86,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: "#2e2e2e"
+            color: "#28282A"
 
             ColumnLayout {
                 anchors.fill: parent
@@ -207,7 +207,7 @@ Rectangle {
                     ListView {
                         id: orderList
                         width: parent.width
-                        spacing: 8
+                        spacing: 15
                         model: mockDetails
 
                         delegate: OrderCard {

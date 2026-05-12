@@ -7,11 +7,8 @@ import "../Components"
 
 Rectangle {
     id: detailsPage
-    color: "#2e2e2e"
+    color: "#28282A"
     anchors.fill: parent
-
-    Material.theme: Material.Dark
-    Material.accent: Material.Blue
 
     property list<var> details: []
     property var detailsFilter
@@ -108,7 +105,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: "#2e2e2e"
+            color: "#28282A"
 
             ColumnLayout {
                 anchors.fill: parent
@@ -383,7 +380,7 @@ Rectangle {
                             delegate: Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 60
-                                color: "#2e2e2e"
+                                color: "#28282A"
                                 radius: 5
 
                                 RowLayout {

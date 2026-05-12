@@ -8,7 +8,7 @@ import io.backend 1.0
 Rectangle {
     Layout.preferredWidth: 250
     Layout.fillHeight: true
-    color: "#1e1e1e"
+    color: "#181819"
 
     Column {
         anchors.top: parent.top
