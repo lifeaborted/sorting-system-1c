@@ -100,33 +100,48 @@ Rectangle {
             color: "#55555A"
         }
 
-        Column {
-            Layout.fillWidth: true
+        Flickable {
+            id: materialsFlickable
+            Layout.preferredWidth: 250
+            Layout.preferredHeight: 60
             Layout.alignment: Qt.AlignVCenter
-            spacing: 3
+            clip: true
+            contentHeight: materialsCol.height
+            contentWidth: width
 
-            Repeater {
-                model: root.materials.slice(0,5)
-                delegate: Row {
-                    width: parent.width
-                    spacing: 0
+            Column {
+                id: materialsCol
+                width: parent.width
+                spacing: 3
 
-                    Text {
-                        text: "• " + modelData.name
-                        color: "#B2B4BC"
-                        font.pixelSize: 11
-                        font.family: "Roboto"
-                        width: parent.width - 36
-                    }
-                    Text {
-                        text: "x" + modelData.quantity
-                        color: "#B2B4BC"
-                        font.pixelSize: 11
-                        font.family: "Roboto"
-                        width: 36
-                        horizontalAlignment: Text.AlignRight
+                Repeater {
+                    model: root.materials
+                    delegate: Row {
+                        width: parent.width
+                        spacing: 0
+
+                        Text {
+                            text: "• " + modelData.name
+                            color: "#B2B4BC"
+                            font.pixelSize: 11
+                            font.family: "Roboto"
+                            width: parent.width - 36
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            text: "x" + modelData.quantity
+                            color: "#B2B4BC"
+                            font.pixelSize: 11
+                            font.family: "Roboto"
+                            width: 36
+                            horizontalAlignment: Text.AlignRight
+                        }
                     }
                 }
+            }
+
+            ScrollIndicator.vertical: ScrollIndicator {
+                opacity: 0.7
             }
         }
 
