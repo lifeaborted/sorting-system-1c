@@ -262,21 +262,17 @@ Rectangle {
                     color: "#3E3E42"
                     radius: 5
 
-                    Image {
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.leftMargin: 20
-                        source: "qrc:/resources/icons/info-circle-old.svg"
-                        width: 20
-                        height: 20
-                        fillMode: Image.PreserveAspectFit
-                    }
-
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 10
                         anchors.rightMargin: 10
                         spacing: 0
+
+                        TableHeaderColumn {
+                            columnHeader: qsTr("Действие")
+                            columnKey: "type"
+                            columnWidth: 40
+                        }
 
                         // Тип
                         TableHeaderColumn {
@@ -396,7 +392,7 @@ Rectangle {
                                     anchors.rightMargin: 15
                                     spacing: 10
 
-                                    // Иконка информации
+                                    // Кнопка информации
                                     IconButton {
                                         iconSource: "qrc:/resources/icons/info-circle.svg"
                                         buttonWidth: 30
@@ -410,6 +406,26 @@ Rectangle {
 
                                         background: Rectangle {
                                             color: "#E6E8E9"
+                                            radius: 4
+                                        }
+                                    }
+
+                                    // Кнопка быстрой сортировки/отмены сортировки
+                                    IconButton {
+                                        iconSource: modelData.status === "completed"
+                                            ? "qrc:/resources/icons/cancel-sort.svg"
+                                            : "qrc:/resources/icons/quick-sort.svg"
+                                        buttonWidth: 30
+                                        buttonHeight: 30
+                                        iconSize: 20
+                                        onClickedHandler: function() {
+                                            Backend.router.open_popup_detailed("/detailWindow", {
+                                                detailId: modelData.id
+                                            })
+                                        }
+
+                                        background: Rectangle {
+                                            color: "#3E3E42"
                                             radius: 4
                                         }
                                     }
@@ -436,7 +452,7 @@ Rectangle {
                                     TableCell {
                                         cellText: {
                                             switch (modelData.status) {
-                                                case "pending": return qsTr("Обрабатывается")
+                                                case "pending": return qsTr("В обработке")
                                                 case "in_production": return qsTr("В производстве")
                                                 case "sorting": return qsTr("Сортировка")
                                                 case "completed": return qsTr("Отсортирован")
