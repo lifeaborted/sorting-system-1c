@@ -1,5 +1,4 @@
 import QtQuick 2.15
-import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects
@@ -12,6 +11,7 @@ Item {
 
     property list<string> languages: Backend.translator.language_list()
     property int currentIndex: languages.indexOf(Backend.translator.current_language())
+    property var rootWindow: Window.window
 
     readonly property var languageMeta: ({
         "ru": { code: "RU", native: "Русский"    },
@@ -61,7 +61,7 @@ Item {
         id: dropdownWrapper
         visible: false
         width: 100
-        height: Math.min(listView.contentHeight + 20, 140)
+        height: listView.contentHeight + 12
         anchors.top: triggerBtn.bottom
         anchors.topMargin: 8
         anchors.right: triggerBtn.right
@@ -89,15 +89,15 @@ Item {
                     left: parent.left
                     right: parent.right
                     top: parent.top
-                    topMargin: 6
-                    leftMargin: 10
+                    topMargin: 8
+                    leftMargin: 6
                     rightMargin: 10
-                    bottomMargin: 0
+                    bottomMargin: 4
                 }
-                height: Math.min(contentHeight, 120)
-                clip: true
+                height: contentHeight
+                clip: false
                 model: root.languages
-                interactive: listView.contentHeight > 120
+                interactive: false
                 spacing: 0
 
                 delegate: Item {
@@ -173,8 +173,10 @@ Item {
     MouseArea {
         z: -1
         enabled: dropdownWrapper.visible
-        parent: Overlay.overlay
-        anchors.fill: parent
+        width: root.rootWindow ? root.rootWindow.width : 0
+        height: root.rootWindow ? root.rootWindow.height : 0
+        x: -root.mapToItem(null, 0, 0).x
+        y: -root.mapToItem(null, 0, 0).y
         onClicked: dropdownWrapper.visible = false
     }
 }
