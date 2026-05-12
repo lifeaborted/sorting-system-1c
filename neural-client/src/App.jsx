@@ -33,22 +33,13 @@ const App = () => {
         }
 
         setIsLoading(true)
-
-        try
-        {
-            await HttpSender.SendImage(image)
-            setNotification({message: 'Изображение успешно отправлено!', type: 'success'})
+        HttpSender.SendImage(image).then(() => {
+            setNotification({message: 'Изображение отправлено!', type: 'success'})
             setImage(null)
             setImagePreview(null)
-        }
-        catch (error)
-        {
-            setNotification({message: `Ошибка отправки: ${error.message}`, type: 'error'})
-        }
-        finally
-        {
-            setIsLoading(false)
-        }
+        }).catch(e => {
+            setNotification({message: `Ошибка отправки: ${e.message}`, type: 'error'})
+        }).finally(() => setIsLoading(false))
     }
 
     return (

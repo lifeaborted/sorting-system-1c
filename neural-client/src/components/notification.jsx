@@ -12,7 +12,7 @@ const Notification = ({
         setTimeout(() => {
             setShow(false)
         }, 5000)
-    }, [message, type])
+    }, [notification])
 
     if (!show || type === "hide") return null
     return (

@@ -4,7 +4,7 @@ class HttpSender
 {
     protocol = "http"
     baseURL = ""
-    path = "/neural/upload"
+    path = "/neural/upload/"
 
     constructor()
     {
@@ -34,13 +34,15 @@ class HttpSender
 
     async SendImage(image)
     {
-        const formData = new FormData()
-        formData.append('img', image)
+        return new Promise((resolve, reject) => {
+            const formData = new FormData()
+            formData.append('file', image)
 
-        await axios.post(`${this.protocol}://${this.baseURL}${this.path}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+            axios.post(`${this.protocol}://${this.baseURL}${this.path}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }).then(() => resolve()).catch(err=>{reject(err)})
         })
     }
 }

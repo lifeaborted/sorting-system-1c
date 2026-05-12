@@ -29,7 +29,6 @@ call .\venv\Scripts\activate.bat
 cls
 echo Установка зависимостей...
 call pip install -r requirements.txt
-pause
 cls
 echo Настройка окружения...
 
