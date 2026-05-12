@@ -11,6 +11,7 @@ Text {
     property int cellWidth: 100
     property int textLeftPadding: 5
     property bool enableElide: true
+    property int horizontalAlign: Text.AlignLeft
 
     // Связываем свойства
     text: root.cellText
@@ -22,4 +23,5 @@ Text {
     elide: root.enableElide ? Text.ElideRight : Text.ElideNone
     leftPadding: root.textLeftPadding
     verticalAlignment: Text.AlignVCenter
+    horizontalAlignment: root.horizontalAlign
 }

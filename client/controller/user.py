@@ -156,7 +156,7 @@ class User(QObject):
             detail = Detail(
                 id=r_detail["part_id"],
                 batch_number=r_detail["batch_number"],
-                manufacture_date=datetime.strptime(r_detail["manufacture_date"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d.%m.%y %H:%M:%S"),
+                manufacture_date=datetime.strptime(r_detail["manufacture_date"], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d.%m.%y %H:%M"),
                 type=self._details_types[r_detail["part_type_id"]],
                 serial_number=r_detail["serial_number"],
                 sorted_at=r_detail["sorted_at"],
@@ -267,7 +267,7 @@ class User(QObject):
                 from_p = datetime.strptime(from_date, "%d.%m.%Y")
                 to_p = datetime.strptime(f"{to_date} 23:59", "%d.%m.%Y %H:%M")
 
-                detail_date = datetime.strptime(d["manufacture_date"], "%d.%m.%y %H:%M:%S")
+                detail_date = datetime.strptime(d["manufacture_date"], "%d.%m.%y %H:%M")
                 if detail_date < from_p or detail_date > to_p:
                     return False
             type_f = f.property("type")
@@ -334,7 +334,7 @@ class User(QObject):
             case "warehouse":
                 attr_getter = lambda x: (itemgetter("country", "region", "city", "street", "building"))(x["warehouse"]["address"]) if x["warehouse"] is not None else ("", "", "", "", "")
             case "date":
-                attr_getter = lambda x: datetime.strptime(x["manufacture_date"], "%d.%m.%y %H:%M:%S")
+                attr_getter = lambda x: datetime.strptime(x["manufacture_date"], "%d.%m.%y %H:%M")
             case _:
                 logging.error(f"Unknown sorting property. propertyName={sort_name}")
 

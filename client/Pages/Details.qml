@@ -10,6 +10,9 @@ Rectangle {
     color: "#28282A"
     anchors.fill: parent
 
+    Material.theme: Material.Dark
+    Material.accent: Material.Blue
+
     property list<var> details: []
     property var detailsFilter
 
@@ -276,7 +279,7 @@ Rectangle {
                             columnHeader: qsTr("Тип")
                             columnKey: "type"
                             columnWidth: 135
-                            textLeftPadding: 45
+                            textLeftPadding: 40
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -289,7 +292,7 @@ Rectangle {
                             columnHeader: qsTr("Номер")
                             columnKey: "serial"
                             columnWidth: 120
-                            textLeftPadding: -5
+                            textLeftPadding: -10
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -302,7 +305,7 @@ Rectangle {
                             columnHeader: qsTr("Партия")
                             columnKey: "batch"
                             columnWidth: 100
-                            textLeftPadding: 10
+                            textLeftPadding: -4
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -315,7 +318,7 @@ Rectangle {
                             columnHeader: qsTr("Статус")
                             columnKey: "status"
                             columnWidth: 100
-                            textLeftPadding: 28
+                            textLeftPadding: 5
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -328,7 +331,7 @@ Rectangle {
                             columnHeader: qsTr("Заказ")
                             columnKey: "order"
                             columnWidth: 120
-                            textLeftPadding: 40
+                            textLeftPadding: 12
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -341,7 +344,7 @@ Rectangle {
                             columnHeader: qsTr("Склад")
                             columnKey: "warehouse"
                             columnWidth: 145
-                            textLeftPadding: 33
+                            textLeftPadding: 0
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -354,7 +357,7 @@ Rectangle {
                             columnHeader: qsTr("Дата")
                             columnKey: "date"
                             columnWidth: 80
-                            textLeftPadding: 9
+                            textLeftPadding: -15
                             currentSortColumn: sortingProperty.propertyName
                             sortAscending: sortingProperty.sortAsc
                             onSortClicked: function(key) {
@@ -472,15 +475,16 @@ Rectangle {
                                                  ? qsTr("%1,%2...").arg(modelData.warehouse.address.street)
                                                                    .arg(modelData.warehouse.address.building)
                                                  : "-"
-                                        cellWidth: 130
+                                        cellWidth: 140
                                     }
 
                                     // Дата
                                     TableCell {
                                         cellText: modelData.manufacture_date || "-"
-                                        cellWidth: 50
+                                        cellWidth: 80
                                         wrapMode: Text.WordWrap
                                         textLeftPadding: -20
+                                        horizontalAlign: Text.AlignHCenter
                                     }
                                 }
                             }
