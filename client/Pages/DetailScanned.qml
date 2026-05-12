@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.15
+import Qt5Compat.GraphicalEffects
 import io.backend 1.0
 import "../Components"
 
@@ -36,8 +37,8 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        window.width = 900
-        window.height = 680
+        window.width = 800
+        window.height = 500
         possibleOrdersFull.forEach((x, i) => {
             ordersCodes.push(format_order(x))
             codesMap[format_order(x)] = {
@@ -54,34 +55,9 @@ Rectangle {
     anchors.fill: parent
     color: "#28282A"
 
-    // Заголовок окна
-    RowLayout {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.topMargin: 45
-        anchors.leftMargin: 25
-        spacing: 12
-
-        Image {
-            source: "qrc:/resources/icons/info-circle-old.svg"
-            width: 22
-            height: 22
-            fillMode: Image.PreserveAspectFit
-        }
-
-        Text {
-            text: detail.serial_number
-            color: "#E6E8E9"
-            font.pixelSize: 18
-            font.weight: Font.Bold
-            font.family: "Roboto"
-        }
-    }
-
     // Основная область
     RowLayout {
         anchors.top: parent.top
-        anchors.topMargin: 85
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -89,70 +65,94 @@ Rectangle {
 
         // Левая панель
         Rectangle {
-            Layout.preferredWidth: 260
+            Layout.preferredWidth: 230
             Layout.fillHeight: true
             color: "#181819"
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.topMargin: 25
-                anchors.bottomMargin: 10
-                anchors.leftMargin: 50
+                anchors.leftMargin: 45
+                anchors.topMargin: 40
                 anchors.rightMargin: 10
-                spacing: 25
+                spacing: 10
+
+                // Заголовок окна
+                RowLayout {
+                    Layout.preferredHeight: 50
+                    Layout.alignment: Qt.AlignTop
+                    Layout.leftMargin: -38
+                    spacing: 10
+
+                    Image {
+                        source: "qrc:/resources/icons/detail-info.svg"
+                        width: 32
+                        height: 32
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    Text {
+                        text: detail.serial_number
+                        color: "#E6E8E9"
+                        font.pixelSize: 14
+                        font.weight: 400
+                        font.family: "Roboto"
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    iconSource: "qrc:/resources/icons/type.svg"
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
+                    iconSource: "qrc:/resources/icons/type-new.svg"
                     labelText: qsTr("Тип")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/serial-number.svg"
                     labelText: qsTr("Серийный номер")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/batch-number.svg"
                     labelText: qsTr("Номер партии")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/status.svg"
                     labelText: qsTr("Статус")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/person.svg"
                     labelText: qsTr("Сортировщик")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/warehouse.svg"
                     labelText: qsTr("Склад")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/date.svg"
                     labelText: qsTr("Дата производства")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/order.svg"
                     labelText: qsTr("Распределен в")
                 }
@@ -169,21 +169,21 @@ Rectangle {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.topMargin: 25
+                anchors.topMargin: 100
                 anchors.bottomMargin: 10
                 anchors.leftMargin: 25
                 anchors.rightMargin: 25
-                spacing: 25
+                spacing: 10
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 25
+                    spacing: 10
 
                     // Левая колонка с информацией
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 25
+                        spacing: 10
 
                         // Тип детали
                         InfoText {
@@ -221,12 +221,27 @@ Rectangle {
                     }
 
                     // Изображение
-                    Image {
-                        Layout.preferredWidth: 320
-                        Layout.preferredHeight: 160
-                        Layout.rightMargin: 20
-                        fillMode: Image.PreserveAspectFit
-                        source: qsTr("data:image/jpeg;base64,%1").arg(image["data"])
+                    Rectangle {
+                        Layout.preferredWidth: 300
+                        Layout.preferredHeight: 180
+                        Layout.rightMargin: 15
+                        radius: 10
+                        color: "transparent"
+
+                        Image {
+                            anchors.fill: parent
+                            fillMode: Image.PreserveAspectCrop
+                            source: qsTr("data:image/jpeg;base64,%1").arg(image["data"])
+                            layer.enabled: true
+                            layer.effect: OpacityMask {
+                                maskSource: Rectangle {
+                                    width: 300
+                                    height: 180
+                                    radius: 10
+                                    visible: false
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -266,9 +281,9 @@ Rectangle {
                 // Распределен в
                 ComboBox {
                     id: orderComboBox
-                    Layout.preferredWidth: 500
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     model: [qsTr("Не выбран")].concat(ordersCodes)
                     currentValue: order != null ? format_order(order)  : qsTr("Не выбран")
 

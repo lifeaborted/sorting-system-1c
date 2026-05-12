@@ -70,7 +70,7 @@ Rectangle {
 
                     Text {
                         text: qsTr("Информация о детали")
-                        color: "white"
+                        color: "#E6E8E9"
                         font.pixelSize: 16
                         font.weight: 400
                         font.family: "Roboto"
