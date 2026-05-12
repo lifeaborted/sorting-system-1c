@@ -8,26 +8,38 @@ import sys
 import json
 import base64
 import time
-import logging
 import getpass
 import requests
 import cv2
 import numpy as np
 
+from logger_config import setup_logger
+setup_logger()
+
+from loguru import logger
 from typing import Optional
 from pathlib import Path
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 
-from loguru import logger
 
-SECRET_KEY =  os.getenv('KEY')
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(env_path)
 
+SECRET_KEY = os.getenv('KEY')
+
+if not SECRET_KEY:
+    SECRET_KEY = Fernet.generate_key().decode('utf-8')
+    try:
+        with open(env_path, "a", encoding="utf-8") as f:
+            f.write(f"\nKEY={SECRET_KEY}\n")
+    except Exception as e:
+        logger.error(f"Не удалось сохранить ключ в .env: {e}")
 
 try:
-    cipher_suite = Fernet(SECRET_KEY)
+    cipher_suite = Fernet(SECRET_KEY.encode('utf-8'))
 except Exception as e:
-    logger.critical(f"Неверный ключ шифрования! Сгенерируйте новый. Ошибка: {e}")
+    logger.critical(f"Неверный ключ шифрования! Ошибка: {e}")
     cipher_suite = None
 
 AUTH_FILE = Path(__file__).resolve().parent.parent / "data" / "auth.dat"
@@ -42,6 +54,8 @@ class APIClient:
         self.base_url = f"http://{host}:{port}"
         self.scan_url = f"{self.base_url}/api/service/scan"
         self.auth_url = f"{self.base_url}/api/user/login"
+        self.renew_url = f"{self.base_url}/api/user/auth"
+        self.last_renewal_time = time.time()
 
         self._ensure_authenticated()
 
@@ -155,14 +169,37 @@ class APIClient:
             response = requests.post(self.auth_url, json=credentials, timeout=10)
             if response.status_code == 200:
                 self.token = response.json().get('token')
-                if self.token: return True
+                if self.token:
+                    self.last_renewal_time = time.time()
+                    return True
         except Exception as e:
             logger.error(f"Ошибка соединения: {e}")
         self.token = None
         return False
 
+    def renew_token(self) -> bool:
+        if not self.token: return False
+        try:
+            headers = {'Authorization': f'Bearer {self.token}'}
+            response = requests.get(self.renew_url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                self.token = response.json().get('token')
+                if self.token:
+                    self.save_token_to_file()
+                    self.last_renewal_time = time.time()
+                    logger.debug("Токен успешно продлен в фоновом режиме.")
+                    return True
+        except Exception as e:
+            logger.error(f"Ошибка продления токена: {e}")
+        return False
+
     def send_scan_result(self, fields: dict, image_np: np.ndarray, filename: str) -> bool:
         if not self.token: return False
+
+        # Автопродление токена, если с прошлой выдачи прошел 1 час (3600 секунд)
+        if time.time() - self.last_renewal_time >= 3600:
+            self.renew_token()
+
         try:
             _, img_encoded = cv2.imencode('.jpg', image_np)
             files = {'image': (filename, img_encoded.tobytes(), 'image/jpeg')}
@@ -172,8 +209,11 @@ class APIClient:
             response = requests.post(self.scan_url, files=files, data=data, headers=headers, timeout=10)
 
             if response.status_code in [401, 403]:
-                logger.warning("Токен отклонен. Обновление...")
-                if self._saved_credentials:
+                logger.warning("Токен отклонен. Попытка продления...")
+                if self.renew_token():
+                    headers['Authorization'] = f'Bearer {self.token}'
+                    response = requests.post(self.scan_url, files=files, data=data, headers=headers, timeout=10)
+                elif self._saved_credentials:
                     l, p = self._saved_credentials
                     if self.authenticate(l, p):
                         self.save_token_to_file()

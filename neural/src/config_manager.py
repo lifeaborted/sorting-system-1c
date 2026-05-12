@@ -3,11 +3,10 @@
 """
 
 import json
-import logging
+from loguru import logger
 
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
 
 # Структура конфигурации по умолчанию
 DEFAULT_CONFIG = {

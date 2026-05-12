@@ -3,16 +3,15 @@
 """
 
 import time
-import logging
-import cv2
 import numpy as np
 
-from pathlib import Path
+from logger_config import setup_logger
+setup_logger()
+
+from loguru import logger
 from models import Detection, PipelineResult
 from detectors import YOLODetector
 from recognizers import OCRRecognizer
-
-logger = logging.getLogger(__name__)
 
 
 class MarkingPipeline:
@@ -27,11 +26,6 @@ class MarkingPipeline:
         self.detector = YOLODetector(yolo_cfg)
         self.recognizer = OCRRecognizer(ocr_cfg)
         self.crop_padding = ocr_cfg.get("crop_padding_px", 8)
-        self.save_crops = output_config.get("save_crops", False)
-        self.crops_dir = Path(output_config.get("crops_dir", "data/crops"))
-
-        if self.save_crops:
-            self.crops_dir.mkdir(parents=True, exist_ok=True)
 
     def process_image(self, image: np.ndarray, source: str = "frame") -> PipelineResult:
         t0 = time.perf_counter()
@@ -82,11 +76,6 @@ class MarkingPipeline:
             y2p = min(h, y2 + self.crop_padding)
 
             crop = image[y1p:y2p, x1p:x2p]
-
-            if self.save_crops:
-                safe_timestamp = timestamp.replace(":", "-")
-                crop_name = f"{Path(source).stem}_{safe_timestamp}_{i}.jpg"
-                cv2.imwrite(str(self.crops_dir / crop_name), crop)
 
             # 3. Распознавание OCR
             text, ocr_conf = self.recognizer.recognize(crop)

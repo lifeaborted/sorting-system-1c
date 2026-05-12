@@ -2,12 +2,13 @@
 Класс, отвечающий только за поиск объектов (YOLO)
 """
 
-import logging
+from logger_config import setup_logger
+setup_logger()
+
+from loguru import logger
 import numpy as np
 
 from ultralytics import YOLO
-
-logger = logging.getLogger(__name__)
 
 
 class YOLODetector:

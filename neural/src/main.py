@@ -1,23 +1,19 @@
-import logging
+from logger_config import setup_logger
+setup_logger()
 from loguru import logger
-
-import json
-import cv2
-import numpy as np
-
 from pathlib import Path
 from config_manager import load_or_create_config
 from pipeline import MarkingPipeline
 from utils import draw_detections
 from parser import parse_text_to_fields
 from api_client import APIClient
-from datetime import datetime
 
+import json
+import cv2
+import numpy as np
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT_FOLDER / "data" / "config.json"
-OUTPUT_FOLDER = ROOT_FOLDER / "data" / "output"
-CROPS_DIR = ROOT_FOLDER / "data" / "crops"
 
 pipeline = None
 api_client = None
@@ -31,14 +27,10 @@ def initialize():
 
     logger.info("Инициализация моделей и коннектов...")
 
-    OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
-    CROPS_DIR.mkdir(parents=True, exist_ok=True)
-
     cfg = load_or_create_config(CONFIG_PATH)
 
     neural_cfg = cfg.get("neural", {})
     output_cfg = cfg.get("output", {})
-    output_cfg["crops_dir"] = str(CROPS_DIR)  # Передаем путь для crops
 
     pipeline = MarkingPipeline(neural_cfg, output_cfg)
 
@@ -90,22 +82,8 @@ def process_image_logic(contents: bytes, filename: str) -> dict:
     # 4. Визуализация
     annotated_img = draw_detections(img, result)
 
-    # 5. Сохранение файлов
-    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    base_filename = Path(source_name).stem
-
-    result_json_path = OUTPUT_FOLDER / f"{base_filename}_result.json"
-    with open(result_json_path, "w", encoding="utf-8") as f:
-        f.write(result.to_json())
-
-    payload_json_path = OUTPUT_FOLDER / f"{base_filename}_payload.json"
-    with open(payload_json_path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
-
-    annotated_img_path = OUTPUT_FOLDER / f"{base_filename}_annotated.jpg"
-    cv2.imwrite(str(annotated_img_path), annotated_img)
-
-    logger.info(f"Обработка завершена: {filename} (за {result.processing_time_ms} мс)")
+    #logger.info(f"Результат распознавания: {json.dumps(payload, ensure_ascii=False)}")
+    logger.info(f"Обработка завершена: за {result.processing_time_ms} мс. Результат распознавания: {json.dumps(payload, ensure_ascii=False)}")
 
     # 6. Отправка на JS сервер
     if api_client:

@@ -1,10 +1,15 @@
-import logging
+"""
+Запуск сервера нейронки для приема изображения
+"""
+from logger_config import setup_logger
+setup_logger()
+
+from loguru import logger
 import main
 
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
-from loguru import logger
 
 app = FastAPI(title="Neural Marking Service")
 
@@ -23,7 +28,7 @@ async def upload_image(
     background_tasks.add_task(main.process_image_logic, contents, file.filename)
 
     return JSONResponse(
-        status_code=202,
+        status_code=200,
         content={
             "status": "accepted",
             "message": "Image queued for processing",
