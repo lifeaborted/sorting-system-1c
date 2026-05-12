@@ -18,8 +18,8 @@ Rectangle {
     })
 
     Component.onCompleted: {
-        window.width = 900
-        window.height = 680
+        window.width = 800
+        window.height = 500
         possibleOrdersFull.forEach((x, i) => {
             ordersCodes.push(x["order_number"])
             codesMap["orderCodes"][x["order_number"]] = {
@@ -33,34 +33,9 @@ Rectangle {
     anchors.fill: parent
     color: "#28282A"
 
-    // Заголовок окна
-    RowLayout {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.topMargin: 45
-        anchors.leftMargin: 25
-        spacing: 12
-
-        Image {
-            source: "qrc:/resources/icons/info-circle-old.svg"
-            width: 22
-            height: 22
-            fillMode: Image.PreserveAspectFit
-        }
-
-        Text {
-            text: qsTr("Информация о детали")
-            color: "#E6E8E9"
-            font.pixelSize: 18
-            font.weight: Font.Bold
-            font.family: "Roboto"
-        }
-    }
-
     // Основная область
     RowLayout {
         anchors.top: parent.top
-        anchors.topMargin: 85
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -68,65 +43,96 @@ Rectangle {
 
         // Левая панель
         Rectangle {
-            Layout.preferredWidth: 260
+            Layout.preferredWidth: 230
             Layout.fillHeight: true
             color: "#181819"
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.topMargin: 25
-                anchors.bottomMargin: 10
-                anchors.leftMargin: 50
+                anchors.leftMargin: 45
+                anchors.topMargin: 40
                 anchors.rightMargin: 10
-                spacing: 25
+                spacing: 10
+
+                // Заголовок окна
+                RowLayout {
+                    Layout.preferredHeight: 50
+                    Layout.alignment: Qt.AlignTop
+                    Layout.leftMargin: -38
+                    spacing: 10
+
+                    Image {
+                        source: "qrc:/resources/icons/detail-info.svg"
+                        width: 32
+                        height: 32
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    Text {
+                        text: qsTr("Информация о детали")
+                        color: "white"
+                        font.pixelSize: 16
+                        font.weight: 400
+                        font.family: "Roboto"
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    iconSource: "qrc:/resources/icons/type.svg"
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
+                    iconSource: "qrc:/resources/icons/type-new.svg"
                     labelText: qsTr("Тип")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/serial-number.svg"
                     labelText: qsTr("Серийный номер")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/batch-number.svg"
                     labelText: qsTr("Номер партии")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/status.svg"
                     labelText: qsTr("Статус")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
-                    iconSource: "qrc:/resources/icons/order.svg"
-                    labelText: qsTr("Принадлежит заказу")
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
+                    iconSource: "qrc:/resources/icons/person.svg"
+                    labelText: qsTr("Сортировщик")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/warehouse.svg"
                     labelText: qsTr("Склад")
                 }
 
                 InfoRow {
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/date.svg"
                     labelText: qsTr("Дата производства")
+                }
+
+                InfoRow {
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
+                    iconSource: "qrc:/resources/icons/order.svg"
+                    labelText: qsTr("Принадлежит заказу")
                 }
 
                 Item { Layout.fillHeight: true }
@@ -141,11 +147,11 @@ Rectangle {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.topMargin: 25
+                anchors.topMargin: 100
                 anchors.bottomMargin: 10
                 anchors.leftMargin: 25
                 anchors.rightMargin: 25
-                spacing: 25
+                spacing: 10
 
                 // Тип
                 InfoText {
@@ -176,12 +182,38 @@ Rectangle {
                     }
                 }
 
+                // Сортировщик
+                InfoText {
+                    infoText: Backend.user.format_username("{first} {second} {middle}")
+                }
+
+                // Склад (с переносом текста)
+                InfoText {
+                    infoText: detail.warehouse != null
+                             ? qsTr("%1, %2, %3, %4, %5, %6")
+                                .arg(detail.warehouse.address.country)
+                                .arg(detail.warehouse.address.region)
+                                .arg(detail.warehouse.address.city)
+                                .arg(detail.warehouse.address.street)
+                                .arg(detail.warehouse.address.building)
+                                .arg(detail.warehouse.address.postal_code)
+                             : "-"
+                    enableWrap: true
+                    maxLineCount: 2
+                    enableElide: true
+                }
+
+                // Дата производства
+                InfoText {
+                    infoText: detail.manufacture_date || "-"
+                }
+
                 // Заказ
                 ComboBox {
                     id: orderComboBox
-                    Layout.preferredWidth: 500
-                    Layout.preferredHeight: 36
-                    Layout.maximumHeight: 36
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 30
+                    Layout.maximumHeight: 30
                     model: [qsTr("Не выбран")].concat(ordersCodes)
                     currentValue: detail["order"] != null ? detail["order"]["name"] : qsTr("Не выбран")
 
@@ -242,27 +274,6 @@ Rectangle {
                         popup.exit = null
                         popup.padding = 0
                     }
-                }
-
-                // Склад (с переносом текста)
-                InfoText {
-                    infoText: detail.warehouse != null
-                             ? qsTr("%1, %2, %3, %4, %5, %6")
-                                .arg(detail.warehouse.address.country)
-                                .arg(detail.warehouse.address.region)
-                                .arg(detail.warehouse.address.city)
-                                .arg(detail.warehouse.address.street)
-                                .arg(detail.warehouse.address.building)
-                                .arg(detail.warehouse.address.postal_code)
-                             : "-"
-                    enableWrap: true
-                    maxLineCount: 2
-                    enableElide: true
-                }
-
-                // Дата производства
-                InfoText {
-                    infoText: detail.manufacture_date || "-"
                 }
 
                 Item { Layout.fillHeight: true }

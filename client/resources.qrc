@@ -14,6 +14,7 @@
         <file>resources/icons/profile-picture.svg</file>
         <file>resources/icons/pencil.svg</file>
         <file>resources/icons/type.svg</file>
+        <file>resources/icons/type-new.svg</file>
         <file>resources/icons/serial-number.svg</file>
         <file>resources/icons/batch-number.svg</file>
         <file>resources/icons/status.svg</file>
@@ -28,6 +29,7 @@
         <file>resources/icons/language.svg</file>
         <file>resources/icons/quick-sort.svg</file>
         <file>resources/icons/cancel-sort.svg</file>
+        <file>resources/icons/detail-info.svg</file>
         <file>resources/backgrounds/background1.png</file>
         <file>resources/fonts/Roboto/Roboto-Regular.ttf</file>
         <file>resources/fonts/Roboto/Roboto-Medium.ttf</file>

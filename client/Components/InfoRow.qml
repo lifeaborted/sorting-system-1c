@@ -9,14 +9,14 @@ RowLayout {
     Layout.fillWidth: true
     Layout.preferredHeight: 36
     Layout.alignment: Qt.AlignVCenter
-    spacing: 12
+    spacing: 10
 
     // Настраиваемые свойства
     property string iconSource: ""
     property string labelText: ""
-    property int iconSize: 20
+    property int iconSize: 16
     property color textColor: "#E6E8E9"
-    property int textPixelSize: 14
+    property int textPixelSize: 12
     property string textFontFamily: "Roboto"
 
     Image {

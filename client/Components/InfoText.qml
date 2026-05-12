@@ -9,9 +9,9 @@ Text {
 
     // Настраиваемые свойства
     property string infoText: ""
-    property int textHeight: 36
+    property int textHeight: 30
     property color textColor: "#B2B4BC"
-    property int textPixelSize: 13
+    property int textPixelSize: 12
     property string textFontFamily: "Roboto"
     property int textFontWeight: 400
     property bool enableWrap: false
