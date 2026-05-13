@@ -32,7 +32,7 @@ class User(QObject):
     _last_name: str
     _middle_name: str
     _user_wss: UserWss = None
-    _details: list[Detail] = None
+    _details: dict[int, Detail] = None
     _details_types: dict[int, DetailType] = None
     _warehouses: dict[int, Warehouse] = None
     _orders: dict[int, OrdersApi.Order] = None
@@ -141,7 +141,7 @@ class User(QObject):
         if self._warehouses is None:
             await self._load_warehouses()
 
-        self._details = []
+        self._details = {}
         raw_details = await self._api.parts.get_all()
         for r_detail in raw_details["rows"]:
             status = r_detail["status"]
@@ -169,7 +169,7 @@ class User(QObject):
                 status=status,
             )
 
-            self._details.append(detail)
+            self._details[detail["id"]] = detail
             self._details_filter["detail_type"][detail["type"]["name"]] = detail["type"]["id"]
 
             batch_number = detail["batch_number"]
@@ -197,6 +197,18 @@ class User(QObject):
         self._api.run_blocking(self._api.parts.change_detail_order(id, order_id))
 
         self._api.run_blocking(self._load_details_from_api())
+        self.detailsChanged.emit()
+
+    @Slot(int)
+    def quick_sort_detail(self, id: int):
+        resp = self._api.run_blocking(self._api.parts.quick_sort(id))
+        if resp["isSorted"]:
+            self._details[id]["order"] = OrderShort(
+                id=resp["order"]["order_id"],
+                name=resp["order"]["order_number"]
+            )
+        else:
+            self._details[id]["order"] = None
         self.detailsChanged.emit()
 
     @Slot("QVariant", result="QVariantList")
@@ -316,7 +328,7 @@ class User(QObject):
             return True
 
 
-        data = filter(filter_detail, self._details)
+        data = filter(filter_detail, self._details.values())
 
         attr_getter = None
         sort_name = sortParams.property("propertyName")
@@ -346,10 +358,7 @@ class User(QObject):
 
     @Slot(int, result="QVariant")
     def get_detail(self, id: int):
-        for i in self._details:
-            if i["id"] == id:
-                return i
-        return None
+        return self._details.get(id, None)
 
 
     def stop(self):

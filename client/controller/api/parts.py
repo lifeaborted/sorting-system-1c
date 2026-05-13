@@ -44,6 +44,9 @@ class PartsApi:
         order_id: int
         order: 'PartsApi.Order'
 
+    class QuickSort(TypedDict):
+        isSorted: bool
+        order: 'PartsApi.Order'
 
     class OrderItemPartWrapper(TypedDict):
         order_item_id: int
@@ -55,13 +58,16 @@ class PartsApi:
     async def get_all(self) -> AllDetailsResponse:
         return await self.c.get("/api/part/")
 
-    async def get(self, id: int) -> Detail:
-        return await self.c.get(f"/api/part/{id}")
+    async def get(self, detail_id: int) -> Detail:
+        return await self.c.get(f"/api/part/{detail_id}")
 
-    async def get_details_orders(self, id: int) -> list['PartsApi.Order']:
-        return await self.c.get(f"/api/part/{id}/orders")
+    async def get_details_orders(self, detail_id: int) -> list['PartsApi.Order']:
+        return await self.c.get(f"/api/part/{detail_id}/orders")
 
     async def change_detail_order(self, detail_id: int, order_id: Optional[int] = None) -> list['PartsApi.Order']:
         return await self.c.put(f"/api/part/{detail_id}/change-order", {
             "order_id": order_id
         })
+
+    async def quick_sort(self, detail_id: int) -> QuickSort:
+        return await self.c.put(f"/api/part/{detail_id}/sort", {})

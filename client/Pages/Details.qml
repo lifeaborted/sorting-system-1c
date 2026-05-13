@@ -419,9 +419,7 @@ Rectangle {
                                         buttonHeight: 30
                                         iconSize: 20
                                         onClickedHandler: function() {
-                                            Backend.router.open_popup_detailed("/detailWindow", {
-                                                detailId: modelData.id
-                                            })
+                                            Backend.user.quick_sort_detail(modelData.id)
                                         }
 
                                         background: Rectangle {
