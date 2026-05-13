@@ -86,6 +86,7 @@ Rectangle {
             details = Backend.user.load_details_filter(sortingParams, sortingProperty, batchSize * (page + 1), 0)
             return
         }
+        detaiListScrollView.ScrollBar.vertical.position = 0
         page = 0
         detailsFilter = Backend.user.load_sorting_options()
         // Биндинг из  controller.detail.py Детали
