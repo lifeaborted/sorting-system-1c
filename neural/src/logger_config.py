@@ -3,6 +3,8 @@ import warnings
 import logging
 from loguru import logger
 
+# Глобальный флаг для отслеживания инициализации
+_logger_initialized = False
 
 # Создадим перехватчик, который будет ловить логи от Uvicorn
 # и направлять их в Loguru (чтобы всё было в едином красивом стиле)
@@ -22,16 +24,31 @@ class InterceptHandler(logging.Handler):
 
 
 def setup_logger():
+    global _logger_initialized
+    
+    # Если уже инициализировали - выходим
+    if _logger_initialized:
+        return
+    
     # 1. Отключаем C++ логи PaddlePaddle
     os.environ['GLOG_minloglevel'] = '2'
 
     # 2. Отключаем предупреждения Python
     warnings.filterwarnings("ignore")
 
-    # 3. Отключаем спам от PaddleX
+    # 3. Отключаем спам от PaddleX (только при первом вызове)
     try:
         import paddlex
-        paddlex.utils.logging.setup_logging('WARNING')
+        # Проверяем, не инициализирован ли уже PaddleX
+        # Используем защитный блок try-except
+        try:
+            paddlex.utils.logging.setup_logging('WARNING')
+        except RuntimeError as e:
+            if "already been initialized" in str(e):
+                # Уже инициализирован, игнорируем
+                pass
+            else:
+                raise
     except ImportError:
         pass
 
@@ -42,3 +59,6 @@ def setup_logger():
     # Заменяем стандартный вывод Uvicorn/FastAPI на наш красивый Loguru
     logging.getLogger("uvicorn").handlers = [InterceptHandler()]
     logging.getLogger("fastapi").handlers = [InterceptHandler()]
+    
+    # Отмечаем, что инициализация выполнена
+    _logger_initialized = True
