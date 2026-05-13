@@ -330,7 +330,7 @@
     <message>
         <location filename="../Pages/Login.qml" line="57"/>
         <source>Введите логин и пароль</source>
-        <translation>أدخل اسم المستخدم وكلمة المرور</translation>
+        <translation>تسجيل الدخول</translation>
     </message>
     <message>
         <location filename="../Pages/Login.qml" line="69"/>
