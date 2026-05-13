@@ -29,6 +29,11 @@ Rectangle {
         }
     }
 
+    // Пагинация
+    property int batchSize: 50
+    property int page: 0
+    property var lastLoadMoreDate: 0
+
     property QtObject sortingProperty: QtObject {
         property string propertyName: "date"
         property bool sortAsc: true
@@ -48,6 +53,8 @@ Rectangle {
 
 
     function resetParams() {
+        detaiListScrollView.ScrollBar.vertical.position = 0
+        page = 0
         sortingProperty = Qt.createQmlObject(`
             import QtQuick
             QtObject {
@@ -73,20 +80,39 @@ Rectangle {
 
     }
 
-    function loadDetails() {
+    // Загрузка
+    function loadDetails(resetPagination = true) {
+        if (!resetPagination) {
+            details = Backend.user.load_details_filter(sortingParams, sortingProperty, batchSize * (page + 1), 0)
+            return
+        }
+        page = 0
         detailsFilter = Backend.user.load_sorting_options()
         // Биндинг из  controller.detail.py Детали
         // Можно считать, что значения закешированы, и никакой дополнительной нагрузке вызов функции не несёт
         // Детали не надо напрямую редачить
         // и массив тоже не имеет смысла :p
-        details = Backend.user.load_details_filter(sortingParams, sortingProperty)
+        details = Backend.user.load_details_filter(sortingParams, sortingProperty, batchSize, page)
+    }
+
+    // Ленивая загрузка
+    function loadMore() {
+        if (lastLoadMoreDate + (1000 * 2) > Date.now()) {
+            return
+        }
+        lastLoadMoreDate = Date.now()
+        const newData = Backend.user.load_details_filter(sortingParams, sortingProperty, batchSize, page + 1)
+        if (newData.length == batchSize) {
+            page += 1
+            details = details.concat(newData)
+        }
     }
 
 
     Connections {
         target: Backend.user
         function onDetailsChanged() {
-            loadDetails()
+            loadDetails(false)
         }
     }
 
@@ -369,9 +395,15 @@ Rectangle {
 
                 // Список деталей
                 ScrollView {
+                    id: detaiListScrollView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
+                    ScrollBar.vertical.onPositionChanged: {
+                        if (ScrollBar.vertical.position > 0.7) {
+                            loadMore()
+                        }
+                    }
 
                     ColumnLayout {
                         width: parent.width

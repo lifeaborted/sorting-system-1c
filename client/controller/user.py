@@ -270,8 +270,8 @@ class User(QObject):
     def load_sorting_options(self):
         return self._details_filter
 
-    @Slot("QVariant", "QVariant", result = "QVariantList")
-    def load_details_filter(self, f: QObject, sortParams: QObject):
+    @Slot("QVariant", "QVariant", int, int, result = "QVariantList")
+    def load_details_filter(self, f: QObject, sortParams: QObject, batchSize: int, page: int):
         def filter_detail(d: Detail) -> bool:
             if f.property("date") is not None:
                 from_date = f.property("date").property("from")
@@ -353,6 +353,7 @@ class User(QObject):
         data = sorted(data, key=attr_getter, reverse=sortParams.property("sortAsc"))
         arr = list(data)
         logging.info(f"For current filter found {len(arr)} entry")
+        arr = arr[batchSize * page:batchSize * ( page + 1 )]
         return arr
 
 
