@@ -207,8 +207,10 @@ class User(QObject):
                 id=resp["order"]["order_id"],
                 name=resp["order"]["order_number"]
             )
+            self._details[id]["status"] = "completed"
         else:
             self._details[id]["order"] = None
+            self._details[id]["status"] = "pending"
         self.detailsChanged.emit()
 
     @Slot("QVariant", result="QVariantList")
