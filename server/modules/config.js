@@ -17,7 +17,7 @@ class Config
             },
             app: {
                 port: 5000,
-                devMode: false
+                dev_mode: false
             },
             encryption: {
                 salt: faker.internet.password({ length: 10 }),
