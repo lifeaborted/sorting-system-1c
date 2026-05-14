@@ -13,6 +13,10 @@ Item {
     property string iconSource: "qrc:/resources/icons/language.svg"
     property color triggerColor: "#D9D9D9"
     property color triggerHoverColor: "#C8C8C8"
+    property color dropdownBgColor: "#D9D9D9"
+    property color dropdownHoverColor: "#C8C8C8"
+    property color textColor: "#28282A"
+
     property int triggerWidth: 32
     property int triggerHeight: 32
     property int triggerRadius: 20
@@ -93,7 +97,7 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 10
-                color: "#D9D9D9"
+                color: dropdownBgColor
             }
         }
 
@@ -115,7 +119,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: 10
-                    color: "#C8C8C8"
+                    color: dropdownHoverColor
                     opacity: itemArea.containsMouse ? 1.0 : 0.0
                 }
 
@@ -134,7 +138,7 @@ Item {
                         font.family: "Roboto"
                         font.pixelSize: 8
                         font.weight: 800
-                        color: "#28282A"
+                        color: textColor
                         Layout.preferredWidth: 10
                     }
 
@@ -143,7 +147,7 @@ Item {
                         font.family: "Roboto"
                         font.pixelSize: 10
                         font.weight: 500
-                        color: "#28282A"
+                        color: textColor
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                     }
@@ -154,7 +158,7 @@ Item {
                         font.family: "Roboto"
                         font.pixelSize: 10
                         font.weight: 500
-                        color: "#28282A"
+                        color: textColor
                     }
                 }
 

@@ -199,7 +199,10 @@ RowLayout {
                                 triggerWidth: 24
                                 triggerHeight: 24
                                 triggerRadius: 20
-                                z: 999
+                                dropdownBgColor: "#28282A"
+                                dropdownHoverColor: "#4A4A4E"
+                                textColor: "#E6E8E9"
+                                z: 2
                             }
                         }
 
