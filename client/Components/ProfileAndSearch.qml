@@ -111,12 +111,13 @@ RowLayout {
 
                 Popup {
                     id: popup
-                    x: -(userProfile.width - 25)
+                    x: -(userProfile.width - 5)
                     y: 38
                     width: 200
                     height: 120
                     padding: 0
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+                    clip: false
 
                     background: Item {
                         // Тень
@@ -152,21 +153,31 @@ RowLayout {
                                 width: 32
                                 height: 32
                                 fillMode: Image.PreserveAspectFit
-                                Layout.alignment: Qt.AlignVCenter
+                                Layout.leftMargin: 12
+                                Layout.topMargin: 12
                             }
 
                             // Имя + должность
                             ColumnLayout {
-                                Layout.fillWidth: true
+                                anchors.leftMargin: 20
+                                width: 140
+                                height: 28
                                 spacing: 2
 
                                 Text {
-                                    text: Backend.user.format_username("{second} {first} {middle}")
+                                    text: Backend.user.format_username("{second}")
                                     color: "#E6E8E9"
                                     font.pixelSize: 12
                                     font.weight: 400
                                     font.family: "Roboto"
-                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Text {
+                                    text: Backend.user.format_username("{first} {middle}")
+                                    color: "#E6E8E9"
+                                    font.pixelSize: 12
+                                    font.weight: 400
+                                    font.family: "Roboto"
                                     Layout.fillWidth: true
                                 }
                                 Text {
@@ -181,18 +192,24 @@ RowLayout {
                             // Иконка языка
                             LanguageSelect {
                                 iconSource: "qrc:/resources/icons/language-light.svg"
-                                Layout.alignment: Qt.AlignVCenter
+                                Layout.topMargin: -40
+                                Layout.rightMargin: -15
                                 triggerColor: "transparent"
                                 triggerHoverColor: "#3E3E42"
+                                triggerWidth: 24
+                                triggerHeight: 24
+                                triggerRadius: 20
+                                z: 999
                             }
                         }
 
                         // Кнопка Выйти
                         Rectangle {
-                            Layout.alignment: Qt.AlignHCenter
+                            Layout.leftMargin: 20
                             width: 140
                             height: 30
                             radius: 5
+                            z: -1
                             color: logoutMouse.containsMouse ? "#4A4A4E" : "#3E3E42"
 
                             Behavior on color { ColorAnimation { duration: 100 } }
