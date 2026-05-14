@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects
@@ -9,6 +10,7 @@ Item {
     width: 32
     height: 32
 
+    property string iconSource: "qrc:/resources/icons/language.svg"
     property list<string> languages: Backend.translator.language_list()
     property int currentIndex: languages.indexOf(Backend.translator.current_language())
     property var rootWindow: Window.window
@@ -41,7 +43,7 @@ Item {
 
         Image {
             anchors.centerIn: parent
-            source: "qrc:/resources/icons/language.svg"
+            source: root.iconSource
             width: 16
             height: 16
             fillMode: Image.PreserveAspectFit

@@ -22,11 +22,13 @@
         <file>resources/icons/warehouse.svg</file>
         <file>resources/icons/date.svg</file>
         <file>resources/icons/person.svg</file>
+        <file>resources/icons/person-x2.svg</file>
         <file>resources/icons/check-circle.svg</file>
         <file>resources/icons/exclamation-circle.svg</file>
         <file>resources/icons/x-circle.svg</file>
         <file>resources/icons/notification-info-circle.svg</file>
         <file>resources/icons/language.svg</file>
+        <file>resources/icons/language-light.svg</file>
         <file>resources/icons/quick-sort.svg</file>
         <file>resources/icons/cancel-sort.svg</file>
         <file>resources/icons/detail-info.svg</file>
