@@ -188,7 +188,7 @@ class ScanController
             if(Object.keys(orderList).length === 0)
             {
                 logger.warn("Orders not found")
-                return null
+                return [null, null]
             }
 
             logger.info("Find min order")
@@ -207,7 +207,7 @@ class ScanController
             if(orderId < 0)
             {
                 logger.warn("Orders with min quantity are not found")
-                return null
+                return [null, null]
             }
 
             logger.info("Find order-item")
@@ -221,7 +221,7 @@ class ScanController
             if(orderItemId < 0)
             {
                 logger.warn("Order-item with min quantity are not found")
-                return null
+                return [null, null]
             }
 
             logger.done("Sorting complete")
@@ -230,7 +230,7 @@ class ScanController
         catch(e)
         {
             logger.error(e)
-            return null
+            return [null, null]
         }
     }
 }

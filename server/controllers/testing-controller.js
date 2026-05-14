@@ -22,6 +22,8 @@ class TestingController
     {
         try
         {
+            if(!config.app.devMode) return next(ApiError.forbidden('Testing route is off'))
+
             let {override_DB, ratio} = req.body
 
             ratio = parseFloat(ratio)

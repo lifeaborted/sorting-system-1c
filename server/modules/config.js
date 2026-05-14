@@ -16,7 +16,8 @@ class Config
                 password: "postgres",
             },
             app: {
-                port: 5000
+                port: 5000,
+                devMode: false
             },
             encryption: {
                 salt: faker.internet.password({ length: 10 }),

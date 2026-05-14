@@ -1,7 +1,6 @@
 const ApiError = require('../error/api-error')
 const {Order, Customer, OrderItem, PartType, Part, OrderItemPart} = require('../database/models')
 const sequelize = require('../database/database')
-const { Sequelize, Op } = require('sequelize')
 const logger = require("../modules/logger");
 
 class OrderController
@@ -97,7 +96,7 @@ class OrderController
             offset = parseInt(offset) || 0
 
             logger.info("Find all orders")
-            const {count, rows} = await Order.findAndCountAll({
+            const orders = await Order.findAndCountAll({
                 limit,
                 offset,
                 distinct: true,
@@ -118,15 +117,13 @@ class OrderController
                                     SELECT COUNT(order_item_parts)
                                     FROM "Order_Items"  orderItems
                                     JOIN "Order_Item_Parts" order_item_parts ON order_item_parts.order_item_id = orderItems.order_item_id
-                                    WHERE
-                                        orderItems.order_id = "order".order_id
+                                    WHERE orderItems.order_id = "order".order_id
                                 ) * 1.0
                                     /
                                 (
                                     SELECT SUM(required_quantity)
                                     FROM "Order_Items" AS orderItems
-                                    WHERE
-                                        orderItems.order_id = "order".order_id
+                                    WHERE orderItems.order_id = "order".order_id
                                 )
                             )`), "float"),
                             'completedPercentage'
@@ -144,7 +141,7 @@ class OrderController
             })
 
             logger.done("Sending response")
-            return res.json({count, rows})
+            return res.json(orders)
         }
         catch(e)
         {

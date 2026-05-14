@@ -253,7 +253,7 @@ class PartController
             if(!inOrderId || !orderItemId)
             {
                 logger.warn("No available orders found")
-                return next(ApiError.notFound("No available orders found"))
+                return res.json({isSorted: null, order: null})
             }
 
             logger.info("Creating part-in-order note")
