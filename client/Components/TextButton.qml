@@ -26,6 +26,8 @@ Button {
     text: buttonText
     Layout.preferredWidth: buttonWidth
     Layout.preferredHeight: buttonHeight
+    width: buttonWidth
+    height: buttonHeight
     enabled: !isDisabled
 
     // Текст кнопки

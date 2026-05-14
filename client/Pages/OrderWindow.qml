@@ -13,10 +13,10 @@ Rectangle {
     property int maxAmountOfOrderItems: 0
     property int currentAmountOfOrderItems: 0
 
-
-
     Component.onCompleted: {
-        const orderItems = order.orderItems;
+        window.width = 800
+        window.height = 500
+        const orderItems = order.orderItems
         for (const item of orderItems) {
             maxAmountOfOrderItems += item.required_quantity
             currentAmountOfOrderItems += item.orderItemParts.length
@@ -27,7 +27,6 @@ Rectangle {
     anchors.fill: parent
     color: "#28282A"
 
-    // Основная область
     RowLayout {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -63,7 +62,7 @@ Rectangle {
                     }
 
                     Text {
-                        text: qsTr("Информация о Заказе")
+                        text: qsTr("Информация о заказе")
                         color: "#E6E8E9"
                         font.pixelSize: 16
                         font.weight: 400
@@ -84,7 +83,7 @@ Rectangle {
                     Layout.preferredHeight: 30
                     Layout.maximumHeight: 30
                     iconSource: "qrc:/resources/icons/serial-number.svg"
-                    labelText: qsTr("Номер Заказа")
+                    labelText: qsTr("Номер заказа")
                 }
 
                 InfoRow {
@@ -111,6 +110,7 @@ Rectangle {
                 InfoRow {
                     Layout.preferredHeight: 30
                     Layout.maximumHeight: 30
+                    Layout.bottomMargin: 80
                     iconSource: "qrc:/resources/icons/warehouse.svg"
                     labelText: qsTr("Состав")
                 }
@@ -121,6 +121,7 @@ Rectangle {
                     iconSource: "qrc:/resources/icons/date.svg"
                     labelText: qsTr("Заметка")
                 }
+
                 Item { Layout.fillHeight: true }
             }
         }
@@ -134,7 +135,7 @@ Rectangle {
             ColumnLayout {
                 anchors.fill: parent
                 anchors.topMargin: 100
-                anchors.bottomMargin: 10
+                anchors.bottomMargin: 60
                 anchors.leftMargin: 25
                 anchors.rightMargin: 25
                 spacing: 10
@@ -144,14 +145,14 @@ Rectangle {
                     infoText: order.customer.company_name
                 }
 
-                // Номер Заказа
+                // Номер заказа
                 InfoText {
                     infoText: order.order_number
                 }
 
                 // Статус
                 InfoText {
-                    infoText: order["status"] != "completed" ? qsTr("Выполняется") : qsTr("Завершён")
+                    infoText: order["status"] !== "completed" ? qsTr("Выполняется") : qsTr("Завершён")
                 }
 
                 // Стоимость
@@ -173,136 +174,129 @@ Rectangle {
                     }
                 }
 
-                //  Состав
-                Flickable {
-                            Layout.preferredWidth: 250
-                            Layout.preferredHeight: 60
-                            Layout.alignment: Qt.AlignVCenter
-                            clip: true
-                            contentHeight: materialsCol.height
-                            contentWidth: width
+                // Состав
+                Rectangle {
+                    Layout.preferredWidth: 300
+                    Layout.preferredHeight: 110
+                    Layout.alignment: Qt.AlignVCenter
+                    color: "#3E3E42"
+                    radius: 5
 
-                            Column {
-                                id: materialsCol
-                                width: parent.width
-                                spacing: 3
+                    Flickable {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        clip: true
+                        contentHeight: materialsCol.height
+                        contentWidth: width
 
-                                Repeater {
-                                    model: order.orderItems
-                                    delegate: Row {
-                                        width: parent.width
-                                        spacing: 0
+                        Column {
+                            id: materialsCol
+                            width: parent.width
+                            spacing: 3
 
-                                        Text {
-                                            text: "• " + modelData.partType.name
-                                            color: "#B2B4BC"
-                                            font.pixelSize: 11
-                                            font.family: "Roboto"
-                                            width: parent.width - 36
-                                            elide: Text.ElideRight
-                                        }
-                                        Text {
-                                            text: "x" + modelData.required_quantity
-                                            color: "#B2B4BC"
-                                            font.pixelSize: 11
-                                            font.family: "Roboto"
-                                            width: 36
-                                            horizontalAlignment: Text.AlignRight
-                                        }
+                            Repeater {
+                                model: order.orderItems
+                                delegate: Row {
+                                    width: parent.width
+                                    spacing: 0
+
+                                    Text {
+                                        text: "• " + modelData.partType.name
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 10
+                                        font.family: "Roboto"
+                                        width: parent.width - 36
+                                        elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        text: "x" + modelData.required_quantity
+                                        color: "#B2B4BC"
+                                        font.pixelSize: 10
+                                        font.family: "Roboto"
+                                        width: 36
+                                        horizontalAlignment: Text.AlignRight
                                     }
                                 }
                             }
-
-                            ScrollIndicator.vertical: ScrollIndicator {
-                                opacity: 0.7
-                            }
                         }
+
+                        ScrollIndicator.vertical: ScrollIndicator {
+                            opacity: 0.7
+                        }
+                    }
+                }
 
                 // Заметка
                 InfoText {
                     infoText: order.notes || "-"
                 }
 
-
                 Item { Layout.fillHeight: true }
+            }
 
+            TextButton {
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.bottomMargin: 30
+                anchors.rightMargin: 40
+                buttonText: qsTr("Отменить")
+                buttonWidth: 120
+                buttonHeight: 30
+                bgColor: "#3E3E42"
+                bgColorPressed: "#4E4E52"
+                textColor: "#B2B4BC"
+                textColorPressed: "#909092"
+                onClickedHandler: function() {
+                    orderInfoPage.window.close()
+                }
+            }
 
-                // Кнопки управления
-                ColumnLayout {
-                    // Прогресс-круг
-                    Item {
-                        width: 64; height: 64
-                        Layout.alignment: Qt.AlignVCenter
+            // Прогресс-круг
+            Item {
+                width: 110
+                height: 110
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: 90
+                anchors.rightMargin: 50
 
-                        Canvas {
-                            id: progressCanvas
-                            anchors.fill: parent
-                            onPaint: {
-                                let ctx = getContext("2d")
-                                let cx = width / 2, cy = height / 2, r = 27
-                                ctx.clearRect(0, 0, width, height)
+                Canvas {
+                    id: progressCanvas
+                    anchors.fill: parent
+                    onPaint: {
+                        let ctx = getContext("2d")
+                        let cx = width / 2, cy = height / 2, r = 46
+                        ctx.clearRect(0, 0, width, height)
 
-                                ctx.beginPath()
-                                ctx.arc(cx, cy, r, 0, Math.PI * 2)
-                                ctx.strokeStyle = "#55555A"
-                                ctx.lineWidth = 5
-                                ctx.stroke()
-
-                                ctx.beginPath()
-                                ctx.arc(cx, cy, r, -Math.PI / 2,
-                                        -Math.PI / 2 + Math.PI * 2 * order.completedPercentage)
-                                ctx.strokeStyle = "#E6E8E9"
-                                ctx.lineWidth = 5
-                                ctx.lineCap = "round"
-                                ctx.stroke()
-                            }
-
-                            // Connections {
-                            //     target: root
-                            //     function onProgressChanged() { progressCanvas.requestPaint() }
-                            // }
-                        }
-
-                        ColumnLayout {
-                            // Процентаж текстом
-                            Text {
-                                text: Math.round(order.completedPercentage * 100 ) + "%"
-                                color: "#E6E8E9"
-                                font.pixelSize: 12
-                                font.family: "Roboto"
-                                font.weight: Font.Medium
-                            }
-                            // Число готовых деталей
-                            Text {
-                                text: qsTr("%1 из %2").arg(currentAmountOfOrderItems).arg(maxAmountOfOrderItems)
-                                color: "#E6E8E9"
-                                font.pixelSize: 12
-                                font.family: "Roboto"
-                                font.weight: Font.Medium
-                            }
-                        }
-
-
+                        ctx.beginPath()
+                        ctx.arc(cx, cy, r, -Math.PI / 2,
+                                -Math.PI / 2 + Math.PI * 2 * order.completedPercentage)
+                        ctx.strokeStyle = "#E6E8E9"
+                        ctx.lineWidth = 12
+                        ctx.lineCap = "round"
+                        ctx.stroke()
                     }
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignBottom | Qt.AlignRight
-                    Layout.bottomMargin: 10
-                    spacing: 10
+                }
 
-                    // Сепаратор
-                    Item { Layout.fillHeight: true }
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 2
 
-                    TextButton {
-                        buttonText: qsTr("Отменить")
-                        buttonWidth: 120
-                        buttonHeight: 30
-                        bgColor: "#3E3E42"
-                        bgColorPressed: "#4E4E52"
-                        textColor: "#B2B4BC"
-                        textColorPressed: "#909092"
-                        onClickedHandler: function() {
-                            orderInfoPage.window.close()
-                        }
+                    Text {
+                        text: Math.round(order.completedPercentage * 100) + "%"
+                        color: "#E6E8E9"
+                        font.pixelSize: 24
+                        font.family: "Roboto"
+                        font.weight: Font.Bold
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+                    Text {
+                        text: qsTr("%1 из %2").arg(currentAmountOfOrderItems).arg(maxAmountOfOrderItems)
+                        color: "#E6E8E9"
+                        font.pixelSize: 10
+                        font.family: "Roboto"
+                        font.weight: Font.Medium
+                        Layout.alignment: Qt.AlignHCenter
                     }
                 }
             }
