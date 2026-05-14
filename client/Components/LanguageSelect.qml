@@ -11,6 +11,8 @@ Item {
     height: 32
 
     property string iconSource: "qrc:/resources/icons/language.svg"
+    property color triggerColor: "#D9D9D9"
+    property color triggerHoverColor: "#C8C8C8"
     property list<string> languages: Backend.translator.language_list()
     property int currentIndex: languages.indexOf(Backend.translator.current_language())
     property var rootWindow: Window.window
@@ -37,7 +39,7 @@ Item {
         width: 32
         height: 32
         radius: 20
-        color: triggerArea.containsMouse ? "#C8C8C8" : "#D9D9D9"
+        color: triggerArea.containsMouse ? root.triggerHoverColor : root.triggerColor
 
         Behavior on color { ColorAnimation { duration: 120 } }
 

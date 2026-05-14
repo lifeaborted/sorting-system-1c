@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects
 import io.backend 1.0
 
 // Верхняя панель с поиском и профилем
@@ -76,7 +77,6 @@ RowLayout {
                 Layout.preferredHeight: 48
                 radius: 24
                 color: "#3e3e42"
-
                 Image {
                     anchors.centerIn: parent
                     source: "qrc:/resources/icons/profile-picture.svg"
@@ -100,53 +100,121 @@ RowLayout {
             MouseArea {
                 width: 16
                 height: 12
-                cursorShape: "PointingHandCursor"
+                cursorShape: Qt.PointingHandCursor
                 onClicked: popup.open()
+
                 Image {
                     source: "qrc:/resources/icons/profile-triangle.svg"
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
                 }
+
                 Popup {
                     id: popup
                     x: -(userProfile.width - 25)
                     y: 38
+                    width: 200
+                    height: 120
                     padding: 0
                     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-                    background: Rectangle {
-                        color: "#2E2E2E"
-                        radius: 8
+                    background: Item {
+                        // Тень
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            horizontalOffset: 0
+                            verticalOffset: 4
+                            radius: 20
+                            samples: 41
+                            spread: 0
+                            color: "#40000000"
+                            transparentBorder: true
+                        }
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "#212122"
+                            radius: 5
+                        }
                     }
 
-                    Rectangle {
-                        id: logoutItem
-                        width: userProfile.width
-                        height: 40
-                        color: logoutMouse.containsMouse ? "#46464A" : "#47494E"
-                        border.color: "#4A4A4E"
-                        border.width: 1
-                        radius: 8
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 12
+                        spacing: 8
 
-                        Text {
-                            anchors.left: parent.left
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: 14
-                            text: qsTr("Выход")
-                            color: "#B2B4BC"
-                            font.pixelSize: 13
-                            font.family: "Roboto"
-                            font.weight: 400
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            // Иконка человечка
+                            Image {
+                                source: "qrc:/resources/icons/person-x2.svg"
+                                width: 32
+                                height: 32
+                                fillMode: Image.PreserveAspectFit
+                                Layout.alignment: Qt.AlignVCenter
+                            }
+
+                            // Имя + должность
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+
+                                Text {
+                                    text: Backend.user.format_username("{second} {first} {middle}")
+                                    color: "#E6E8E9"
+                                    font.pixelSize: 12
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
+                                }
+                                Text {
+                                    text: "сортировщик"
+                                    color: "#B2B4BC"
+                                    font.pixelSize: 10
+                                    font.weight: 400
+                                    font.family: "Roboto"
+                                }
+                            }
+
+                            // Иконка языка
+                            LanguageSelect {
+                                iconSource: "qrc:/resources/icons/language-light.svg"
+                                Layout.alignment: Qt.AlignVCenter
+                                triggerColor: "transparent"
+                                triggerHoverColor: "#3E3E42"
+                            }
                         }
 
-                        MouseArea {
-                            id: logoutMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                popup.close()
-                                logout()
+                        // Кнопка Выйти
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            width: 140
+                            height: 30
+                            radius: 5
+                            color: logoutMouse.containsMouse ? "#4A4A4E" : "#3E3E42"
+
+                            Behavior on color { ColorAnimation { duration: 100 } }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("Выйти")
+                                color: "#E6E8E9"
+                                font.pixelSize: 10
+                                font.weight: 400
+                                font.family: "Roboto"
+                            }
+
+                            MouseArea {
+                                id: logoutMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    popup.close()
+                                    logout()
+                                }
                             }
                         }
                     }
