@@ -103,7 +103,7 @@ Rectangle {
         }
         lastLoadMoreDate = Date.now()
         const newData = Backend.user.load_details_filter(sortingParams, sortingProperty, batchSize, page + 1)
-        if (newData.length == batchSize) {
+        if (newData.length <= batchSize && newData.length != 0) {
             page += 1
             details = details.concat(newData)
         }
@@ -400,8 +400,18 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
+                    Component.onCompleted: {
+                        const bar = ScrollBar.vertical
+                        const progress = bar.position + bar.size
+                        if (progress > 0.95) {
+                            loadMore()
+                        }
+                    }
                     ScrollBar.vertical.onPositionChanged: {
-                        if (ScrollBar.vertical.position > 0.7) {
+                        const bar = ScrollBar.vertical
+                        const progress = bar.position + bar.size
+
+                        if (progress > 0.95) {
                             loadMore()
                         }
                     }

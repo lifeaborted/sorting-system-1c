@@ -31,6 +31,7 @@ class User(QObject):
     _first_name: str
     _last_name: str
     _middle_name: str
+    _user_role: Literal["qc", "admin"]
     _user_wss: UserWss = None
     _details: dict[int, Detail] = None
     _details_types: dict[int, DetailType] = None
@@ -74,6 +75,7 @@ class User(QObject):
         user._first_name = data["first_name"]
         user._last_name = data["last_name"]
         user._middle_name = data["middle_name"]
+        user._user_role = data["role"]
         user._user_wss = UserWss(api, handlers={
             "on_error": lambda x: notificator.new_err_notification("Ошибка", "Деталь не отсканирована"),
             "on_detail_scanned": user._on_detail_scanned
@@ -85,6 +87,10 @@ class User(QObject):
 
     def _on_detail_scanned(self, data: DetailScanned):
         self._router.open_popup_detailed("/detailScanned", data)
+
+    @Slot(result = str)
+    def get_user_role(self):
+        return self._user_role
 
     @Slot(str, result = str)
     def format_username(self, form: str):
@@ -213,8 +219,8 @@ class User(QObject):
             self._details[id]["status"] = "pending"
         self.detailsChanged.emit()
 
-    @Slot("QVariant", result="QVariantList")
-    def load_orders(self, f: QObject):
+    @Slot("QVariant", int, int, result="QVariantList")
+    def load_orders(self, f: QObject, length: int, offset: int):
         if self._orders is None:
             self._api.run_blocking(self._load_orders())
 
@@ -257,9 +263,9 @@ class User(QObject):
                         return False
             return True
 
-        arr = list(filter(filter_order, self._orders.values()))
+        arr = list(sorted(filter(filter_order, self._orders.values()), key=lambda d: d["order_id"]))
         logging.info(f"For current filter found {len(arr)} orders")
-        return arr
+        return arr[offset: (length + offset)]
 
     @Slot(result="QVariantMap")
     def load_orders_filters(self):
@@ -363,6 +369,9 @@ class User(QObject):
     def get_detail(self, id: int):
         return self._details.get(id, None)
 
+    @Slot(int, result="QVariant")
+    def get_order(self, id: int):
+        return self._api.run_blocking(self._api.orders.get(id))
 
     def stop(self):
         self._user_wss.stop()

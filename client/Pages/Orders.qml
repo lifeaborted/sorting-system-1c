@@ -27,35 +27,62 @@ Rectangle {
 
     property var ordersFilter
 
+    // Пагинация
+    property int batchSize: 10
+    property int page: 0
+    property var lastLoadMoreDate: 0
 
-    function loadDetails() {
-        // detailsFilter = Backend.user.load_sorting_options()
-        let orders = Backend.user.load_orders(sortingParams)
-        ordersFilter = Backend.user.load_orders_filters()
-        mockDetails = []
-        for (const order of orders) {
-            let materials = []
-
-            for (const orderItems of order["orderItems"]) {
-                materials.push({
-                    name: orderItems["partType"]["name"],
-                    quantity: orderItems["required_quantity"]
-                })
+    // Ленивая загрузка
+    function loadMore() {
+        if (lastLoadMoreDate + (1000) > Date.now()) {
+            return
+        }
+        lastLoadMoreDate = Date.now()
+        const newOrders = Backend.user.load_orders(sortingParams, batchSize, (page + 1) * batchSize)
+        if (newOrders.length <= batchSize && newOrders.length != 0) {
+            page += 1
+            for (const order of newOrders) {
+                processOrder(order)
             }
-
-            mockDetails.push({
-                customerName: order["customer"]["company_name"],
-                status: order["status"] != "completed" ? qsTr("Ожидает") : qsTr("Завершён"),
-                priority: order["priority"],
-                note: order["notes"] || "-",
-                progress: order["completedPercentage"] * 100,
-                price: order["fullPrice"],
-                materials: materials
-            })
         }
     }
 
+    function loadDetails() {
+        // detailsFilter = Backend.user.load_sorting_options()
+        page = 0
+        let orders = Backend.user.load_orders(sortingParams, batchSize, page * batchSize)
+        orderScrollView.ScrollBar.vertical.position = 0
+        ordersFilter = Backend.user.load_orders_filters()
+        mockDetails = []
+        for (const order of orders) {
+            processOrder(order)
+        }
+    }
+
+    function processOrder(order) {
+        let materials = []
+
+        for (const orderItems of order["orderItems"]) {
+            materials.push({
+                name: orderItems["partType"]["name"],
+                quantity: orderItems["required_quantity"]
+            })
+        }
+
+        mockDetails.push({
+            id: order["order_id"],
+            customerName: order["customer"]["company_name"],
+            status: order["status"] != "completed" ? qsTr("Ожидает") : qsTr("Завершён"),
+            priority: order["priority"],
+            note: order["notes"] || "-",
+            progress: order["completedPercentage"] * 100,
+            price: order["fullPrice"],
+            materials: materials
+        })
+    }
+
     function resetParams() {
+        orderScrollView.ScrollBar.vertical.position = 0
         sortingParams = Qt.createQmlObject(`
             import QtQuick
                 QtObject {
@@ -200,10 +227,25 @@ Rectangle {
 
                 // Список заказов
                 ScrollView {
+                    id: orderScrollView
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
+                    Component.onCompleted: {
+                        const bar = ScrollBar.vertical
+                        const progress = bar.position + bar.size
+                        if (progress > 0.95) {
+                            loadMore()
+                        }
+                    }
+                    ScrollBar.vertical.onPositionChanged: {
+                        const bar = ScrollBar.vertical
+                        const progress = bar.position + bar.size
 
+                        if (progress > 0.95) {
+                            loadMore()
+                        }
+                    }
                     ListView {
                         id: orderList
                         width: parent.width
@@ -220,7 +262,7 @@ Rectangle {
                             price:        modelData.price
                             materials:    modelData.materials
                             onEditClicked: function() {
-                                console.log("edit", modelData.customerName)
+                                Backend.router.open_popup_detailed("/orderWindow", { orderId: modelData.id })
                             }
                         }
                     }

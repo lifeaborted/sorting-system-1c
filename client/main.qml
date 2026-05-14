@@ -34,13 +34,13 @@ ProgramWindow {
                         Details {}
                     }
                 },
-                Page{
+                Page {
                     path: "/orders"
                     page: Component {
                         Orders {}
                     }
                 },
-                Page{
+                Page {
                     useWindow: true
                     useRouterData: true
                     path: "/detailWindow"
@@ -48,13 +48,21 @@ ProgramWindow {
                         DetailWindow {}
                     }
                 },
-                Page{
+                Page {
                     useRouterPath: true
                     useWindow: true
                     useRouterData: true
                     path: "/detailScanned"
                     page: Component {
                         DetailScanned {}
+                    }
+                },
+                Page {
+                    useWindow: true
+                    useRouterData: true
+                    path: "/orderWindow"
+                    page: Component {
+                        OrderWindow {}
                     }
                 }
 

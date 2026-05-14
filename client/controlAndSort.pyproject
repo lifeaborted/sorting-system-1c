@@ -49,6 +49,7 @@
         "Components/Notificator.qml",
         "Components/NavRouter.qml",
         "Components/qmldir",
-        "Components/LanguageSelect.qml"
+        "Components/LanguageSelect.qml",
+        "Pages/OrderWindow.qml"
     ]
 }

@@ -181,7 +181,7 @@ RowLayout {
                                     Layout.fillWidth: true
                                 }
                                 Text {
-                                    text: "сортировщик"
+                                    text: Backend.user.get_user_role() == "qc" ? qsTr("Сортировщик") : qsTr("Менеджер")
                                     color: "#B2B4BC"
                                     font.pixelSize: 10
                                     font.weight: 400

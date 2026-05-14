@@ -53,8 +53,8 @@ class OrdersApi:
         rows: list['OrdersApi.Order']
 
 
-    async def get_all(self) -> AllOrdersResponse:
-        return await self.c.get("/api/order/")
+    async def get_all(self, limit: int = 10000, offset: int = 0) -> AllOrdersResponse:
+        return await self.c.get(f"/api/order?limit={limit}&offset={offset}")
 
     async def get(self, id: int) -> 'OrdersApi.Order':
         return await self.c.get(f"/api/order/{id}")
