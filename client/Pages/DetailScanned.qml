@@ -216,7 +216,7 @@ Rectangle {
 
                         // Сортировщик
                         InfoText {
-                            infoText: Backend.user.format_username("{first} {second} {middle}")
+                            infoText: Backend.user.format_username("{second} {first} {middle}")
                         }
                     }
 
@@ -281,7 +281,7 @@ Rectangle {
                 // Распределен в
                 ComboBox {
                     id: orderComboBox
-                    Layout.preferredWidth: 300
+                    Layout.preferredWidth: 350
                     Layout.preferredHeight: 30
                     Layout.maximumHeight: 30
                     model: [qsTr("Не выбран")].concat(ordersCodes)
@@ -289,12 +289,15 @@ Rectangle {
 
 
                     contentItem: Text {
+                        width: parent.width
                         text: parent.displayText
                         color: "#B2B4BC"
-                        font.pixelSize: 13
+                        font.pixelSize: 12
                         font.family: "Roboto"
                         verticalAlignment: Text.AlignVCenter
                         leftPadding: 10
+                        rightPadding: 10
+                        elide: Text.ElideRight
                     }
 
                     background: Rectangle {
@@ -325,15 +328,18 @@ Rectangle {
                     }
 
                     delegate: ItemDelegate {
-                        width: parent.width
+                        width: ListView.view.width
                         height: 36
                         contentItem: Text {
                             text: modelData
+                            width: parent.width
                             color: "#B2B4BC"
-                            font.pixelSize: 13
+                            font.pixelSize: 12
                             font.family: "Roboto"
                             leftPadding: 10
+                            rightPadding: 10
                             verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
                         }
                         background: Rectangle {
                             color: parent.hovered ? "#46464A" : "#3E3E42"
