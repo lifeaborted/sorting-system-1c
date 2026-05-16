@@ -1,0 +1,17 @@
+--extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
+
+paddlepaddle-gpu==3.2.2
+ultralytics>=8.4.0
+paddleocr>=2.8.0
+dotenv
+cryptography
+fastapi
+uvicorn
+python-multipart
+opencv-python>=4.9.0
+numpy<2.4
+loguru
+pyinstaller
+ftfy 
+lxml 
+openpyxl 

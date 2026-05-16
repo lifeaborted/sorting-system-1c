@@ -17,6 +17,8 @@ if %PYTHON_MINOR% LSS 13 (
     exit /b 1
 )
 
+
+cls
 echo Проверка виртуального окружения...
 if not exist "venv\" (
 	echo Создание виртуального окружения...
@@ -26,44 +28,13 @@ if not exist "venv\" (
 echo Активация виртуального окружения...
 call .\venv\Scripts\activate.bat
 
+
 cls
 echo Установка зависимостей...
 call pip install -r requirements.txt
-cls
-echo Настройка окружения...
-
-setlocal enabledelayedexpansion
-
-set ENV_FILE=.env
-
-:: Проверяем, существует ли .env файл
-if not exist "%ENV_FILE%" (
-    echo Файл %ENV_FILE% не найден. Создание нового файла...
-	echo.
-	set /p API_TOKEN="Введите API токен: "
-
-	if "!API_TOKEN!"=="" (
-	    echo Токен не может быть пустым!
-	    goto :eof
-	)
-
-	(
-	    echo PORT=5000
-		echo SCANNER_API_KEY=!API_TOKEN!
-	) > "%ENV_FILE%"
-
-)
-
-if exist "%ENV_FILE%" (
-    echo .env файл найден
-) else (
-    echo Ошибка: Не удалось создать файл %ENV_FILE%!
-)
-endlocal
 
 
 cls
-
 echo Запуск...
 call cd src && python server.py
 pause

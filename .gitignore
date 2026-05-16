@@ -111,7 +111,6 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
-*.spec
 
 node_modules/
 crops/
