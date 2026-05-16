@@ -45,7 +45,7 @@ class PartsApi:
         order: 'PartsApi.Order'
 
     class QuickSort(TypedDict):
-        isSorted: bool
+        isSorted: Optional[bool]
         order: 'PartsApi.Order'
 
     class OrderItemPartWrapper(TypedDict):

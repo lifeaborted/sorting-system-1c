@@ -42,21 +42,25 @@ class UserWss:
         # TODO check why therad doesnt capture errors
         try:
             self._thread = threading.Thread(target=self._api.run_blocking, args=(self._api.user.detail_wss(self._socket_loop),))
+
             self._thread.start()
         except Exception as e:
             logging.error(f"[UserWss] Failed to start thread. Err={e}")
 
-    def stop(self):
+    def stop(self, join_thread: bool = True):
         self._log("Trying to stop websocket")
         self._is_stopped = True
         if self._loop:
             self._loop.call_soon_threadsafe(self._ev.set)
-        if self._thread:
+        if self._thread and join_thread:
             self._thread.join()
 
-    async def _socket_loop(self, ws: WebSocketResponse):
-        self._loop = asyncio.get_event_loop()
-        self._log("Thread started")
+    async def _socket_loop(self, ws: WebSocketResponse, clean: bool = True, retry: int = 3):
+        if clean:
+            self._loop = asyncio.get_event_loop()
+            self._log("Thread started")
+        else:
+            self._log(f"Reconnected")
         while True:
             done, pending = await asyncio.wait([
                 asyncio.create_task(ws.receive()),
@@ -81,7 +85,20 @@ class UserWss:
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 self._log(f"Received error: {msg} ")
                 break
-
+            elif msg.type == aiohttp.WSMsgType.CLOSED:
+                self._log(f"Client disconnected.")
+                while retry > 0:
+                    self._log(f"Available attempts to reconnect {retry}")
+                    await asyncio.sleep(4)
+                    try:
+                        retry -= 1
+                        await self._api.user.detail_wss(lambda d: self._socket_loop(d, False, retry))
+                        break
+                    except Exception as e:
+                        self._log(f"Failed to reconnect.")
+                else:
+                    self._log(f"No more available attempts")
+                break
         self._log("Thread stopped")
 
 

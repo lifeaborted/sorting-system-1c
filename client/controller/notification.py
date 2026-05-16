@@ -38,6 +38,10 @@ class Notificator(QObject):
         self._append_notification(self._create_notification(title, message, "success"))
 
     @Slot(str, str, result=None)
+    def new_warning_notification(self, title: str, message: str):
+        self._append_notification(self._create_notification(title, message, "warning"))
+
+    @Slot(str, str, result=None)
     def new_normal_notification(self, title: str, message: str):
         self._append_notification(self._create_notification(title, message, "normal"))
 

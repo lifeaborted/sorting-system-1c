@@ -1,12 +1,28 @@
 import json
 import logging
 import asyncio
-from typing import Awaitable, Any, TypeVar, Generic, Callable, Optional
+from typing import Awaitable, Any, TypeVar, Generic, Callable, Optional, TypedDict
 
 import aiohttp
 from aiohttp import ClientResponse, ClientWebSocketResponse
 
 T = TypeVar('T')
+
+class HttpError(Exception):
+    url: str
+    status: int
+    text: str
+
+    def __init__(self, url: str, status: int, text: str):
+        self.url = url
+        self.status = status
+        self.text = text
+    @property
+    def message(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"Error calling {self.url}. status={self.status}. text={self.text}"
 
 class HttpWrapper:
     def __init__(self, server_url: str, log: bool = True):
@@ -48,7 +64,7 @@ class HttpWrapper:
         self._log_route(path, "wss")
 
         async with aiohttp.ClientSession(headers=self._headers()) as session:
-            async with session.ws_connect(f"{self.host}{path}") as ws:
+            async with session.ws_connect(f"{self.host}{path}", timeout=aiohttp.ClientTimeout(total=15)) as ws:
                 await f(ws)
 
     def _log_route(self, path: str, method: str):
@@ -56,8 +72,8 @@ class HttpWrapper:
             logging.info(f"[HttpWrapper][{method.upper()}] Calling url {self.host}{path}")
 
     async def _raise_response(self, resp: ClientResponse):
-        raise Exception(
-            f"Error calling {resp.url}. status={resp.status}. text={await resp.text()}"
+        raise HttpError(
+            resp.url.__str__(), resp.status, await resp.text()
         )
 
 

@@ -13,6 +13,7 @@ from PySide6.QtQml import QmlElement, QmlSingleton, QQmlApplicationEngine
 from PySide6.QtCore import QObject, Slot, Property, Signal
 
 from controller.api.api import Api
+from controller.api.http import HttpError
 from controller.config import load_config, save_config
 from controller.nn_wrapper import NeuralNetworkWrapper
 from controller.notification import Notificator
@@ -87,6 +88,11 @@ class Backend(QObject):
                 }))
                 token = data["token"]
                 self.login_token(token)
+            except HttpError as e:
+                if e.status == 400:
+                    self._notificator.new_warning_notification("Warning", self.tr("Ошибка аутентификации: Проверьте корректность введённых данных."))
+                else:
+                    raise e
             except Exception as e:
                 self._notificator.new_err_notification("Error", e.__str__())
                 logging.error(e)
@@ -100,14 +106,15 @@ class Backend(QObject):
         self._conf["token"] = token
         save_config(self._conf)
 
-        self._neural_wrapper = NeuralNetworkWrapper(token)
+        # self._neural_wrapper = NeuralNetworkWrapper(token)
 
         self._router.set_route_detailed("/details", None)
 
     @Slot()
     def logout(self):
         self._user.stop()
-        self._neural_wrapper.stop()
+        if self._neural_wrapper is not None:
+            self._neural_wrapper.stop()
 
         self._user = None
         self._neural_wrapper = None

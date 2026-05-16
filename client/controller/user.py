@@ -27,7 +27,7 @@ QML_IMPORT_MINOR_VERSION = 0
 class User(QObject):
     _api: Api
     _router: Router
-    notificator: Notificator
+    _notificator: Notificator
     _first_name: str
     _last_name: str
     _middle_name: str
@@ -217,6 +217,9 @@ class User(QObject):
         else:
             self._details[id]["order"] = None
             self._details[id]["status"] = "pending"
+
+        if resp["isSorted"] is None:
+            self._notificator.new_warning_notification("Warning", self.tr("Заказ для сортировки не найден."))
         self.detailsChanged.emit()
 
     @Slot("QVariant", int, int, result="QVariantList")
