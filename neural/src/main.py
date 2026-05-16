@@ -1,5 +1,3 @@
-from logger_config import setup_logger
-setup_logger()
 from loguru import logger
 from pathlib import Path
 from config_manager import load_or_create_config
@@ -48,11 +46,11 @@ def initialize():
     try:
         dummy_img = np.zeros((640, 640, 3), dtype=np.uint8)
         pipeline.process_image(dummy_img, source="warmup")
-        logger.info("Прогрев успешно завершен.")
+        logger.log("DONE", "Прогрев успешно завершен.")
     except Exception as e:
         logger.warning(f"Ошибка при прогреве: {e}")
 
-    logger.info("Инициализация завершена.")
+    logger.log("DONE", "Инициализация завершена.")
 
 
 def process_image_logic(contents: bytes, filename: str) -> dict:

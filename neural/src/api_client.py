@@ -13,9 +13,6 @@ import requests
 import cv2
 import numpy as np
 
-from logger_config import setup_logger
-setup_logger()
-
 from loguru import logger
 from typing import Optional
 from pathlib import Path
@@ -60,7 +57,6 @@ class APIClient:
         self._ensure_authenticated()
 
     # --- Методы шифрования Fernet ---
-
     @staticmethod
     def encrypt_data(data: str) -> bytes:
         if not cipher_suite: return b''
@@ -72,10 +68,9 @@ class APIClient:
         try:
             return cipher_suite.decrypt(encrypted_data).decode('utf-8')
         except Exception:
-            return "" # Файл поврежден или ключ неверен
+            return ""
 
     # --- Работа с файлом ---
-
     @staticmethod
     def _decode_jwt_payload(token: str) -> Optional[dict]:
         try:
@@ -88,6 +83,7 @@ class APIClient:
         except Exception:
             return None
 
+    # --- Проверка валидности токена ---
     @staticmethod
     def is_token_valid(token: str) -> bool:
         payload = APIClient._decode_jwt_payload(token)
@@ -95,6 +91,25 @@ class APIClient:
         exp = payload.get("exp")
         if not exp: return True
         return time.time() < (exp - 60)
+
+    # --- Пинг сервера на проверку валидности токена ---
+    def _verify_token_with_server(self) -> bool:
+        if not self.token: return False
+        try:
+            headers = {'Authorization': f'Bearer {self.token}'}
+            response = requests.get(self.renew_url, headers=headers, timeout=5)
+
+            if response.status_code == 200:
+                self.token = response.json().get('token')
+                self.save_token_to_file()
+                self.last_renewal_time = time.time()
+                return True
+            elif response.status_code in [401, 403]:
+                return False
+            else:
+                return True
+        except Exception:
+            return True
 
 
     def _ensure_authenticated(self):
@@ -104,16 +119,20 @@ class APIClient:
             self.token = token_from_arg
             return
 
-        # 2. Проверка файла
+        # 2. Проверка файла и пинг сервера
         token_from_file = self.load_token_from_file()
         if token_from_file:
             self.token = token_from_file
-            return
+            if self._verify_token_with_server():
+                return
+            else:
+                logger.warning("Токен отвергнут сервером.")
+                self.token = None
 
         # 3. Ввод пароля
         self._interactive_login_flow()
 
-
+    # --- Загрузка токена из файла ---
     @staticmethod
     def load_token_from_file() -> Optional[str]:
         if not os.path.exists(AUTH_FILE):
@@ -125,23 +144,23 @@ class APIClient:
             decrypted_token = APIClient.decrypt_data(encrypted_data)
 
             if decrypted_token and APIClient.is_token_valid(decrypted_token):
-                logger.info("Найден валидный зашифрованный токен.")
+                logger.debug("Найден валидный зашифрованный токен.")
                 return decrypted_token
         except Exception as e:
             logger.error(f"Ошибка чтения auth.dat: {e}")
         return None
 
+    # --- Сохранение токена в файл ---
     def save_token_to_file(self):
         try:
             encrypted_data = APIClient.encrypt_data(self.token)
-            with open(AUTH_FILE, "wb") as f: # Пишем как байты!
+            with open(AUTH_FILE, "wb") as f:
                 f.write(encrypted_data)
         except Exception as e:
             logger.error(f"Не удалось сохранить токен: {e}")
 
+
     # --- Логика процесса авторизации ---
-
-
     @staticmethod
     def _check_arguments() -> Optional[str]:
         for i in sys.argv[1:]:
@@ -151,7 +170,7 @@ class APIClient:
 
     def _interactive_login_flow(self):
         print("\n" + "="*40)
-        print("Требуется авторизация")
+        print("Токен просрочен или не найден\n\nТребуется авторизация")
         print("="*40)
         while True:
             login = input("Введите логин: ")
@@ -177,6 +196,7 @@ class APIClient:
         self.token = None
         return False
 
+    # --- Логика автопродления токена ---
     def renew_token(self) -> bool:
         if not self.token: return False
         try:
@@ -196,7 +216,6 @@ class APIClient:
     def send_scan_result(self, fields: dict, image_np: np.ndarray, filename: str) -> bool:
         if not self.token: return False
 
-        # Автопродление токена, если с прошлой выдачи прошел 1 час (3600 секунд)
         if time.time() - self.last_renewal_time >= 3600:
             self.renew_token()
 

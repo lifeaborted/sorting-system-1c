@@ -1,13 +1,16 @@
 import os
+import sys
 import warnings
 import logging
+
 from loguru import logger
 
-# Глобальный флаг для отслеживания инициализации
 _logger_initialized = False
 
-# Создадим перехватчик, который будет ловить логи от Uvicorn
-# и направлять их в Loguru (чтобы всё было в едином красивом стиле)
+logger.remove()
+logger.add(sys.stderr, level="INFO")
+
+
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         try:
@@ -25,7 +28,7 @@ class InterceptHandler(logging.Handler):
 
 def setup_logger():
     global _logger_initialized
-    
+
     # Если уже инициализировали - выходим
     if _logger_initialized:
         return
@@ -36,29 +39,14 @@ def setup_logger():
     # 2. Отключаем предупреждения Python
     warnings.filterwarnings("ignore")
 
-    # 3. Отключаем спам от PaddleX (только при первом вызове)
-    try:
-        import paddlex
-        # Проверяем, не инициализирован ли уже PaddleX
-        # Используем защитный блок try-except
-        try:
-            paddlex.utils.logging.setup_logging('WARNING')
-        except RuntimeError as e:
-            if "already been initialized" in str(e):
-                # Уже инициализирован, игнорируем
-                pass
-            else:
-                raise
-    except ImportError:
-        pass
-
-    # 4. Перехватываем стандартные логи Python (FastAPI/Uvicorn) и глушим их спам
+    # 3. Перехватываем стандартные логи Python (FastAPI/Uvicorn) и глушим их спам
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
     logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
-    # Заменяем стандартный вывод Uvicorn/FastAPI на наш красивый Loguru
     logging.getLogger("uvicorn").handlers = [InterceptHandler()]
     logging.getLogger("fastapi").handlers = [InterceptHandler()]
-    
-    # Отмечаем, что инициализация выполнена
+
+    # Новый уровень логирования
+    logger.level("DONE", no=25, color="<green>")
+
     _logger_initialized = True

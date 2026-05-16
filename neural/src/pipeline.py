@@ -5,9 +5,6 @@
 import time
 import numpy as np
 
-from logger_config import setup_logger
-setup_logger()
-
 from loguru import logger
 from models import Detection, PipelineResult
 from detectors import YOLODetector

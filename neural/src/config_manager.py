@@ -21,7 +21,7 @@ DEFAULT_CONFIG = {
         },
     "neural": {
         "yolo": {
-            "model_path": r"../runs/detect/train2/weights/best.pt",
+            "model_path": r"./runs/detect/train2/weights/best.pt",
             "conf_threshold": 0.25,
             "iou_threshold": 0.45
         },
@@ -57,7 +57,7 @@ def load_or_create_config(path_obj: Path) -> dict:
             with path.open("w", encoding="utf-8") as f:
                 json.dump(DEFAULT_CONFIG, f, indent=4, ensure_ascii=False)
 
-            logger.info(f"Файл '{path}' успешно создан.")
+            logger.log("DONE", f"Файл '{path}' успешно создан.")
             return DEFAULT_CONFIG
         except Exception as e:
             logger.error(f"Критическая ошибка при создании конфига: {e}")
@@ -67,7 +67,7 @@ def load_or_create_config(path_obj: Path) -> dict:
         # Читаем файл через объект Path
         with path.open(encoding="utf-8") as f:
             config = json.load(f)
-            logger.info(f"Конфигурация успешно загружена из '{path}'.")
+            logger.log("DONE", f"Конфигурация успешно загружена из '{path}'.")
             return config
     except (json.JSONDecodeError, Exception) as e:
         logger.error(f"Ошибка при загрузке '{path}': {e}. Используется дефолт.")

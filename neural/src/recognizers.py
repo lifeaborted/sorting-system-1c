@@ -1,18 +1,17 @@
 """
 Класс, отвечающий за чтение текста и всю предобработку
 """
-
-from logger_config import setup_logger
-setup_logger()
-
-from loguru import logger
-from paddleocr import PaddleOCR
-
+import paddlex
+paddlex.utils.logging.setup_logging('WARNING')
 import cv2
 import time
 import paddle
 import numpy as np
 import os
+
+from loguru import logger
+from paddleocr import PaddleOCR
+
 
 class OCRRecognizer:
     def __init__(
@@ -43,6 +42,7 @@ class OCRRecognizer:
         else:
             logger.info(
                 f"Инициализация PaddleOCR через встроенные параметры (lang={lang}, gpu={use_gpu}, device={device})")
+
             self.ocr = PaddleOCR(
                 lang=lang,
                 use_angle_cls=use_angle_cls,
