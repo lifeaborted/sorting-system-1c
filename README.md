@@ -200,8 +200,8 @@ client/
 ## Зависимости
 
 -  Требуется Python версии 3.13
--  Остальные зависимости прописаны в `client/requirements.txt`
--  Видеокарта NVIDIA (опционально, для ускорения YOLO)
+-  Остальные зависимости прописаны в `neural/requirements.txt`
+-  Видеокарта NVIDIA (опционально, для ускорения Paddle)
 
 ## Установка
 
@@ -210,43 +210,23 @@ client/
 1.  Откройте установочный файл `neural/run-windows.bat` и дождитесь запуска
 
 #### Ручная установка
-
-1. Создайте файл `.env` в папке neural/
-2. Настройте переменные окружения в файле `.env`:
-```
-KEY=
-```
-
-Сгенерируйте ключ шифрования и вставьте в .env файл
-
-```python
-from cryptography.fernet import Fernet
-
-print(Fernet.generate_key().decode('utf-8'))
-```
-
-3. Создайте виртуальное окружение
+2. Создайте виртуальное окружение
 ``` bash
 py -3.13 -m venv .venv  
 ```
 
-4. Активируйте виртуальное окружение 
+3. Активируйте виртуальное окружение 
 ``` powershell
-.\.venv\Scripts\activate 
+.\venv\Scripts\activate 
 ```
 или
 ``` bash
-source ./.venv/bin/Activate
+source ./venv/bin/Activate
 ```
 
-5. Установите зависимости
+4. Установите зависимости
 ``` bash
 pip install -r requirements.txt
-```
-
-6. Запустите программу
-``` bash
-python src/server.py
 ```
 
 ## Запуск и проверка
@@ -260,7 +240,7 @@ python src/server.py
 Запуск осуществляется из корня проекта, папки `neural/`:
 
 ```bash
-python src/main.py
+python src/server.py
 ```
 
 В консоли появится запрос на авторизацию:
@@ -273,7 +253,7 @@ python src/main.py
 ```
 ### Шаг 3. Тестирование
 
-1. Запустите клиент для нейросети `neural-clinet/run-windows.bat`
+1. Запустите клиент для нейросети `neural-client/run-windows.bat`
 2. В настройках введите адрес подключения к нейросети: `localhost:5001`
 3. Нажмите кнопку отправить
 ### Результаты
